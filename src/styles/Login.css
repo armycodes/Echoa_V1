@@ -1,0 +1,206 @@
+/* GLOBAL */
+body {
+  margin: 0;
+  font-family: "Satoshi", system-ui, sans-serif;
+  background: #000;
+  color: #fff;
+}
+
+
+/* LAYOUT */
+.login-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+
+/* IMAGE */
+.image-section {
+  flex: 2;
+  position: relative;
+  overflow: hidden;
+}
+
+
+
+.image-section img {
+  width: 120%;
+  height: 100%;
+  object-fit: cover;
+  animation: imageDrift 40s ease-in-out infinite alternate;
+}
+
+/* CINEMATIC IMAGE MOTION */
+@keyframes imageDrift {
+  from {
+    transform: translateX(0) scale(1);
+  }
+  to {
+    transform: translateX(-50px) scale(1.06);
+  }
+}
+
+/* PANEL */
+.login-panel {
+  flex: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 20, 20, 0.95),
+    rgba(0, 0, 0, 1)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+
+
+/* CONTENT ANIMATION */
+.login-content {
+  width: 100%;
+  padding: 80px;
+}
+
+
+@keyframes panelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* TYPOGRAPHY */
+.logo {
+  font-size: 42px;
+  letter-spacing: 10px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  white-space: nowrap;
+}
+
+
+
+.tagline {
+  color: #b3b3b3;
+  font-size: 15px;
+  margin-bottom: 50px;
+}
+
+/* BUTTON */
+.spotify-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 28px;
+  border: none;
+  background: #ffffff;
+  color: #000;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.spotify-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 40px rgba(255, 255, 255, 0.18);
+}
+
+
+/* IMAGE OVERLAY */
+.image-section {
+  position: relative;
+  width: 65%;
+  overflow: hidden;
+}
+
+.image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.55)
+  );
+  pointer-events: none;
+}
+/*stagger animations*/
+.logo {
+  font-size: 42px;
+  letter-spacing: 10px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  white-space: nowrap;
+
+  /* 🔥 FIX FOR LAYOUT SHIFT */
+  width: 6ch;          /* reserves space for ECHOA */
+  text-align: left;
+}
+
+
+.tagline {
+  opacity: 0;
+  animation: fadeUp 1.4s ease-out forwards;
+  animation-delay: 0.3s;
+}
+
+.spotify-btn {
+  opacity: 0;
+  animation: fadeUp 1.4s ease-out forwards;
+  animation-delay: 0.6s;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* Typing effect */
+.typing::after {
+  content: "|";
+  margin-left: 6px;
+  opacity: 1;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0;
+  }
+}
+/*cursor blink animation*/
+.typing::after {
+  content: "|";
+  display: inline-block;
+  width: 1ch;
+  margin-left: 4px;
+  opacity: 1;
+  animation: blink 1.2s infinite;
+}
+
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0;
+  }
+}
+
+
