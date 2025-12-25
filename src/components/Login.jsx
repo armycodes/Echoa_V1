@@ -60,10 +60,14 @@ useEffect(() => {
 
           <button
   className="spotify-btn"
-  onClick={() => navigate("/home")}
+  onClick={() => {
+   window.location.href =
+  "https://valrie-murmurless-eugene.ngrok-free.dev/login";
+}}
 >
   Continue with Spotify
 </button>
+
 
         </div>
       </div>

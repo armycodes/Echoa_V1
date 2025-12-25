@@ -1,4 +1,18 @@
+import { useEffect } from "react";
+
 export default function HomePage() {
+
+  useEffect(() => {
+    fetch("http://localhost:5000/ping")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Backend response:", data);
+      })
+      .catch((err) => {
+        console.error("Error connecting to backend:", err);
+      });
+  }, []);
+
   return (
     <div
       style={{
@@ -11,7 +25,7 @@ export default function HomePage() {
         fontSize: "24px",
       }}
     >
-      Echoa Home – Coming Soon 🎧
+      Echoa Home – Backend Test 🎧
     </div>
   );
 }
