@@ -1,9 +1,13 @@
 import "../styles/Login.css";
 import loginBg from "../assets/login-bg.png";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 
 export default function Login() {
+  const navigate = useNavigate(); //routing hook
+
   const fullText = "ECHOA";
 const [displayText, setDisplayText] = useState("");
 
@@ -54,9 +58,13 @@ useEffect(() => {
           <p className="tagline">Where music lingers.</p>
 
 
-          <button className="spotify-btn">
-            Continue with Spotify
-          </button>
+          <button
+  className="spotify-btn"
+  onClick={() => navigate("/home")}
+>
+  Continue with Spotify
+</button>
+
         </div>
       </div>
     </div>
