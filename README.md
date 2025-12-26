@@ -1,16 +1,66 @@
-# React + Vite
+# 🎧 Echoa — Visual Music Companion
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Echoa is a Spotify-powered web experience built for listeners who don’t just *hear* music, but *feel* it.
 
-Currently, two official plugins are available:
+Unlike traditional music players, Echoa focuses on the **emotion, meaning, and aesthetics** behind every song — combining live Spotify playback data with visual storytelling.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- 🔐 Spotify OAuth login (secure, production-ready)
+- 🎵 Live “Currently Playing” song detection
+- 💿 Vinyl-style animated music player
+- 🎨 Clean, minimal aesthetic UI
+- 🌐 Fully deployed (Frontend + Backend)
+- 📱 Works across devices
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Tech Stack
+
+- **Frontend:** React (Vite), CSS Animations  
+- **Backend:** Node.js, Express  
+- **Auth:** Spotify OAuth 2.0  
+- **APIs:** Spotify Web API  
+- **Deployment:**  
+  - Frontend → Cloudflare Pages  
+  - Backend → Render  
+
+---
+
+## 🚀 Live Demo
+
+👉 https://echoa-v1.pages.dev
+
+---
+
+## 🔒 License & Usage
+
+This project is **not open-source**.
+
+- ❌ Forking is not permitted  
+- ❌ Reuse or redistribution is not permitted  
+- ❌ Commercial use is strictly prohibited  
+
+You may view the code for learning or evaluation purposes only.
+
+© 2025 Echoa. All rights reserved.
+
+---
+
+## 💭 Vision
+
+Echoa was created for music lovers who seek:
+- meaning behind lyrics  
+- context behind albums  
+- visuals that match a song’s emotion  
+
+Future versions will explore:
+- song meaning & artist intent  
+- mood-based visuals  
+- immersive background animations  
+
+---
+
+> *Music doesn’t end with sound. Echoa is what lingers.*
