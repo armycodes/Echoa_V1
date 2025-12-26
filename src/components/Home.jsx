@@ -1,40 +1,52 @@
 import { useEffect, useState } from "react";
-
+import "../styles/Home.css";
 export default function Home() {
   const [profile, setProfile] = useState(null);
-  const [error, setError] = useState(null);
+  const [song, setSong] = useState(null);
 
   useEffect(() => {
+    // fetch profile
     fetch("http://localhost:5000/me")
-      .then((res) => {
-        if (!res.ok) throw new Error("Not authenticated");
-        return res.json();
-      })
-      .then((data) => setProfile(data))
-      .catch(() => setError("Failed to load Spotify profile"));
+      .then(res => res.json())
+      .then(data => setProfile(data));
+
+    // fetch currently playing song
+    fetch("http://localhost:5000/currently-playing")
+      .then(res => res.json())
+      .then(data => {
+        if (data.playing) {
+          setSong(data);
+        }
+      });
   }, []);
-
-  if (error) {
-    return <p style={{ color: "red" }}>{error}</p>;
-  }
-
-  if (!profile) {
-    return <p>Loading Spotify profile...</p>;
-  }
-
+//added with vinyl aesthetic
   return (
-    <div style={{ padding: "40px", color: "white" }}>
-      <h1>Welcome to Echoa 🎧</h1>
-      <p>Logged in as: <strong>{profile.display_name}</strong></p>
+  <div className="app">
+    <div className="player-card">
+      <h1 className="brand">Echoa</h1>
 
-      {profile.images?.[0] && (
-        <img
-          src={profile.images[0].url}
-          alt="Profile"
-          width={120}
-          style={{ borderRadius: "50%", marginTop: "20px" }}
-        />
+      {profile && (
+        <p className="user">
+          Logged in as <strong>{profile.display_name}</strong>
+        </p>
+      )}
+
+      {song ? (
+        <>
+          <div className="vinyl">
+            <img src={song.albumImage} alt="album" />
+          </div>
+
+          <div className="track-info">
+            <h2>{song.song}</h2>
+            <p>{song.artist}</p>
+          </div>
+        </>
+      ) : (
+        <p>No song playing</p>
       )}
     </div>
-  );
+  </div>
+);
+
 }

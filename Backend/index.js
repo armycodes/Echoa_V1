@@ -95,6 +95,42 @@ app.get("/me", async (req, res) => {
     return res.status(401).json({ error: "Not authenticated" });
   }
 
+  /*current spotify song playing*/
+  app.get("/currently-playing", async (req, res) => {
+  if (!spotifyAccessToken) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+
+  try {
+    const response = await axios.get(
+      "https://api.spotify.com/v1/me/player/currently-playing",
+      {
+        headers: {
+          Authorization: `Bearer ${spotifyAccessToken}`,
+        },
+      }
+    );
+
+    if (!response.data) {
+      return res.json({ playing: false });
+    }
+
+    const item = response.data.item;
+
+    res.json({
+      playing: true,
+      song: item.name,
+      artist: item.artists.map(a => a.name).join(", "),
+      albumImage: item.album.images[0].url,
+    });
+
+  } catch (error) {
+    console.error("Error fetching currently playing:", error.message);
+    res.status(500).json({ error: "Failed to fetch current song" });
+  }
+});
+
+
   try {
     const response = await axios.get(
       "https://api.spotify.com/v1/me",
