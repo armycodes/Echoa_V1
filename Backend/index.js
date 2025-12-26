@@ -16,7 +16,7 @@ app.get("/callback", async (req, res) => {
   const code = req.query.code;
 
   // Always redirect to FRONTEND (Cloudflare)
-  const FRONTEND_URL = "https://echoa.pages.dev/home";
+  const FRONTEND_URL = "https://echoa-v1.pages.dev/home";
 
   if (!code) {
     console.error("No code received");
