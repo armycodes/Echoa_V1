@@ -6,12 +6,12 @@ export default function Home() {
 
   useEffect(() => {
     // fetch profile
-    fetch("http://localhost:5000/me")
+    fetch("https://echoa-backend.onrender.com/me")
       .then(res => res.json())
       .then(data => setProfile(data));
 
     // fetch currently playing song
-    fetch("http://localhost:5000/currently-playing")
+    fetch("https://echoa-backend.onrender.com/currently-playing")
       .then(res => res.json())
       .then(data => {
         if (data.playing) {

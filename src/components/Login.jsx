@@ -61,12 +61,13 @@ useEffect(() => {
           <button
   className="spotify-btn"
   onClick={() => {
-   window.location.href =
-  "https://valrie-murmurless-eugene.ngrok-free.dev/login";
-}}
+    window.location.href =
+      "https://echoa-backend.onrender.com/login";
+  }}
 >
   Continue with Spotify
 </button>
+
 
 
         </div>
