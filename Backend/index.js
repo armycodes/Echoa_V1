@@ -12,17 +12,15 @@ app.use(express.json());
 
 const PORT = 5000;
 
-app.get("/ping", (req, res) => {
-  res.json({ message: "Echoa backend is running 🚀" });
-});
-
-/*route for Spotify authentication would go here*/
 app.get("/callback", async (req, res) => {
   const code = req.query.code;
 
+  // Always redirect to FRONTEND (Cloudflare)
+  const FRONTEND_URL = "https://echoa.pages.dev/home";
+
   if (!code) {
     console.error("No code received");
-    return res.redirect("http://localhost:5173/home");
+    return res.redirect(FRONTEND_URL);
   }
 
   try {
@@ -43,11 +41,10 @@ app.get("/callback", async (req, res) => {
     );
 
     spotifyAccessToken = tokenResponse.data.access_token;
-
     console.log("ACCESS TOKEN STORED");
 
-    // IMPORTANT: always redirect
-    res.redirect("http://localhost:5173/home");
+    // ✅ Success → redirect to frontend
+    return res.redirect(FRONTEND_URL);
 
   } catch (error) {
     console.error(
@@ -55,10 +52,11 @@ app.get("/callback", async (req, res) => {
       error.response?.data || error.message
     );
 
-    // Even on error → redirect (no hanging)
-    res.redirect("http://localhost:5173/home");
+    // ❌ Error → still redirect to frontend
+    return res.redirect(FRONTEND_URL);
   }
 });
+
 
 
 
