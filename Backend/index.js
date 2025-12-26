@@ -15,7 +15,6 @@ const PORT = 5000;
 app.get("/callback", async (req, res) => {
   const code = req.query.code;
 
-  // Always redirect to FRONTEND (Cloudflare)
   const FRONTEND_URL = "https://echoa-v1.pages.dev/home";
 
   if (!code) {
@@ -29,30 +28,22 @@ app.get("/callback", async (req, res) => {
       new URLSearchParams({
         grant_type: "authorization_code",
         code,
-        redirect_uri: process.env.SPOTIFY_REDIRECT_URI,
+        redirect_uri: "https://echoa-backend.onrender.com/callback",
         client_id: process.env.SPOTIFY_CLIENT_ID,
         client_secret: process.env.SPOTIFY_CLIENT_SECRET,
       }),
       {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
       }
     );
 
     spotifyAccessToken = tokenResponse.data.access_token;
     console.log("ACCESS TOKEN STORED");
 
-    // ✅ Success → redirect to frontend
     return res.redirect(FRONTEND_URL);
 
   } catch (error) {
-    console.error(
-      "Token exchange failed:",
-      error.response?.data || error.message
-    );
-
-    // ❌ Error → still redirect to frontend
+    console.error("Token exchange failed:", error.message);
     return res.redirect(FRONTEND_URL);
   }
 });
@@ -80,7 +71,7 @@ app.get("/login", (req, res) => {
     response_type: "code",
     client_id: process.env.SPOTIFY_CLIENT_ID,
     scope,
-    redirect_uri: process.env.SPOTIFY_REDIRECT_URI,
+    redirect_uri: "https://echoa-backend.onrender.com/callback",
   });
 
   res.redirect(
