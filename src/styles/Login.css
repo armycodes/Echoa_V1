@@ -83,8 +83,15 @@ body {
   letter-spacing: 8px;
   font-weight: 500;
   margin-bottom: 10px;
-  width: 6ch;
+
+  display: inline-flex;        /* 🔥 KEY */
+  align-items: center;
+  justify-content: center;
+
+  min-width: 6ch;              /* reserve space */
+  text-align: center;
 }
+
 
 .tagline {
   font-size: 14px;
@@ -108,9 +115,12 @@ body {
 /* ================= CURSOR ================= */
 .typing::after {
   content: "|";
-  margin-left: 4px;
+  display: inline-block;
+  width: 1ch;                  /* 🔥 reserves cursor space */
+  margin-left: 2px;
   animation: blink 1.2s infinite;
 }
+
 
 @keyframes blink {
   0%, 50%, 100% {
