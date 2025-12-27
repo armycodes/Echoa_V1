@@ -9,9 +9,13 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/loading" element={<Loading />} />
-        <Route path="/home" element={<Home />} />
+       <Routes>
+  <Route path="/" element={<Login />} />
+  <Route path="/bootstrap" element={<Bootstrap />} />
+  <Route path="/loading" element={<Loading />} />
+  <Route path="/home" element={<Home />} />
+</Routes>
+
       </Routes>
     </BrowserRouter>
   );
