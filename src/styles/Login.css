@@ -14,10 +14,11 @@ body {
 /* ================= LAYOUT ================= */
 .login-container {
   display: flex;
-  min-height: 100vh;
+  min-height: 100svh;   /* 🔥 FIX */
   width: 100%;
   overflow: hidden;
 }
+
 
 /* ================= IMAGE SECTION ================= */
 .image-section {
