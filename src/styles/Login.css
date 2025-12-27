@@ -167,10 +167,16 @@ body {
     object-fit: cover;
   }
 
-  .login-panel {
-    width: 100%;
-    padding: 24px 16px;
-  }
+ .login-panel {
+  width: 100%;
+  flex: 1;              /* 🔥 THIS IS THE KEY */
+  padding: 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
 
   .login-content {
     padding: 24px;
