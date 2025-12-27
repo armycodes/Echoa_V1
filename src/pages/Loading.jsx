@@ -1,11 +1,10 @@
 import album from "../assets/album-placeholder.jpg";
 import "../styles/Loading.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-
+/* ---------- Loading Text ---------- */
 function LoadingText() {
-    
   const texts = [
     "Tuning the echoes…",
     "Finding the soul of this track…",
@@ -19,25 +18,22 @@ function LoadingText() {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-  let timeoutId;
+    let timeoutId;
 
-  const interval = setInterval(() => {
-    setVisible(false);
+    const interval = setInterval(() => {
+      setVisible(false);
 
-    timeoutId = setTimeout(() => {
-      setIndex((prev) => (prev + 1) % texts.length);
-      setVisible(true);
-    }, 600);
-  }, 2600);
+      timeoutId = setTimeout(() => {
+        setIndex((prev) => (prev + 1) % texts.length);
+        setVisible(true);
+      }, 600);
+    }, 2600);
 
-  return () => {
-    clearInterval(interval);
-    clearTimeout(timeoutId);
-  };
-}, []);
-
-
-
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeoutId);
+    };
+  }, []);
 
   return (
     <p className={`loading-text ${visible ? "show" : "hide"}`}>
@@ -46,10 +42,10 @@ function LoadingText() {
   );
 }
 
-
-
+/* ---------- Main Loading Page ---------- */
 export default function Loading() {
   const navigate = useNavigate();
+  const hasNavigated = useRef(false); // 🔥 VERY IMPORTANT FIX
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -58,17 +54,19 @@ export default function Loading() {
           "https://echoa-backend.onrender.com/ping"
         );
 
-        if (res.ok) {
+        if (res.ok && !hasNavigated.current) {
+          hasNavigated.current = true; // prevent double redirect
           clearInterval(interval);
-          navigate("/home", { replace: true });
+
+          navigate("/home", { replace: true }); // ✅ ABSOLUTE + REPLACE
         }
       } catch (err) {
-        // backend not ready yet → do nothing
+        // backend not ready yet → stay on loading
       }
-    }, 2000); // every 2 seconds
+    }, 2000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="loading-root">
@@ -87,4 +85,3 @@ export default function Loading() {
     </div>
   );
 }
-

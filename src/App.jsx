@@ -12,8 +12,6 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/loading" element={<Loading />} />
         <Route path="/home" element={<Home />} />
-
-
       </Routes>
     </BrowserRouter>
   );
