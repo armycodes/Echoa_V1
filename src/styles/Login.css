@@ -5,85 +5,91 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   background: #000;
   color: #fff;
   font-family: "Satoshi", system-ui, sans-serif;
-  overflow-x: hidden;
 }
 
-/* ================= MAIN LAYOUT ================= */
+/* ================= ROOT CONTAINER ================= */
 .login-container {
-  display: flex;
-  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr; /* image + content */
   width: 100%;
+  min-height: 100dvh; /* 🔥 KEY FIX */
+  overflow: hidden;
 }
 
 /* ================= IMAGE ================= */
 .image-section {
-  flex: 2;
   position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9; /* 🔥 NO VH */
   overflow: hidden;
 }
 
 .image-section img {
-  width: 120%;
+  width: 100%;
   height: 100%;
   object-fit: cover;
   animation: imageDrift 40s ease-in-out infinite alternate;
 }
 
 @keyframes imageDrift {
-  from { transform: translateX(0) scale(1); }
-  to { transform: translateX(-50px) scale(1.06); }
+  from {
+    transform: translateX(0) scale(1);
+  }
+  to {
+    transform: translateX(-40px) scale(1.05);
+  }
 }
 
 .image-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    to right,
-    rgba(0,0,0,0.2),
-    rgba(0,0,0,0.6)
+    to bottom,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.65)
   );
 }
 
-/* ================= LOGIN PANEL ================= */
+/* ================= PANEL ================= */
 .login-panel {
-  flex: 1;
+  display: grid;
+  place-items: center; /* 🔥 TRUE CENTER */
   background: linear-gradient(
     180deg,
-    rgba(20,20,20,0.95),
-    rgba(0,0,0,1)
+    rgba(20, 20, 20, 0.95),
+    rgba(0, 0, 0, 1)
   );
-  display: flex;
-  align-items: center;
-  justify-content: center; /* 🔥 FORCE CENTER */
+  padding-bottom: env(safe-area-inset-bottom); /* 🔥 iOS/Android */
 }
 
 /* ================= CONTENT ================= */
 .login-content {
-  width: 100%;
-  max-width: 320px;
   text-align: center;
   padding: 24px;
+  max-width: 320px;
+  width: 100%;
 }
 
 /* ================= TEXT ================= */
 .logo {
-  font-size: 42px;
-  letter-spacing: 10px;
+  font-size: 32px;
+  letter-spacing: 8px;
   font-weight: 500;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   width: 6ch;
 }
 
 .tagline {
   font-size: 14px;
   color: #b3b3b3;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 /* ================= BUTTON ================= */
@@ -99,7 +105,7 @@ html, body {
   cursor: pointer;
 }
 
-/* ================= TYPING CURSOR ================= */
+/* ================= CURSOR ================= */
 .typing::after {
   content: "|";
   margin-left: 4px;
@@ -107,34 +113,28 @@ html, body {
 }
 
 @keyframes blink {
-  0%, 50%, 100% { opacity: 1; }
-  25%, 75% { opacity: 0; }
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0;
+  }
 }
 
-/* ================= MOBILE ================= */
-@media (max-width: 768px) {
+/* ================= DESKTOP ================= */
+@media (min-width: 769px) {
   .login-container {
-    flex-direction: column;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr;
   }
 
   .image-section {
-    height: 38vh;
-    width: 100%;
-  }
-
-  .image-section img {
-    width: 100%;
+    aspect-ratio: auto;
     height: 100%;
-    object-fit: cover;
-  }
-
-  .login-panel {
-    flex: 1;
-    min-height: 62vh; /* 🔥 ENSURES CENTERING */
   }
 
   .logo {
-    font-size: 32px;
-    letter-spacing: 8px;
+    font-size: 42px;
+    letter-spacing: 10px;
   }
 }
