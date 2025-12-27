@@ -40,7 +40,7 @@ app.get("/callback", async (req, res) => {
     spotifyAccessToken = tokenResponse.data.access_token;
     console.log("ACCESS TOKEN STORED");
 
-    return res.redirect(FRONTEND_URL);
+    return res.redirect(`${FRONTEND_URL}/loading`);
 
   } catch (error) {
     console.error("Token exchange failed:", error.message);
