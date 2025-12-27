@@ -1,123 +1,196 @@
-/* ================= RESET ================= */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html,
+bro first aithe Login.css istha nuvve change chesi ivvu
+/* GLOBAL */
 body {
-  width: 100%;
-  height: 100%;
+  margin: 0;
+  font-family: "Satoshi", system-ui, sans-serif;
   background: #000;
   color: #fff;
-  font-family: "Satoshi", system-ui, sans-serif;
 }
 
-/* ================= ROOT CONTAINER ================= */
+
+/* LAYOUT */
 .login-container {
-  display: grid;
-  grid-template-rows: auto 1fr; /* image + content */
-  width: 100%;
-  min-height: 100dvh; /* 🔥 KEY FIX */
+  display: flex;
+  height: 100vh;
+  width: 100vw;
   overflow: hidden;
 }
 
-/* ================= IMAGE ================= */
+
+/* IMAGE */
 .image-section {
+  flex: 2;
   position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9; /* 🔥 NO VH */
   overflow: hidden;
 }
+
+
 
 .image-section img {
-  width: 100%;
+  width: 120%;
   height: 100%;
   object-fit: cover;
   animation: imageDrift 40s ease-in-out infinite alternate;
 }
 
+/* CINEMATIC IMAGE MOTION */
 @keyframes imageDrift {
   from {
     transform: translateX(0) scale(1);
   }
   to {
-    transform: translateX(-40px) scale(1.05);
+    transform: translateX(-50px) scale(1.06);
   }
+}
+
+/* PANEL */
+.login-panel {
+  flex: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 20, 20, 0.95),
+    rgba(0, 0, 0, 1)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+
+
+/* CONTENT ANIMATION */
+.login-content {
+  width: 100%;
+  padding: 80px;
+}
+
+
+@keyframes panelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* TYPOGRAPHY */
+.logo {
+  font-size: 42px;
+  letter-spacing: 10px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  white-space: nowrap;
+}
+
+
+
+.tagline {
+  color: #b3b3b3;
+  font-size: 15px;
+  margin-bottom: 50px;
+}
+
+/* BUTTON */
+.spotify-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 28px;
+  border: none;
+  background: #ffffff;
+  color: #000;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.spotify-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 40px rgba(255, 255, 255, 0.18);
+}
+
+
+/* IMAGE OVERLAY */
+.image-section {
+  position: relative;
+  width: 65%;
+  overflow: hidden;
 }
 
 .image-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    to bottom,
+    to right,
     rgba(0, 0, 0, 0.15),
-    rgba(0, 0, 0, 0.65)
+    rgba(0, 0, 0, 0.55)
   );
+  pointer-events: none;
 }
-
-/* ================= PANEL ================= */
-.login-panel {
-  display: grid;
-  place-items: center; /* 🔥 TRUE CENTER */
-  background: linear-gradient(
-    180deg,
-    rgba(20, 20, 20, 0.95),
-    rgba(0, 0, 0, 1)
-  );
-  padding-bottom: env(safe-area-inset-bottom); /* 🔥 iOS/Android */
-}
-
-/* ================= CONTENT ================= */
-.login-content {
-  text-align: center;
-  padding: 24px;
-  max-width: 320px;
-  width: 100%;
-}
-
-/* ================= TEXT ================= */
+/*stagger animations*/
 .logo {
-  font-size: 32px;
-  letter-spacing: 8px;
+  font-size: 42px;
+  letter-spacing: 10px;
   font-weight: 500;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  white-space: nowrap;
 
-  display: inline-flex;        /* 🔥 KEY */
-  align-items: center;
-  justify-content: center;
-
-  min-width: 6ch;              /* reserve space */
-  text-align: center;
+  /* 🔥 FIX FOR LAYOUT SHIFT */
+  width: 6ch;          /* reserves space for ECHOA */
+  text-align: left;
 }
 
 
 .tagline {
-  font-size: 14px;
-  color: #b3b3b3;
-  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 1.4s ease-out forwards;
+  animation-delay: 0.3s;
 }
 
-/* ================= BUTTON ================= */
 .spotify-btn {
-  width: 100%;
-  padding: 14px;
-  border-radius: 28px;
-  border: none;
-  background: #fff;
-  color: #000;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
+  opacity: 0;
+  animation: fadeUp 1.4s ease-out forwards;
+  animation-delay: 0.6s;
 }
 
-/* ================= CURSOR ================= */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* Typing effect */
+.typing::after {
+  content: "|";
+  margin-left: 6px;
+  opacity: 1;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0;
+  }
+}
+/*cursor blink animation*/
 .typing::after {
   content: "|";
   display: inline-block;
-  width: 1ch;                  /* 🔥 reserves cursor space */
-  margin-left: 2px;
+  width: 1ch;
+  margin-left: 4px;
+  opacity: 1;
   animation: blink 1.2s infinite;
 }
 
@@ -131,25 +204,49 @@ body {
   }
 }
 
-/* ================= DESKTOP ================= */
-@media (min-width: 769px) {
+/* ===== Mobile responsiveness for Login page ===== */
+@media (max-width: 768px) {
   .login-container {
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: 1fr;
+    flex-direction: column;
+    height: auto;
   }
 
   .image-section {
-    aspect-ratio: auto;
+    width: 100%;
+    height: 40vh;
+  }
+
+  .image-section img {
+    width: 100%;
     height: 100%;
+    object-fit: cover;
+  }
+
+  .login-panel {
+    width: 100%;
+    height: auto;
+    padding: 24px 16px;
+  }
+
+  .login-content {
+    align-items: center;
+    text-align: center;
   }
 
   .logo {
-    font-size: 42px;
-    letter-spacing: 10px;
+    font-size: 32px;
+  }
+
+  .tagline {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .spotify-btn {
+    width: 100%;
+    max-width: 280px;
+    padding: 14px;
+    font-size: 14px;
   }
 }
 
-/*extra to add for mobile view bug split screen fix*/
-.login-container {
-  height: 100%;
-}
