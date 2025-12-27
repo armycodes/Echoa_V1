@@ -138,3 +138,8 @@ body {
     letter-spacing: 10px;
   }
 }
+
+/*extra to add for mobile view bug split screen fix*/
+.login-container {
+  height: 100%;
+}
