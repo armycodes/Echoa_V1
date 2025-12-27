@@ -60,7 +60,7 @@ export default function Loading() {
 
         if (res.ok) {
           clearInterval(interval);
-          navigate("/home");
+          navigate("/home", { replace: true });
         }
       } catch (err) {
         // backend not ready yet → do nothing
