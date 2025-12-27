@@ -64,3 +64,40 @@
     transform: rotate(360deg);
   }
 }
+/* ===== Mobile responsiveness ===== */
+@media (max-width: 768px) {
+  .app {
+    padding: 16px;
+  }
+
+  .player-card {
+    width: 100%;
+    max-width: 360px;
+    padding: 24px;
+    border-radius: 20px;
+  }
+
+  .brand {
+    font-size: 22px;
+  }
+
+  .user {
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .vinyl {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 16px;
+  }
+
+  .track-info h2 {
+    font-size: 16px;
+  }
+
+  .track-info p {
+    font-size: 13px;
+  }
+}
+
