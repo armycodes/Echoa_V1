@@ -58,6 +58,7 @@ return (
 }*/
 /*Home page component to display user profile and currently playing song from Spotify*/
 import { useEffect, useState } from "react";
+import "../styles/Home.css";
 
 export default function Home() {
   const [profile, setProfile] = useState(null);
@@ -65,32 +66,38 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const profileRes = await fetch(
-        "https://echoa-backend.onrender.com/me"
-      );
-      const profileData = await profileRes.json();
-      setProfile(profileData);
+    const fetchData = async () => {
+      try {
+        // 1️⃣ Fetch profile
+        const profileRes = await fetch(
+          "https://echoa-backend.onrender.com/me",
+          { cache: "no-store" }
+        );
+        const profileData = await profileRes.json();
+        setProfile(profileData);
 
-      const songRes = await fetch(
-        "https://echoa-backend.onrender.com/currently-playing"
-      );
-      const songData = await songRes.json();
-      setCurrent(songData);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+        // 2️⃣ Fetch currently playing (AUTO REFRESH)
+        const songRes = await fetch(
+          "https://echoa-backend.onrender.com/currently-playing",
+          { cache: "no-store" }
+        );
+        const songData = await songRes.json();
 
-  fetchData();
+        // 🔥 force re-render even if same song
+        setCurrent({ ...songData });
 
-  const interval = setInterval(fetchData, 6000); // 🔥 every 6 sec
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    };
 
-  return () => clearInterval(interval);
-}, []);
+    fetchData(); // initial load
+
+    const interval = setInterval(fetchData, 6000); // 🔁 every 6 sec
+
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading) {
     return (
@@ -101,29 +108,26 @@ export default function Home() {
   }
 
   return (
-    <div style={{ color: "white", padding: "40px" }}>
-      {/* Profile */}
-      <div style={{ marginBottom: "30px" }}>
-        <h2>{profile?.display_name}</h2>
+    <div className="home-root">
+      {/* PROFILE */}
+      <div className="profile">
         <img
           src={profile?.images?.[0]?.url}
           alt="profile"
-          width="90"
-          style={{ borderRadius: "50%" }}
+          className="profile-pic"
         />
+        <h2>{profile?.display_name}</h2>
       </div>
 
-      {/* Currently Playing */}
+      {/* CURRENTLY PLAYING */}
       {current?.playing ? (
-        <div>
-          <img
-            src={current.albumImage}
-            alt="album"
-            width="200"
-            style={{ borderRadius: "12px" }}
-          />
-          <h3 style={{ marginTop: "16px" }}>{current.song}</h3>
-          <p style={{ color: "#aaa" }}>{current.artist}</p>
+        <div className="player">
+          <div className="vinyl">
+            <img src={current.albumImage} alt="album" />
+          </div>
+
+          <h3>{current.song}</h3>
+          <p>{current.artist}</p>
         </div>
       ) : (
         <p>No song playing right now 🎧</p>
