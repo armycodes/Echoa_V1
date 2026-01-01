@@ -68,9 +68,6 @@ useEffect(() => {
   Continue with Spotify
 </button>
 
-
-
-
         </div>
       </div>
     </div>
