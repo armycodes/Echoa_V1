@@ -1,20 +1,25 @@
 import "../styles/PhaseOne.css";
+import bg from "../assets/phase1-bg.jpeg";
+import { useNavigate } from "react-router-dom";
 
-export default function PhaseOne({ onEnter }) {
+export default function PhaseOne() {
+  const navigate = useNavigate();
+
   return (
-    <div className="phaseone-root">
+    <div className="phase1-root">
       {/* Background image */}
-      <div className="phaseone-bg" />
+      <img src={bg} alt="Echoa mood" className="phase1-bg" />
 
-      {/* Soft overlay */}
-      <div className="phaseone-overlay" />
+      {/* Dark overlay */}
+      <div className="phase1-overlay" />
 
-      {/* Content */}
-      <div className="phaseone-content">
-        <button className="feel-btn" onClick={onEnter}>
-          Feel Echoa
-        </button>
-      </div>
+      {/* CTA */}
+      <button
+        className="phase1-btn"
+        onClick={() => navigate("/player")}
+      >
+        Feel Echoa
+      </button>
     </div>
   );
 }
