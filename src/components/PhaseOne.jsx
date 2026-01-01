@@ -16,12 +16,15 @@ export default function PhaseOne() {
       <div className="phase1-overlay" />
 
       {/* CTA */}
-      <button
-        className="phase1-btn"
-        onClick={() => navigate("/home")}
-      >
-        Feel Echoa
-      </button>
+     <button
+  onClick={() =>
+    window.location.href =
+      "https://echoa-backend.onrender.com/login"
+  }
+>
+  Continue with Spotify
+</button>
+
     </div>
   );
 }

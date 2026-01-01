@@ -1,11 +1,11 @@
 import { Routes, Route } from "react-router-dom";
-import PhaseOne from "./components/PhaseOne";
+import Login from "./components/Login";
 import Home from "./components/Home";
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<PhaseOne />} />
+      <Route path="/" element={<Login />} />
       <Route path="/home" element={<Home />} />
     </Routes>
   );
