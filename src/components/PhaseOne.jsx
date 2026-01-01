@@ -2,6 +2,8 @@ import "../styles/PhaseOne.css";
 import bg from "../assets/phase1-bg.jpeg";
 import { useNavigate } from "react-router-dom";
 
+
+
 export default function PhaseOne() {
   const navigate = useNavigate();
 
@@ -16,7 +18,7 @@ export default function PhaseOne() {
       {/* CTA */}
       <button
         className="phase1-btn"
-        onClick={() => navigate("/player")}
+        onClick={() => navigate("/home")}
       >
         Feel Echoa
       </button>
