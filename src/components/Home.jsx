@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+/*import { useEffect, useState } from "react";
 import "../styles/Home.css";
 export default function Home() {
   const [profile, setProfile] = useState(null);
@@ -8,7 +8,7 @@ return (
     HOME PAGE LOADED
   </div>
 );
-}
+}*/
 
  /* useEffect(() => {
     // fetch profile
@@ -56,3 +56,61 @@ return (
 );
 
 }*/
+/*Home page component to display user profile and currently playing song from Spotify*/
+import { useEffect, useState } from "react";
+
+export default function Home() {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch(
+          "https://echoa-backend.onrender.com/me"
+        );
+
+        if (!res.ok) {
+          throw new Error("Not authenticated");
+        }
+
+        const data = await res.json();
+        setProfile(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ color: "white", padding: "40px" }}>
+        Loading profile…
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div style={{ color: "white", padding: "40px" }}>
+        Not logged in
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ color: "white", padding: "40px" }}>
+      <h1>{profile.display_name}</h1>
+      <img
+        src={profile.images?.[0]?.url}
+        alt="profile"
+        width="120"
+        style={{ borderRadius: "50%" }}
+      />
+    </div>
+  );
+}
