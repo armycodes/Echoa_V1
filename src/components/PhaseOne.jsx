@@ -18,7 +18,7 @@ export default function PhaseOne() {
       {/* CTA */}
       <button
         className="phase1-btn"
-        onClick={() => navigate("/home")}
+        onClick={() => navigate("/player")}
       >
         Feel Echoa
       </button>
