@@ -65,28 +65,32 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const profileRes = await fetch(
-          "https://echoa-backend.onrender.com/me"
-        );
-        const profileData = await profileRes.json();
-        setProfile(profileData);
+  const fetchData = async () => {
+    try {
+      const profileRes = await fetch(
+        "https://echoa-backend.onrender.com/me"
+      );
+      const profileData = await profileRes.json();
+      setProfile(profileData);
 
-        const songRes = await fetch(
-          "https://echoa-backend.onrender.com/currently-playing"
-        );
-        const songData = await songRes.json();
-        setCurrent(songData);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const songRes = await fetch(
+        "https://echoa-backend.onrender.com/currently-playing"
+      );
+      const songData = await songRes.json();
+      setCurrent(songData);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchData();
-  }, []);
+  fetchData();
+
+  const interval = setInterval(fetchData, 6000); // 🔥 every 6 sec
+
+  return () => clearInterval(interval);
+}, []);
 
   if (loading) {
     return (
