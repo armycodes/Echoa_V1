@@ -61,21 +61,23 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [profile, setProfile] = useState(null);
+  const [current, setCurrent] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(
+        const profileRes = await fetch(
           "https://echoa-backend.onrender.com/me"
         );
+        const profileData = await profileRes.json();
+        setProfile(profileData);
 
-        if (!res.ok) {
-          throw new Error("Not authenticated");
-        }
-
-        const data = await res.json();
-        setProfile(data);
+        const songRes = await fetch(
+          "https://echoa-backend.onrender.com/currently-playing"
+        );
+        const songData = await songRes.json();
+        setCurrent(songData);
       } catch (err) {
         console.error(err);
       } finally {
@@ -83,34 +85,45 @@ export default function Home() {
       }
     };
 
-    fetchProfile();
+    fetchData();
   }, []);
 
   if (loading) {
     return (
       <div style={{ color: "white", padding: "40px" }}>
-        Loading profile…
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div style={{ color: "white", padding: "40px" }}>
-        Not logged in
+        Loading your music…
       </div>
     );
   }
 
   return (
     <div style={{ color: "white", padding: "40px" }}>
-      <h1>{profile.display_name}</h1>
-      <img
-        src={profile.images?.[0]?.url}
-        alt="profile"
-        width="120"
-        style={{ borderRadius: "50%" }}
-      />
+      {/* Profile */}
+      <div style={{ marginBottom: "30px" }}>
+        <h2>{profile?.display_name}</h2>
+        <img
+          src={profile?.images?.[0]?.url}
+          alt="profile"
+          width="90"
+          style={{ borderRadius: "50%" }}
+        />
+      </div>
+
+      {/* Currently Playing */}
+      {current?.playing ? (
+        <div>
+          <img
+            src={current.albumImage}
+            alt="album"
+            width="200"
+            style={{ borderRadius: "12px" }}
+          />
+          <h3 style={{ marginTop: "16px" }}>{current.song}</h3>
+          <p style={{ color: "#aaa" }}>{current.artist}</p>
+        </div>
+      ) : (
+        <p>No song playing right now 🎧</p>
+      )}
     </div>
   );
 }
