@@ -1,0 +1,69 @@
+.phaseone-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: black;
+}
+
+/* Background image */
+.phaseone-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("../assets/phase1-bg.jpeg");
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.85);
+}
+
+/* Premium dark overlay */
+.phaseone-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.85)
+  );
+}
+
+/* Bottom content */
+.phaseone-content {
+  position: absolute;
+  bottom: 64px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* CTA Button */
+.feel-btn {
+  padding: 14px 38px;
+  border-radius: 30px;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  color: #000;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.35s ease;
+}
+
+.feel-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(255, 255, 255, 0.25);
+}
+
+/* Mobile polish */
+@media (max-width: 768px) {
+  .phaseone-content {
+    bottom: 48px;
+  }
+
+  .feel-btn {
+    padding: 14px 32px;
+    font-size: 14px;
+  }
+}

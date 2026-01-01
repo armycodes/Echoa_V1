@@ -59,16 +59,20 @@ return (
 /*Home page component to display user profile and currently playing song from Spotify*/
 import { useEffect, useState } from "react";
 import "../styles/Home.css";
+import PhaseOne from "./PhaseOne";
 
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [current, setCurrent] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 🔑 controlled flow flag
+  const [immersive, setImmersive] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1️⃣ Fetch profile
+        // Fetch profile
         const profileRes = await fetch(
           "https://echoa-backend.onrender.com/me",
           { cache: "no-store" }
@@ -76,28 +80,36 @@ export default function Home() {
         const profileData = await profileRes.json();
         setProfile(profileData);
 
-        // 2️⃣ Fetch currently playing (AUTO REFRESH)
+        // Fetch currently playing (auto refresh)
         const songRes = await fetch(
           "https://echoa-backend.onrender.com/currently-playing",
           { cache: "no-store" }
         );
         const songData = await songRes.json();
 
-        // 🔥 force re-render even if same song
         setCurrent({ ...songData });
-
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching Spotify data:", err);
       }
     };
 
-    fetchData(); // initial load
-
-    const interval = setInterval(fetchData, 6000); // 🔁 every 6 sec
+    fetchData();
+    const interval = setInterval(fetchData, 6000); // 🔁 auto refresh
 
     return () => clearInterval(interval);
   }, []);
+
+  /* =============================
+     PHASE 1 — AESTHETIC SCREEN
+     ============================= */
+  if (!immersive) {
+    return <PhaseOne onEnter={() => setImmersive(true)} />;
+  }
+
+  /* =============================
+     PHASE 2 — ACTUAL PLAYER
+     ============================= */
 
   if (loading) {
     return (
@@ -119,7 +131,7 @@ export default function Home() {
         <h2>{profile?.display_name}</h2>
       </div>
 
-      {/* CURRENTLY PLAYING */}
+      {/* CURRENT SONG */}
       {current?.playing ? (
         <div className="player">
           <div className="vinyl">
