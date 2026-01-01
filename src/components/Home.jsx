@@ -3,8 +3,14 @@ import "../styles/Home.css";
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [song, setSong] = useState(null);
+return (
+  <div style={{ color: "white", padding: "40px" }}>
+    HOME PAGE LOADED
+  </div>
+);
+}
 
-  useEffect(() => {
+ /* useEffect(() => {
     // fetch profile
     fetch("https://echoa-backend.onrender.com/me")
       .then(res => res.json())
@@ -49,4 +55,4 @@ export default function Home() {
   </div>
 );
 
-}
+}*/
