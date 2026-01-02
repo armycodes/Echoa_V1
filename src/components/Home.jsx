@@ -57,20 +57,19 @@ return (
 
 }*/
 /*Home page component to display user profile and currently playing song from Spotify*/
+
+/*import PhaseOne from "./PhaseOne";*/
 import { useEffect, useState } from "react";
 import "../styles/Home.css";
-import PhaseOne from "./PhaseOne";
-
 
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [current, setCurrent] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1️⃣ Fetch profile
         const profileRes = await fetch(
           "https://echoa-backend.onrender.com/me",
           { cache: "no-store" }
@@ -78,62 +77,63 @@ export default function Home() {
         const profileData = await profileRes.json();
         setProfile(profileData);
 
-        // 2️⃣ Fetch currently playing (AUTO REFRESH)
         const songRes = await fetch(
           "https://echoa-backend.onrender.com/currently-playing",
           { cache: "no-store" }
         );
         const songData = await songRes.json();
-
-        // 🔥 force re-render even if same song
         setCurrent({ ...songData });
-
-        setLoading(false);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error(err);
       }
     };
 
-    fetchData(); // initial load
-
-    const interval = setInterval(fetchData, 6000); // 🔁 every 6 sec
-
+    fetchData();
+    const interval = setInterval(fetchData, 6000);
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
-    return (
-      <div style={{ color: "white", padding: "40px" }}>
-        Loading your music…
-      </div>
-    );
-  }
-
   return (
     <div className="home-root">
-      {/* PROFILE */}
-      <div className="profile">
-        <img
-          src={profile?.images?.[0]?.url}
-          alt="profile"
-          className="profile-pic"
-        />
-        <h2>{profile?.display_name}</h2>
-      </div>
+      {/* Hamburger */}
+      <button className="menu-btn" onClick={() => setMenuOpen(true)}>
+        ☰
+      </button>
 
-      {/* CURRENTLY PLAYING */}
-      {current?.playing ? (
-        <div className="player">
-          <div className="vinyl">
-            <img src={current.albumImage} alt="album" />
+      {/* Side Profile Panel */}
+      {menuOpen && (
+        <div className="side-panel">
+          <button className="close-btn" onClick={() => setMenuOpen(false)}>
+            ✕
+          </button>
+
+          <img
+            src={profile?.images?.[0]?.url}
+            alt="profile"
+            className="side-profile-pic"
+          />
+          <h3 className="side-username">{profile?.display_name}</h3>
+        </div>
+      )}
+
+      {/* Center Player */}
+      {current?.playing && (
+        <div className="player-center">
+          <div className="vinyl-wrapper">
+            <div className="tonearm" />
+            <div className="vinyl">
+              <img src={current.albumImage} alt="album" />
+            </div>
           </div>
 
-          <h3>{current.song}</h3>
-          <p>{current.artist}</p>
+          <div className="track-info">
+            <h2>{current.song}</h2>
+            <p>{current.artist}</p>
+          </div>
         </div>
-      ) : (
-        <p>No song playing right now 🎧</p>
       )}
     </div>
   );
 }
+
+
