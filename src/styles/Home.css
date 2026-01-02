@@ -1,123 +1,107 @@
-/* ROOT */
 .home-root {
   height: 100vh;
-  width: 100vw;
-  background: #0b0b0b;
+  background: radial-gradient(circle at center, #111, #000);
   color: white;
   overflow: hidden;
-  position: relative;
-  font-family: "Satoshi", sans-serif;
+  font-family: system-ui, sans-serif;
 }
 
-/* HAMBURGER */
-.menu-btn {
+/* ───────── NAV ───────── */
+.nav {
   position: absolute;
   top: 24px;
   left: 24px;
-  font-size: 26px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
+  display: flex;
+  gap: 16px;
+  align-items: center;
   z-index: 10;
 }
 
-/* SIDE PANEL */
-.side-panel {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 280px;
-  height: 100%;
-  background: rgba(15, 15, 15, 0.95);
-  padding: 40px 24px;
-  z-index: 20;
-}
-
-.close-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 18px;
+.hamburger {
+  font-size: 26px;
   cursor: pointer;
 }
 
-.side-profile-pic {
-  width: 120px;
-  height: 120px;
+.profile-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-menu img {
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  object-fit: cover;
-  margin: 60px auto 16px;
-  display: block;
 }
 
-.side-username {
-  text-align: center;
-  font-weight: 500;
-}
-
-/* CENTER PLAYER */
-.player-center {
+/* ───────── CENTER STAGE ───────── */
+.vinyl-stage {
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 }
 
-/* VINYL */
-.vinyl-wrapper {
+/* ───────── VINYL BOX ───────── */
+.vinyl-box {
   position: relative;
-  margin-bottom: 28px;
+  width: 320px;
+  height: 320px;
+  background: linear-gradient(145deg, #0c0c0c, #1a1a1a);
+  border-radius: 18px;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+/* ───────── VINYL ───────── */
 .vinyl {
-  width: 260px;
-  height: 260px;
+  width: 240px;
+  height: 240px;
   border-radius: 50%;
   background: black;
-  overflow: hidden;
-  animation: spin 8s linear infinite;
+  animation: spin 14s linear infinite;
 }
 
 .vinyl img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
   border-radius: 50%;
+  object-fit: cover;
 }
 
-/* TONEARM */
+/* ───────── TONEARM ───────── */
 .tonearm {
   position: absolute;
-  width: 120px;
-  height: 4px;
-  background: #444;
-  top: -20px;
-  right: -90px;
-  transform: rotate(25deg);
-  border-radius: 2px;
+  right: -60px;
+  top: 30px;
+  width: 140px;
+  height: 6px;
+  background: #222;
+  border-radius: 6px;
+  transform: rotate(-25deg);
+  transform-origin: left center;
 }
 
-/* TRACK INFO */
+/* ───────── TRACK INFO ───────── */
 .track-info {
+  margin-top: 28px;
   text-align: center;
 }
 
 .track-info h2 {
   font-size: 22px;
-  margin-bottom: 6px;
+  font-weight: 500;
 }
 
 .track-info p {
-  font-size: 14px;
   color: #aaa;
+  margin-top: 6px;
 }
 
-/* VINYL ROTATION */
+/* ───────── ANIMATIONS ───────── */
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -126,7 +110,11 @@
     transform: rotate(360deg);
   }
 }
-/* PAUSE ANIMATION */
-.vinyl.paused {
-  animation-play-state: paused;
+
+.no-song {
+  margin-top: 24px;
+  color: #777;
+}
+.no-song p {
+  font-size: 18px;
 }

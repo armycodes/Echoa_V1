@@ -65,7 +65,6 @@ import "../styles/Home.css";
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [current, setCurrent] = useState(null);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,66 +73,60 @@ export default function Home() {
           "https://echoa-backend.onrender.com/me",
           { cache: "no-store" }
         );
-        const profileData = await profileRes.json();
-        setProfile(profileData);
+        setProfile(await profileRes.json());
 
         const songRes = await fetch(
           "https://echoa-backend.onrender.com/currently-playing",
           { cache: "no-store" }
         );
-        const songData = await songRes.json();
-        setCurrent({ ...songData });
-      } catch (err) {
-        console.error(err);
+        setCurrent({ ...(await songRes.json()) });
+      } catch (e) {
+        console.error(e);
       }
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 6000);
-    return () => clearInterval(interval);
+    const i = setInterval(fetchData, 6000);
+    return () => clearInterval(i);
   }, []);
 
   return (
     <div className="home-root">
-      {/* Hamburger */}
-      <button className="menu-btn" onClick={() => setMenuOpen(true)}>
-        ☰
-      </button>
+      {/* 🔹 NAVBAR */}
+      <div className="nav">
+        <div className="hamburger">☰</div>
 
-      {/* Side Profile Panel */}
-      {menuOpen && (
-        <div className="side-panel">
-          <button className="close-btn" onClick={() => setMenuOpen(false)}>
-            ✕
-          </button>
+        {profile && (
+          <div className="profile-menu">
+            <img src={profile.images?.[0]?.url} alt="" />
+            <span>{profile.display_name}</span>
+          </div>
+        )}
+      </div>
 
-          <img
-            src={profile?.images?.[0]?.url}
-            alt="profile"
-            className="side-profile-pic"
-          />
-          <h3 className="side-username">{profile?.display_name}</h3>
-        </div>
-      )}
-
-      {/* Center Player */}
-      {current?.playing && (
-        <div className="player-center">
-          <div className="vinyl-wrapper">
-            <div className="tonearm" />
-            <div className="vinyl">
+      {/* 🔹 VINYL AREA */}
+      <div className="vinyl-stage">
+        <div className="vinyl-box">
+          <div className="vinyl">
+            {current?.albumImage && (
               <img src={current.albumImage} alt="album" />
-            </div>
+            )}
           </div>
 
+          {/* Tonearm */}
+          <div className="tonearm" />
+        </div>
+
+        {/* 🔹 TRACK INFO */}
+        {current?.playing ? (
           <div className="track-info">
             <h2>{current.song}</h2>
             <p>{current.artist}</p>
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="no-song">No song playing 🎧</p>
+        )}
+      </div>
     </div>
   );
 }
-
-
