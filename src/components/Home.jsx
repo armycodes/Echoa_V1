@@ -4,9 +4,9 @@ import "../styles/Home.css";
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [current, setCurrent] = useState(null);
-  const [ready, setReady] = useState(false); // 🔥 KEY FIX
+  const [token, setToken] = useState(null);
 
-  /* ---------------- TOKEN HANDLING ---------------- */
+  /* ---------------- TOKEN (SINGLE SOURCE OF TRUTH) ---------------- */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tokenFromUrl = params.get("token");
@@ -14,20 +14,16 @@ export default function Home() {
     if (tokenFromUrl) {
       localStorage.setItem("echoa_token", tokenFromUrl);
       window.history.replaceState({}, "", "/home");
-    }
-
-    const storedToken = localStorage.getItem("echoa_token");
-    if (storedToken) {
-      setReady(true); // ✅ only now app is allowed to fetch
+      setToken(tokenFromUrl);
+    } else {
+      const stored = localStorage.getItem("echoa_token");
+      if (stored) setToken(stored);
     }
   }, []);
 
   /* ---------------- FETCH DATA ---------------- */
   useEffect(() => {
-    if (!ready) return; // 🔥 DO NOTHING until token exists
-
-    const token = localStorage.getItem("echoa_token");
-    if (!token) return;
+    if (!token) return; // 🔥 DO NOTHING without token
 
     const fetchData = async () => {
       try {
@@ -41,8 +37,8 @@ export default function Home() {
           }
         );
 
-        const profileData = await profileRes.json();
-        setProfile(profileData);
+        if (!profileRes.ok) throw new Error("Profile failed");
+        setProfile(await profileRes.json());
 
         const songRes = await fetch(
           "https://echoa-backend.onrender.com/currently-playing",
@@ -54,20 +50,20 @@ export default function Home() {
           }
         );
 
-        const songData = await songRes.json();
-        setCurrent(songData);
-      } catch (e) {
-        console.error("Fetch failed:", e);
+        if (!songRes.ok) throw new Error("Song failed");
+        setCurrent(await songRes.json());
+      } catch (err) {
+        console.error("Echoa fetch error:", err.message);
       }
     };
 
     fetchData();
     const interval = setInterval(fetchData, 6000);
     return () => clearInterval(interval);
-  }, [ready]);
+  }, [token]);
 
-  /* ---------------- UI ---------------- */
-  if (!ready) {
+  /* ---------------- LOADING ---------------- */
+  if (!token) {
     return (
       <div style={{ color: "white", padding: "40px" }}>
         Initializing Echoa…
