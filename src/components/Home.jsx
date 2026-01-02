@@ -1,142 +1,83 @@
-/*import { useEffect, useState } from "react";
-import "../styles/Home.css";
-export default function Home() {
-  const [profile, setProfile] = useState(null);
-  const [song, setSong] = useState(null);
-return (
-  <div style={{ color: "white", padding: "40px" }}>
-    HOME PAGE LOADED
-  </div>
-);
-}*/
-
- /* useEffect(() => {
-    // fetch profile
-    fetch("https://echoa-backend.onrender.com/me")
-      .then(res => res.json())
-      .then(data => setProfile(data));
-
-    // fetch currently playing song
-    fetch("https://echoa-backend.onrender.com/currently-playing")
-      .then(res => res.json())
-      .then(data => {
-        if (data.playing) {
-          setSong(data);
-        }
-      });
-  }, []);
-//added with vinyl aesthetic
-  return (
-  <div className="app">
-    <div className="player-card">
-      <h1 className="brand">Echoa</h1>
-
-      {profile && (
-        <p className="user">
-          Logged in as <strong>{profile.display_name}</strong>
-        </p>
-      )}
-
-      {song ? (
-        <>
-          <div className="vinyl">
-            <img src={song.albumImage} alt="album" />
-          </div>
-
-          <div className="track-info">
-            <h2>{song.song}</h2>
-            <p>{song.artist}</p>
-          </div>
-        </>
-      ) : (
-        <p>No song playing</p>
-      )}
-    </div>
-  </div>
-);
-
-}*/
-/*Home page component to display user profile and currently playing song from Spotify*/
-
-/*import PhaseOne from "./PhaseOne";*/
 import { useEffect, useState } from "react";
 import "../styles/Home.css";
 
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [current, setCurrent] = useState(null);
+  const [ready, setReady] = useState(false); // 🔥 KEY FIX
 
-  /*Store token on first Load */
+  /* ---------------- TOKEN HANDLING ---------------- */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
+    const tokenFromUrl = params.get("token");
 
-    if (token) {
-      localStorage.setItem("echoa_token", token);
+    if (tokenFromUrl) {
+      localStorage.setItem("echoa_token", tokenFromUrl);
       window.history.replaceState({}, "", "/home");
+    }
+
+    const storedToken = localStorage.getItem("echoa_token");
+    if (storedToken) {
+      setReady(true); // ✅ only now app is allowed to fetch
     }
   }, []);
 
- /* useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const profileRes = await fetch(
-          "https://echoa-backend.onrender.com/me",
-          { cache: "no-store" }
-        );
-        setProfile(await profileRes.json());
-
-        const songRes = await fetch(
-          "https://echoa-backend.onrender.com/currently-playing",
-          { cache: "no-store" }
-        );
-        setCurrent({ ...(await songRes.json()) });
-      } catch (e) {
-        console.error(e);
-      }
-    };
-
-    fetchData();
-    const i = setInterval(fetchData, 6000);
-    return () => clearInterval(i);
-  }, []);*/
-   /* ---------- FETCH DATA WITH JWT ---------- */
+  /* ---------------- FETCH DATA ---------------- */
   useEffect(() => {
+    if (!ready) return; // 🔥 DO NOTHING until token exists
+
     const token = localStorage.getItem("echoa_token");
     if (!token) return;
 
     const fetchData = async () => {
       try {
-        const p = await fetch(
+        const profileRes = await fetch(
           "https://echoa-backend.onrender.com/me",
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
             cache: "no-store",
           }
         );
-        setProfile(await p.json());
 
-        const s = await fetch(
+        const profileData = await profileRes.json();
+        setProfile(profileData);
+
+        const songRes = await fetch(
           "https://echoa-backend.onrender.com/currently-playing",
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
             cache: "no-store",
           }
         );
-        setCurrent(await s.json());
+
+        const songData = await songRes.json();
+        setCurrent(songData);
       } catch (e) {
-        console.error(e);
+        console.error("Fetch failed:", e);
       }
     };
 
     fetchData();
-    const i = setInterval(fetchData, 6000);
-    return () => clearInterval(i);
-  }, []);
+    const interval = setInterval(fetchData, 6000);
+    return () => clearInterval(interval);
+  }, [ready]);
+
+  /* ---------------- UI ---------------- */
+  if (!ready) {
+    return (
+      <div style={{ color: "white", padding: "40px" }}>
+        Initializing Echoa…
+      </div>
+    );
+  }
 
   return (
     <div className="home-root">
-      {/* 🔹 NAVBAR */}
+      {/* NAV */}
       <div className="nav">
         <div className="hamburger">☰</div>
 
@@ -148,7 +89,7 @@ export default function Home() {
         )}
       </div>
 
-      {/* 🔹 VINYL AREA */}
+      {/* PLAYER */}
       <div className="vinyl-stage">
         <div className="vinyl-box">
           <div className="vinyl">
@@ -156,12 +97,9 @@ export default function Home() {
               <img src={current.albumImage} alt="album" />
             )}
           </div>
-
-          {/* Tonearm */}
           <div className="tonearm" />
         </div>
 
-        {/* 🔹 TRACK INFO */}
         {current?.playing ? (
           <div className="track-info">
             <h2>{current.song}</h2>
