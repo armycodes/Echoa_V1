@@ -43,7 +43,7 @@ function LoadingText() {
 }
 
 /* ---------- Main Loading Page ---------- */
-export default function Loading() {
+export default function Bootstrap() {
   const navigate = useNavigate();
   const hasNavigated = useRef(false); // 🔥 VERY IMPORTANT FIX
 
