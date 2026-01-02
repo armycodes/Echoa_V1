@@ -66,7 +66,18 @@ export default function Home() {
   const [profile, setProfile] = useState(null);
   const [current, setCurrent] = useState(null);
 
+  /*Store token on first Load */
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      localStorage.setItem("echoa_token", token);
+      window.history.replaceState({}, "", "/home");
+    }
+  }, []);
+
+ /* useEffect(() => {
     const fetchData = async () => {
       try {
         const profileRes = await fetch(
@@ -80,6 +91,39 @@ export default function Home() {
           { cache: "no-store" }
         );
         setCurrent({ ...(await songRes.json()) });
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    fetchData();
+    const i = setInterval(fetchData, 6000);
+    return () => clearInterval(i);
+  }, []);*/
+   /* ---------- FETCH DATA WITH JWT ---------- */
+  useEffect(() => {
+    const token = localStorage.getItem("echoa_token");
+    if (!token) return;
+
+    const fetchData = async () => {
+      try {
+        const p = await fetch(
+          "https://echoa-backend.onrender.com/me",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            cache: "no-store",
+          }
+        );
+        setProfile(await p.json());
+
+        const s = await fetch(
+          "https://echoa-backend.onrender.com/currently-playing",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            cache: "no-store",
+          }
+        );
+        setCurrent(await s.json());
       } catch (e) {
         console.error(e);
       }
