@@ -4,79 +4,57 @@ import "../styles/Home.css";
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [current, setCurrent] = useState(null);
-  const [token, setToken] = useState(null);
 
-  /* ---------------- TOKEN (SINGLE SOURCE OF TRUTH) ---------------- */
+  /* ---------- STORE TOKEN ON FIRST LOAD ---------- */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const tokenFromUrl = params.get("token");
+    const token = params.get("token");
 
-    if (tokenFromUrl) {
-      localStorage.setItem("echoa_token", tokenFromUrl);
+    if (token) {
+      localStorage.setItem("echoa_token", token);
       window.history.replaceState({}, "", "/home");
-      setToken(tokenFromUrl);
-    } else {
-      const stored = localStorage.getItem("echoa_token");
-      if (stored) setToken(stored);
     }
   }, []);
 
-  /* ---------------- FETCH DATA ---------------- */
+  /* ---------- FETCH DATA WITH JWT ---------- */
   useEffect(() => {
-    if (!token) return; // 🔥 DO NOTHING without token
+    const token = localStorage.getItem("echoa_token");
+    if (!token) return;
 
     const fetchData = async () => {
       try {
-        const profileRes = await fetch(
+        const p = await fetch(
           "https://echoa-backend.onrender.com/me",
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
             cache: "no-store",
           }
         );
+        setProfile(await p.json());
 
-        if (!profileRes.ok) throw new Error("Profile failed");
-        setProfile(await profileRes.json());
-
-        const songRes = await fetch(
+        const s = await fetch(
           "https://echoa-backend.onrender.com/currently-playing",
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
             cache: "no-store",
           }
         );
-
-        if (!songRes.ok) throw new Error("Song failed");
-        setCurrent(await songRes.json());
-      } catch (err) {
-        console.error("Echoa fetch error:", err.message);
+        setCurrent(await s.json());
+      } catch (e) {
+        console.error(e);
       }
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 6000);
-    return () => clearInterval(interval);
-  }, [token]);
-
-  /* ---------------- LOADING ---------------- */
-  if (!token) {
-    return (
-      <div style={{ color: "white", padding: "40px" }}>
-        Initializing Echoa…
-      </div>
-    );
-  }
+    const i = setInterval(fetchData, 6000);
+    return () => clearInterval(i);
+  }, []);
 
   return (
     <div className="home-root">
       {/* NAV */}
       <div className="nav">
         <div className="hamburger">☰</div>
-
         {profile && (
           <div className="profile-menu">
             <img src={profile.images?.[0]?.url} alt="" />

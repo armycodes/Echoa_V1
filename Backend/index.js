@@ -248,7 +248,6 @@ const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
 const querystring = require("querystring");
-const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const app = express();
@@ -256,21 +255,14 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = 5000;
-const JWT_SECRET = process.env.JWT_SECRET || "echoa_super_secret";
+let spotifyAccessToken = null;
 
-/* -------------------- HEALTH -------------------- */
-app.get("/ping", (req, res) => {
-  res.json({ status: "ok" });
-});
-
-/* -------------------- LOGIN -------------------- */
+/* ---------- LOGIN ---------- */
 app.get("/login", (req, res) => {
   const scope = [
     "user-read-private",
     "user-read-email",
-    "playlist-read-private",
     "user-read-playback-state",
-    "user-modify-playback-state",
     "user-read-currently-playing",
   ].join(" ");
 
@@ -284,13 +276,13 @@ app.get("/login", (req, res) => {
   res.redirect(`https://accounts.spotify.com/authorize?${params}`);
 });
 
-/* -------------------- CALLBACK -------------------- */
+/* ---------- CALLBACK ---------- */
 app.get("/callback", async (req, res) => {
   const code = req.query.code;
-  if (!code) return res.redirect("https://echoa-v1.pages.dev/");
+  if (!code) return res.redirect("https://echoa-v1.pages.dev/home");
 
   try {
-    const tokenRes = await axios.post(
+    const r = await axios.post(
       "https://accounts.spotify.com/api/token",
       new URLSearchParams({
         grant_type: "authorization_code",
@@ -302,73 +294,44 @@ app.get("/callback", async (req, res) => {
       { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     );
 
-    const jwtToken = jwt.sign(
-      { spotifyAccessToken: tokenRes.data.access_token },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    res.redirect(`https://echoa-v1.pages.dev/home?token=${jwtToken}`);
-  } catch (e) {
-    console.error(e.message);
-    res.redirect("https://echoa-v1.pages.dev/");
-  }
-});
-
-/* -------------------- AUTH MIDDLEWARE -------------------- */
-function authenticate(req, res, next) {
-  const auth = req.headers.authorization;
-  if (!auth) return res.status(401).json({ error: "No token" });
-
-  try {
-    const decoded = jwt.verify(auth.split(" ")[1], JWT_SECRET);
-    req.spotifyAccessToken = decoded.spotifyAccessToken;
-    next();
+    spotifyAccessToken = r.data.access_token;
+    return res.redirect("https://echoa-v1.pages.dev/home");
   } catch {
-    res.status(401).json({ error: "Invalid token" });
-  }
-}
-
-/* -------------------- PROFILE -------------------- */
-app.get("/me", authenticate, async (req, res) => {
-  try {
-    const r = await axios.get("https://api.spotify.com/v1/me", {
-      headers: { Authorization: `Bearer ${req.spotifyAccessToken}` },
-    });
-    res.json(r.data);
-  } catch {
-    res.status(500).json({ error: "Profile failed" });
+    return res.redirect("https://echoa-v1.pages.dev/home");
   }
 });
 
-/* -------------------- CURRENT SONG -------------------- */
-app.get("/currently-playing", authenticate, async (req, res) => {
-  try {
-    const r = await axios.get(
-      "https://api.spotify.com/v1/me/player/currently-playing",
-      {
-        headers: { Authorization: `Bearer ${req.spotifyAccessToken}` },
-      }
-    );
+/* ---------- PROFILE ---------- */
+app.get("/me", async (req, res) => {
+  if (!spotifyAccessToken) return res.status(401).json({});
 
-    if (!r.data || !r.data.item) return res.json({ playing: false });
+  const r = await axios.get("https://api.spotify.com/v1/me", {
+    headers: { Authorization: `Bearer ${spotifyAccessToken}` },
+  });
 
-    const i = r.data.item;
-    res.json({
-      playing: true,
-      song: i.name,
-      artist: i.artists.map(a => a.name).join(", "),
-      albumImage: i.album.images[0].url,
-    });
-  } catch {
-    res.status(500).json({ error: "Song failed" });
-  }
+  res.json(r.data);
 });
 
-app.listen(PORT, () => {
-  console.log(`Backend running on ${PORT}`);
+/* ---------- CURRENT SONG ---------- */
+app.get("/currently-playing", async (req, res) => {
+  if (!spotifyAccessToken) return res.json({ playing: false });
+
+  const r = await axios.get(
+    "https://api.spotify.com/v1/me/player/currently-playing",
+    {
+      headers: { Authorization: `Bearer ${spotifyAccessToken}` },
+    }
+  );
+
+  if (!r.data || !r.data.item) return res.json({ playing: false });
+
+  const i = r.data.item;
+  res.json({
+    playing: true,
+    song: i.name,
+    artist: i.artists.map(a => a.name).join(", "),
+    albumImage: i.album.images[0].url,
+  });
 });
-/* -------------------- START SERVER -------------------- */
-/*app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});*/
+
+app.listen(PORT, () => console.log("Backend running"));
