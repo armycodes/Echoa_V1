@@ -1,4 +1,4 @@
-import "../styles/Login.css";
+/*import "../styles/Login.css";
 import loginBg from "../assets/login-bg.png";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -67,6 +67,104 @@ useEffect(() => {
 >
   Continue with Spotify
 </button>
+
+        </div>
+      </div>
+    </div>
+  );
+}*/
+
+import "../styles/Login.css";
+import loginBg from "../assets/login-bg.png";
+import { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom"; // Not needed if using window.location for hard refresh
+
+export default function Login() {
+  const fullText = "ECHOA";
+  const [displayText, setDisplayText] = useState("");
+
+  // --- 1. PREVENT AUTO-LOGIN LOOP ---
+  useEffect(() => {
+    // When Login page loads, clear any old tokens so user MUST choose again.
+    localStorage.removeItem("echoa_token");
+  }, []);
+
+  // --- 2. TYPING EFFECT (YOUR ORIGINAL CODE) ---
+  useEffect(() => {
+    let typingTimeout;
+    let restartTimeout;
+    let index = 0;
+
+    const startTyping = () => {
+      index = 0;
+      setDisplayText("");
+      typingTimeout = setInterval(() => {
+        index++;
+        setDisplayText(fullText.slice(0, index));
+        if (index === fullText.length) {
+          clearInterval(typingTimeout);
+          restartTimeout = setTimeout(() => {
+            startTyping(); 
+          }, 5000);
+        }
+      }, 220); 
+    };
+
+    startTyping();
+    return () => {
+      clearInterval(typingTimeout);
+      clearTimeout(restartTimeout);
+    };
+  }, []);
+
+  // --- 3. GUEST HANDLER ---
+  const handleGuestLogin = () => {
+    localStorage.setItem("echoa_token", "guest_mode_token");
+    // Force reload to ensure Home.jsx picks up the new mode cleanly
+    window.location.href = "/home"; 
+  };
+
+  return (
+    <div className="login-container">
+      <div className="image-section">
+        <img src={loginBg} alt="Echoa background" />
+        <div className="image-overlay"></div>
+      </div> 
+
+      <div className="login-panel">
+        <div className="login-content">
+          <h1 className="logo typing">{displayText}</h1>
+          <p className="tagline">Where music lingers.</p>
+
+          {/* BUTTON GROUP */}
+          <div style={{display:'flex', flexDirection:'column', gap:'15px', width:'100%', alignItems:'center'}}>
+              <button
+                className="spotify-btn"
+                onClick={() => {
+                  window.location.href = "https://echoa-backend.onrender.com/login";
+                }}
+              >
+                Continue with Spotify
+              </button>
+
+              {/* GUEST BUTTON */}
+              <button 
+                onClick={handleGuestLogin}
+                style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    color: 'white',
+                    padding: '12px 30px',
+                    borderRadius: '30px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    width: 'fit-content'
+                }}
+              >
+                Enter as Guest
+              </button>
+          </div>
 
         </div>
       </div>

@@ -249,6 +249,8 @@ const PORT = 5000;*/
    (Uses Render Backend & Cloudflare Frontend)
 */
 
+/* FILENAME: Backend/index.js */
+/* FILENAME: Backend/index.js */
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
@@ -259,40 +261,21 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ==========================================
-// 🔴 HARDCODED LIVE LINKS (As per request)
-// ==========================================
-
-// 1. Mee Backend URL (Render)
-// NOTE: Ikkada '/callback' undali
-const BACKEND_URL = "https://echoa-backend.onrender.com"; 
-const SPOTIFY_REDIRECT_URI = `${BACKEND_URL}/callback`;
-
-// 2. Mee Frontend URL (Cloudflare)
-const FRONTEND_URI = "https://echoa-v1.pages.dev";
-
-// 3. Spotify Credentials (Env nundi techukuntundi leda fallbacks)
-// Render Dashboard lo environment variables set cheyyadam marchipovaddu!
+// ENV VARIABLES
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const JWT_SECRET = process.env.JWT_SECRET || "echoa_super_secret_key_live";
+const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
+const FRONTEND_URI = process.env.FRONTEND_URI;
+const JWT_SECRET = process.env.JWT_SECRET;
 
-// ==========================================
-
-// Allow Only Your Live Frontend & Localhost (Just in case)
-app.use(cors({
-    origin: [FRONTEND_URI, "http://localhost:5173"], 
-    credentials: true
-}));
+app.use(cors({ origin: [FRONTEND_URI, "http://localhost:5173"], credentials: true }));
 app.use(express.json());
 
-// --- Middleware: Verify JWT Token ---
+// MIDDLEWARE: Check Token
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) return res.status(401).json({ error: "No token provided" });
-
+    if (!token) return res.status(401).json({ error: "No token" });
     jwt.verify(token, JWT_SECRET, (err, user) => {
         if (err) return res.status(403).json({ error: "Invalid token" });
         req.user = user;
@@ -300,78 +283,50 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// --- ROUTES ---
+app.get("/", (req, res) => res.send("Echoa Backend Alive! 🟢"));
 
-app.get("/", (req, res) => {
-    res.send("Echoa Live Backend is Active! 🌍");
-});
-
-// 1. LOGIN
+// --- 1. LOGIN (IMPORTANT: ADDED PERMISSIONS) ---
 app.get("/login", (req, res) => {
-    const scope = "user-read-private user-read-email user-read-playback-state user-read-currently-playing";
-    const params = querystring.stringify({
-        response_type: "code",
-        client_id: SPOTIFY_CLIENT_ID,
-        scope: scope,
-        redirect_uri: SPOTIFY_REDIRECT_URI, // Points to Render
-    });
-    res.redirect(`https://accounts.spotify.com/authorize?${params}`);
+    // "user-modify-playback-state" is required for Play/Pause/Next
+    const scope = "user-read-private user-read-email user-read-playback-state user-read-currently-playing user-modify-playback-state";
+    res.redirect('https://accounts.spotify.com/authorize?' +
+        querystring.stringify({
+            response_type: "code",
+            client_id: SPOTIFY_CLIENT_ID,
+            scope: scope,
+            redirect_uri: SPOTIFY_REDIRECT_URI,
+        }));
 });
 
-// 2. CALLBACK (Handles Spotify Response)
 app.get("/callback", async (req, res) => {
     const code = req.query.code || null;
-
-    if (!code) {
-        return res.redirect(`${FRONTEND_URI}/?error=no_code`);
-    }
-
+    if (!code) return res.redirect(`${FRONTEND_URI}/?error=no_code`);
     try {
-        // Exchange Code for Token
-        const response = await axios.post(
-            "https://accounts.spotify.com/api/token",
+        const response = await axios.post("https://accounts.spotify.com/api/token", 
             new URLSearchParams({
                 grant_type: "authorization_code",
-                code: code,
-                redirect_uri: SPOTIFY_REDIRECT_URI, // Must match exactly
+                code,
+                redirect_uri: SPOTIFY_REDIRECT_URI,
                 client_id: SPOTIFY_CLIENT_ID,
                 client_secret: SPOTIFY_CLIENT_SECRET,
-            }),
-            { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+            }), { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
         );
-
-        const { access_token, refresh_token } = response.data;
-
-        // Wrap in JWT
-        const userJwt = jwt.sign(
-            { accessToken: access_token, refreshToken: refresh_token }, 
-            JWT_SECRET, 
-            { expiresIn: "1h" }
-        );
-
-        // Redirect to LIVE Frontend
+        const userJwt = jwt.sign({ accessToken: response.data.access_token }, JWT_SECRET, { expiresIn: "1h" });
         res.redirect(`${FRONTEND_URI}/home?token=${userJwt}`);
-
     } catch (error) {
-        console.error("Spotify Auth Error:", error.response ? error.response.data : error.message);
         res.redirect(`${FRONTEND_URI}/?error=auth_failed`);
     }
 });
 
-// 3. GET PROFILE
 app.get("/me", authenticateToken, async (req, res) => {
     try {
         const response = await axios.get("https://api.spotify.com/v1/me", {
             headers: { Authorization: `Bearer ${req.user.accessToken}` },
         });
         res.json(response.data);
-    } catch (error) {
-        console.error("Profile Error:", error.message);
-        res.status(500).json({ error: "Failed to fetch profile" });
-    }
+    } catch (e) { res.status(500).json({ error: "Profile fetch failed" }); }
 });
 
-// 4. GET CURRENTLY PLAYING
 app.get("/currently-playing", authenticateToken, async (req, res) => {
     try {
         const response = await axios.get("https://api.spotify.com/v1/me/player/currently-playing", {
@@ -381,22 +336,57 @@ app.get("/currently-playing", authenticateToken, async (req, res) => {
         if (!response.data || !response.data.item) {
             return res.json({ playing: false, message: "No song playing" });
         }
-
         const item = response.data.item;
+        let albumImage = "";
+        if (item.album && item.album.images.length > 0) albumImage = item.album.images[0].url;
+        
         res.json({
             playing: response.data.is_playing,
             song: item.name,
-            artist: item.artists.map((a) => a.name).join(", "),
-            albumImage: item.album.images[0]?.url,
+            artist: item.artists.map(a => a.name).join(", "),
+            albumImage: albumImage,
             uri: item.uri
         });
-
-    } catch (error) {
-        console.error("Song Fetch Error:", error.message);
-        res.status(500).json({ error: "Failed to fetch song" });
-    }
+    } catch (error) { res.status(500).json({ error: "Failed to fetch song" }); }
 });
 
-app.listen(PORT, () => {
-    console.log(`✅ Server running on port ${PORT} (Configured for LIVE)`);
+// --- 2. CONTROL ROUTES (NEW) ---
+// Play/Pause/Next work cheyyalante ivi undali
+
+app.post("/player/pause", authenticateToken, async (req, res) => {
+    try {
+        await axios.put("https://api.spotify.com/v1/me/player/pause", {}, {
+            headers: { Authorization: `Bearer ${req.user.accessToken}` }
+        });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: "Pause failed" }); }
 });
+
+app.post("/player/play", authenticateToken, async (req, res) => {
+    try {
+        await axios.put("https://api.spotify.com/v1/me/player/play", {}, {
+            headers: { Authorization: `Bearer ${req.user.accessToken}` }
+        });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: "Play failed" }); }
+});
+
+app.post("/player/next", authenticateToken, async (req, res) => {
+    try {
+        await axios.post("https://api.spotify.com/v1/me/player/next", {}, {
+            headers: { Authorization: `Bearer ${req.user.accessToken}` }
+        });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: "Next failed" }); }
+});
+
+app.post("/player/previous", authenticateToken, async (req, res) => {
+    try {
+        await axios.post("https://api.spotify.com/v1/me/player/previous", {}, {
+            headers: { Authorization: `Bearer ${req.user.accessToken}` }
+        });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: "Prev failed" }); }
+});
+
+app.listen(PORT, () => console.log(`✅ Backend running on ${PORT}`));
