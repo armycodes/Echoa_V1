@@ -89,12 +89,18 @@ export default function Home() {
 import React, { useState, useEffect } from 'react';
 import "../styles/Home.css"; 
 
+// Default Spotify Image for fallback
+const DEFAULT_IMG = "https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg";
+
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [current, setCurrent] = useState(null);
+  const [player, setPlayer] = useState(undefined);
+  const [is_paused, setPaused] = useState(false);
+  const [is_active, setActive] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // --- 1. STORE TOKEN ON FIRST LOAD (Your Original Logic) ---
+  // --- 1. TOKEN HANDLING ---
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
@@ -105,95 +111,119 @@ export default function Home() {
     }
   }, []);
 
-  // --- 2. FETCH DATA FROM YOUR RENDER BACKEND (Your Original Logic) ---
+  // --- 2. INITIALIZE SPOTIFY WEB PLAYBACK SDK (AUDIO PLAYER) ---
   useEffect(() => {
     const token = localStorage.getItem("echoa_token");
     if (!token) return;
 
-    const fetchData = async () => {
-      try {
-        // Fetch Profile
-        const p = await fetch("https://echoa-backend.onrender.com/me", {
-          headers: { Authorization: `Bearer ${token}` },
-          cache: "no-store",
-        });
-        const profileData = await p.json();
-        setProfile(profileData);
+    // Load Spotify SDK Script
+    const script = document.createElement("script");
+    script.src = "https://sdk.scdn.co/spotify-player.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-        // Fetch Current Song
-        const s = await fetch("https://echoa-backend.onrender.com/currently-playing", {
-          headers: { Authorization: `Bearer ${token}` },
-          cache: "no-store",
-        });
-        
-        // Handle empty response (if no song is playing)
-        if (s.status === 204 || s.status > 400) {
-            setCurrent(null);
-        } else {
-            const songData = await s.json();
-            setCurrent(songData);
+    // Initialize Player when SDK is ready
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const newPlayer = new window.Spotify.Player({
+        name: 'Echoa Web Player',
+        getOAuthToken: cb => { cb(token); },
+        volume: 0.5
+      });
+
+      setPlayer(newPlayer);
+
+      newPlayer.addListener('ready', ({ device_id }) => {
+        console.log('Ready with Device ID', device_id);
+        // Auto-transfer playback to this browser
+        transferPlayback(token, device_id);
+      });
+
+      newPlayer.addListener('not_ready', ({ device_id }) => {
+        console.log('Device ID has gone offline', device_id);
+      });
+
+      newPlayer.addListener('player_state_changed', (state) => {
+        if (!state) {
+          return;
         }
+        setCurrent(state.track_window.current_track);
+        setPaused(state.paused);
+        setActive(true);
+        
+        // Update document title
+        document.title = state.track_window.current_track.name;
+      });
 
-      } catch (e) {
-        console.error("Error fetching data:", e);
-      }
+      newPlayer.connect();
     };
 
-    fetchData();
-    const i = setInterval(fetchData, 6000); // Polling every 6 seconds
-    return () => clearInterval(i);
+    // Also fetch profile for the header
+    fetchProfile(token);
+
   }, []);
 
-  // --- 3. CONTROLS (Standard Spotify API Calls using your Token) ---
-  // Since your snippet didn't have control logic, I added direct calls 
-  // so the buttons actually work.
-  const handleControl = async (command) => {
-    const token = localStorage.getItem("echoa_token");
-    if (!token) return;
+  // Helper: Transfer Playback to Browser
+  const transferPlayback = async (token, device_id) => {
+    await fetch('https://api.spotify.com/v1/me/player', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        device_ids: [device_id],
+        play: true,
+      }),
+    });
+  };
 
-    let endpoint = "";
-    let method = "POST";
-
-    if (command === "play") {
-        endpoint = "https://api.spotify.com/v1/me/player/play";
-        method = "PUT";
-    } else if (command === "pause") {
-        endpoint = "https://api.spotify.com/v1/me/player/pause";
-        method = "PUT";
-    } else if (command === "next") {
-        endpoint = "https://api.spotify.com/v1/me/player/next";
-    } else if (command === "prev") {
-        endpoint = "https://api.spotify.com/v1/me/player/previous";
-    }
-
+  // Helper: Fetch Profile
+  const fetchProfile = async (token) => {
     try {
-        await fetch(endpoint, {
-            method: method,
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        // State updates automatically via the polling useEffect above
+      const response = await fetch("https://echoa-backend.onrender.com/me", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await response.json();
+      setProfile(data);
     } catch (e) {
-        console.error("Control error:", e);
+      console.error("Profile fetch error", e);
     }
+  };
+
+  // --- 3. CONTROLS (Using SDK Player) ---
+  const togglePlay = () => {
+    if (player) player.togglePlay();
+  };
+
+  const nextTrack = () => {
+    if (player) player.nextTrack();
+  };
+
+  const prevTrack = () => {
+    if (player) player.previousTrack();
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("echoa_token"); // Clears YOUR specific token
-    window.location.href = "/"; // Redirect to login
+    localStorage.removeItem("echoa_token");
+    window.location.href = "/";
   };
 
   // --- 4. PREPARE DISPLAY DATA ---
-  // If data exists from backend, use it. Otherwise show default.
+  // If player is active, use SDK data. Else use Profile defaults.
   const display = {
     userName: profile?.display_name || "Spotify User",
-    userImg: profile?.images?.[0]?.url || "https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg",
+    userImg: profile?.images?.[0]?.url || DEFAULT_IMG,
     
-    // Mapping YOUR backend variables (current.song, current.artist, etc.)
-    title: current?.song || "No Active Song",
-    artist: current?.artist || "Play on Spotify to sync",
-    cover: current?.albumImage || "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png",
-    isPlaying: current?.playing || false
+    // SDK Data Mapping
+    title: current?.name || "Ready to Play",
+    artist: current?.artists?.[0]?.name || "Select a song on Spotify",
+    cover: current?.album?.images?.[0]?.url || "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png",
+    isPlaying: !is_paused && is_active
   };
+
+  if (!localStorage.getItem("echoa_token")) {
+      return <div className="h-screen w-screen bg-black text-white flex items-center justify-center">Please Login</div>;
+  }
 
   return (
     // CONTAINER: 100vh Fixed (No Scrolling)
@@ -238,7 +268,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* Profile (Fetched from /me) */}
+        {/* Profile */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '14px', fontWeight: '500', color: '#eee' }}>{display.userName}</span>
           <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '1px solid #555' }}>
@@ -275,7 +305,7 @@ export default function Home() {
               <div key={m} style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid #222', opacity: 0.4, margin: `${m}px` }}></div>
             ))}
             
-            {/* Album Art (Fetched from /currently-playing) */}
+            {/* Album Art */}
             <div style={{ width: '150px', height: '150px', borderRadius: '50%', overflow: 'hidden', zIndex: 10, position: 'relative', border: '2px solid #000' }}>
                <img src={display.cover} alt="Album Art" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
@@ -313,19 +343,18 @@ export default function Home() {
       {/* --- CONTROLS --- */}
       <div style={{ width: '100%', paddingBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         
-        {/* Progress Bar (Optional - based on polling it might be jumpy so kept static/hidden logic for now, or you can add if backend sends progress) */}
-        {/* <div style={{ width: '40%', minWidth: '300px', height: '4px', background: '#333', borderRadius: '10px', marginBottom: '25px' }} /> */}
-
+        {/* Progress Bar (Hidden for SDK simplicity, can add later) */}
+        
         <div style={{ 
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '40px',
           background: '#1a1a1a', padding: '15px 50px', borderRadius: '50px' 
         }}>
-          <svg onClick={() => handleControl("prev")} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
+          <svg onClick={prevTrack} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
              <path d="M11 19V5l-9 7l9 7zm11 0V5l-9 7l9 7z"></path>
           </svg>
           
           <button 
-            onClick={() => handleControl(display.isPlaying ? "pause" : "play")}
+            onClick={togglePlay}
             style={{ width: '50px', height: '50px', backgroundColor: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
           >
             {display.isPlaying ? (
@@ -335,7 +364,7 @@ export default function Home() {
             )}
           </button>
 
-           <svg onClick={() => handleControl("next")} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
+           <svg onClick={nextTrack} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
              <path d="M4 5v14l9-7l-9-7zm9 0v14l9-7l-9-7z"></path>
           </svg>
         </div>
