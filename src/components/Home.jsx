@@ -88,6 +88,9 @@ export default function Home() {
 }*/
 import { useEffect, useState, useRef } from "react";
 import "../styles/Home.css";
+import React, { useState } from 'react';
+import { Play, Pause, SkipBack, SkipForward, Menu, Heart } from 'lucide-react';
+
 
 // --- ASSETS ---
 const VINYL_DEFAULT = "https://upload.wikimedia.org/wikipedia/commons/b/b6/12in-Vinyl-LP-Record-Angle.jpg";
@@ -126,205 +129,140 @@ const GUEST_PLAYLIST = [
   }
 ];
 
-export default function Home() {
-  // 1. Check Mode Immediately
-  const token = localStorage.getItem("echoa_token");
-  const isGuestMode = token === "guest_mode_token";
-
-  // 2. States
-  const [profile, setProfile] = useState(null);
-  const [current, setCurrent] = useState(isGuestMode ? GUEST_PLAYLIST[0] : null); // Guest aithe first song load chey
+const Home = () => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [guestIndex, setGuestIndex] = useState(0);
-  const playerRef = useRef(null);
+  const [progress, setProgress] = useState(30); 
 
-  // --- INITIAL SETUP ---
-  useEffect(() => {
-    // A. URL lo Token unte (Spotify return)
-    const params = new URLSearchParams(window.location.search);
-    const urlToken = params.get("token");
-    
-    if (urlToken) {
-      localStorage.setItem("echoa_token", urlToken);
-      window.history.replaceState({}, "", "/home");
-      window.location.reload(); // Clean refresh for Spotify mode
-      return;
-    }
-
-    // B. Guest Mode Setup
-    if (isGuestMode) {
-        setProfile({ display_name: "Guest Listener", isGuest: true });
-        // Load YouTube API
-        if (!window.YT) {
-            const tag = document.createElement('script');
-            tag.src = "https://www.youtube.com/iframe_api";
-            document.body.appendChild(tag);
-        }
-        window.onYouTubeIframeAPIReady = initGuestPlayer;
-        if (window.YT && window.YT.Player) initGuestPlayer();
-    } 
-    // C. Spotify Mode Setup
-    else {
-        const t = localStorage.getItem("echoa_token");
-        if (t) {
-            fetchSpotifyData(t);
-            // Poll every 5 seconds for updates
-            const interval = setInterval(() => fetchSpotifyData(t), 5000);
-            return () => clearInterval(interval);
-        }
-    }
-  }, [isGuestMode]);
-
-  /* --- SPOTIFY FUNCTIONS --- */
-  const fetchSpotifyData = async (t) => {
-      try {
-        // Get Profile
-        if(!profile) {
-            const p = await fetch("https://echoa-backend.onrender.com/me", { headers: { Authorization: `Bearer ${t}` } });
-            if(p.ok) setProfile(await p.json());
-        }
-
-        // Get Song
-        const s = await fetch("https://echoa-backend.onrender.com/currently-playing", { headers: { Authorization: `Bearer ${t}` } });
-        if(s.ok) {
-            const data = await s.json();
-            setCurrent(data);
-            setIsPlaying(data.playing); 
-        }
-      } catch (e) { console.error("Spotify Fetch Error:", e); }
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
   };
-
-  /* --- GUEST PLAYER (YOUTUBE) --- */
-  const initGuestPlayer = () => {
-      if (playerRef.current) return;
-      playerRef.current = new window.YT.Player('audio-player', {
-          height: '0', width: '0', // Hidden Player
-          videoId: GUEST_PLAYLIST[0].id,
-          playerVars: { 'autoplay': 0, 'controls': 0, 'origin': window.location.origin },
-          events: { 'onReady': (e) => e.target.unMute() }
-      });
-  };
-
-  /* --- CONTROLS LOGIC (Unified) --- */
-  const handlePlayPause = async () => {
-    // GUEST LOGIC
-    if (isGuestMode) {
-        if (!playerRef.current) return;
-        if (isPlaying) playerRef.current.pauseVideo();
-        else playerRef.current.playVideo();
-        setIsPlaying(!isPlaying);
-    } 
-    // SPOTIFY LOGIC
-    else {
-        const t = localStorage.getItem("echoa_token");
-        const endpoint = isPlaying ? "/player/pause" : "/player/play";
-        await fetch(`https://echoa-backend.onrender.com${endpoint}`, { method: 'POST', headers: { Authorization: `Bearer ${t}` } });
-        setIsPlaying(!isPlaying);
-        setTimeout(() => fetchSpotifyData(t), 500); // Quick refresh after click
-    }
-  };
-
-  const handleNext = async () => {
-      if (isGuestMode) {
-          let newIndex = (guestIndex + 1) % GUEST_PLAYLIST.length;
-          setGuestIndex(newIndex);
-          updateGuestSong(newIndex);
-      } else {
-          const t = localStorage.getItem("echoa_token");
-          await fetch(`https://echoa-backend.onrender.com/player/next`, { method: 'POST', headers: { Authorization: `Bearer ${t}` } });
-          setTimeout(() => fetchSpotifyData(t), 1000);
-      }
-  };
-
-  const handlePrev = async () => {
-      if (isGuestMode) {
-          let newIndex = (guestIndex - 1 + GUEST_PLAYLIST.length) % GUEST_PLAYLIST.length;
-          setGuestIndex(newIndex);
-          updateGuestSong(newIndex);
-      } else {
-          const t = localStorage.getItem("echoa_token");
-          await fetch(`https://echoa-backend.onrender.com/player/previous`, { method: 'POST', headers: { Authorization: `Bearer ${t}` } });
-          setTimeout(() => fetchSpotifyData(t), 1000);
-      }
-  };
-
-  const updateGuestSong = (index) => {
-      const song = GUEST_PLAYLIST[index];
-      setCurrent(song);
-      setIsPlaying(true);
-      if (playerRef.current) playerRef.current.loadVideoById(song.id);
-  };
-
-  const handleLogout = () => {
-      localStorage.removeItem("echoa_token");
-      window.location.href = "/";
-  };
-
-  // --- UI PREPARATION ---
-  // Ikkada Logic: Guest aite 'image' teesko, Spotify aite 'albumImage' teesko.
-  const displayImg = current?.image || current?.albumImage || VINYL_DEFAULT;
-  const displaySong = current?.title || current?.song || "Welcome to Echoa";
-  const displayArtist = current?.artist || "Ready to play...";
 
   return (
-    <div className="home-root">
-      {/* Hidden Youtube Player for Guest */}
-      <div id="audio-player" style={{ position: 'absolute', top: '-1000px' }}></div>
-
-      {/* NAVBAR */}
-      <div className="nav">
-        <div className="hamburger">☰</div>
-        <button onClick={handleLogout} className="logout-btn">LOGOUT</button>
-
-        {profile && (
-          <div className="profile-menu">
-            {profile.images && profile.images[0] ? (
-                <img src={profile.images[0].url} alt="Profile" />
-            ) : (
-                <div className="guest-pfp">{profile.display_name?.charAt(0) || "U"}</div>
-            )}
-            <span>{profile.display_name}</span>
+    <div className="min-h-screen bg-black text-white flex flex-col font-sans overflow-hidden relative">
+      
+      {/* 1. Header Section */}
+      <div className="flex items-center justify-between p-4 pt-6 z-10">
+        <Menu className="w-6 h-6 text-gray-300" />
+        <div className="flex items-center gap-2 mr-auto ml-4">
+          <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-600">
+             {/* Profile Pic */}
+            <img src="https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg" alt="Profile" className="w-full h-full object-cover" />
           </div>
-        )}
+          <span className="text-sm font-medium text-gray-200">Rkive's cutie 💜🤌🏻</span>
+        </div>
       </div>
 
-      {/* MAIN STAGE (Unified Design) */}
-      <div className="vinyl-stage">
+      {/* 2. Main Vinyl Player Section */}
+      <div className="flex-1 flex flex-col items-center justify-center relative mt-[-20px]">
         
-        {/* VINYL DISC */}
-        <div className="vinyl-box">
-          <div className="tonearm" style={{ 
-              transform: isPlaying ? 'rotate(0deg)' : 'rotate(-25deg)', 
-              transition: 'transform 0.5s' 
-          }} />
+        {/* The Vinyl Container */}
+        <div className="relative w-[300px] h-[300px] flex items-center justify-center">
           
-          <div className={`vinyl ${isPlaying ? "spinning" : ""}`}>
-            <img 
-                src={displayImg} 
+          {/* Background Dark Square (Subtle card effect) */}
+          <div className="absolute inset-4 bg-[#1a1a1a] rounded-xl shadow-2xl opacity-50"></div>
+
+          {/* THE VINYL DISC (Rotates when playing) */}
+          <div 
+            className={`relative w-[260px] h-[260px] rounded-full border-4 border-[#121212] shadow-2xl flex items-center justify-center bg-black transition-all duration-1000 ${isPlaying ? 'animate-spin-slow' : ''}`}
+            style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}
+          >
+            {/* Vinyl Texture */}
+            <div className="absolute inset-0 rounded-full border-[10px] border-[#181818]"></div>
+            <div className="absolute inset-8 rounded-full border border-[#222]"></div>
+            <div className="absolute inset-12 rounded-full border border-[#222]"></div>
+            
+            {/* Album Art */}
+            <div className="w-[160px] h-[160px] rounded-full overflow-hidden z-10 relative">
+               <img 
+                src="https://upload.wikimedia.org/wikipedia/en/a/a1/BTS_-_Map_of_the_Soul_Persona.png" 
                 alt="Album Art" 
-                onError={(e) => e.target.src = VINYL_DEFAULT} 
-            />
+                className="w-full h-full object-cover" 
+              />
+              <div className="absolute inset-0 bg-pink-500 opacity-20 mix-blend-overlay"></div>
+            </div>
+
+            {/* Center Hole */}
+            <div className="absolute w-4 h-4 bg-black rounded-full z-20 border border-gray-700"></div>
+          </div>
+
+          {/* THE STICK (Tone Arm) - Moves onto record when playing */}
+          <div className="absolute top-[-20px] right-[-10px] w-12 h-12 bg-[#2a2a2a] rounded-full shadow-lg z-30 flex items-center justify-center border border-[#444]">
+            <div className="w-4 h-4 bg-gray-400 rounded-full shadow-inner"></div>
+          </div>
+          
+          <div 
+            className={`absolute top-0 right-2 w-[100px] h-[140px] z-20 transition-transform duration-700 ease-in-out origin-top-right`}
+            style={{ transform: isPlaying ? 'rotate(15deg)' : 'rotate(-25deg)' }}
+          >
+            {/* Stick Body */}
+            <div className="absolute top-4 right-4 w-2 h-[100px] bg-gradient-to-b from-gray-500 to-gray-700 rounded-full shadow-xl transform -rotate-12"></div>
+            {/* Needle Head */}
+            <div className="absolute bottom-6 left-6 w-8 h-12 bg-[#333] rounded-md transform rotate-12 flex items-center justify-center shadow-lg border-t border-gray-600">
+               <div className="w-1 h-3 bg-white mt-auto mb-1"></div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* 3. Song Info */}
+        <div className="mt-12 text-center z-10">
+          <h2 className="text-2xl font-bold text-gray-100 tracking-wide">Jamais Vu</h2>
+          <p className="text-gray-400 text-sm mt-1">BTS</p>
+        </div>
+      </div>
+
+      {/* 4. Controls */}
+      <div className="pb-12 px-8 w-full z-10">
+        
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-800 h-1 rounded-full mb-6 relative group cursor-pointer">
+          <div className="bg-white h-1 rounded-full relative" style={{ width: `${progress}%` }}>
+            <div className="w-3 h-3 bg-white rounded-full absolute right-0 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           </div>
         </div>
 
-        {/* SONG INFO */}
-        <div className="track-info">
-            <h2>{displaySong}</h2>
-            <p>{displayArtist}</p>
-        </div>
+        {/* Buttons */}
+        <div className="flex items-center justify-between max-w-[280px] mx-auto">
+          {/* Shuffle Icon */}
+          <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
 
-        {/* CONTROLS */}
-        <div className="controls-container">
-            <button className="ctrl-btn" onClick={handlePrev}>⏮</button>
-            <button className="ctrl-btn play-btn" onClick={handlePlayPause}>
-                {isPlaying ? "⏸" : "▶"}
-            </button>
-            <button className="ctrl-btn" onClick={handleNext}>⏭</button>
-        </div>
+          <SkipBack className="w-6 h-6 text-white cursor-pointer hover:text-gray-300 transition" />
+          
+          {/* Play/Pause */}
+          <button 
+            onClick={togglePlay}
+            className="w-14 h-14 bg-white rounded-full flex items-center justify-center hover:scale-105 transition active:scale-95 shadow-lg shadow-white/10"
+          >
+            {isPlaying ? (
+              <Pause className="w-6 h-6 text-black fill-current" />
+            ) : (
+              <Play className="w-6 h-6 text-black fill-current ml-1" />
+            )}
+          </button>
 
+          <SkipForward className="w-6 h-6 text-white cursor-pointer hover:text-gray-300 transition" />
+
+          {/* Loop Icon */}
+          <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </div>
       </div>
+
+      {/* Animation Styles */}
+      <style jsx>{`
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 8s linear infinite;
+        }
+      `}</style>
     </div>
   );
-}
+};
 
-
+export default Home;
