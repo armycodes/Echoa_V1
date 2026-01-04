@@ -89,114 +89,114 @@ export default function Home() {
 import React, { useState, useEffect } from 'react';
 import "../styles/Home.css"; 
 
-const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfile }) => {
-  const [localIsPlaying, setLocalIsPlaying] = useState(false);
+export default function Home() {
+  const [profile, setProfile] = useState(null);
+  const [current, setCurrent] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [guestSongIndex, setGuestSongIndex] = useState(0); 
 
-  // Sync state with Spotify Prop
+  // --- 1. STORE TOKEN ON FIRST LOAD (Your Original Logic) ---
   useEffect(() => {
-    setLocalIsPlaying(is_playing);
-  }, [is_playing]);
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
 
-  // --- 1. REAL SPOTIFY API CALLS (This fixes the controls) ---
-  const handleSpotifyAction = async (endpoint, method = "PUT") => {
+    if (token) {
+      localStorage.setItem("echoa_token", token);
+      window.history.replaceState({}, "", "/home");
+    }
+  }, []);
+
+  // --- 2. FETCH DATA FROM YOUR RENDER BACKEND (Your Original Logic) ---
+  useEffect(() => {
+    const token = localStorage.getItem("echoa_token");
     if (!token) return;
 
+    const fetchData = async () => {
+      try {
+        // Fetch Profile
+        const p = await fetch("https://echoa-backend.onrender.com/me", {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        });
+        const profileData = await p.json();
+        setProfile(profileData);
+
+        // Fetch Current Song
+        const s = await fetch("https://echoa-backend.onrender.com/currently-playing", {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        });
+        
+        // Handle empty response (if no song is playing)
+        if (s.status === 204 || s.status > 400) {
+            setCurrent(null);
+        } else {
+            const songData = await s.json();
+            setCurrent(songData);
+        }
+
+      } catch (e) {
+        console.error("Error fetching data:", e);
+      }
+    };
+
+    fetchData();
+    const i = setInterval(fetchData, 6000); // Polling every 6 seconds
+    return () => clearInterval(i);
+  }, []);
+
+  // --- 3. CONTROLS (Standard Spotify API Calls using your Token) ---
+  // Since your snippet didn't have control logic, I added direct calls 
+  // so the buttons actually work.
+  const handleControl = async (command) => {
+    const token = localStorage.getItem("echoa_token");
+    if (!token) return;
+
+    let endpoint = "";
+    let method = "POST";
+
+    if (command === "play") {
+        endpoint = "https://api.spotify.com/v1/me/player/play";
+        method = "PUT";
+    } else if (command === "pause") {
+        endpoint = "https://api.spotify.com/v1/me/player/pause";
+        method = "PUT";
+    } else if (command === "next") {
+        endpoint = "https://api.spotify.com/v1/me/player/next";
+    } else if (command === "prev") {
+        endpoint = "https://api.spotify.com/v1/me/player/previous";
+    }
+
     try {
-      await fetch(`https://api.spotify.com/v1/me/player/${endpoint}`, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-    } catch (error) {
-      console.error("Spotify API Error:", error);
+        await fetch(endpoint, {
+            method: method,
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        // State updates automatically via the polling useEffect above
+    } catch (e) {
+        console.error("Control error:", e);
     }
-  };
-
-  const togglePlay = () => {
-    if (token) {
-      // Calls Official Spotify API
-      if (is_playing) handleSpotifyAction("pause", "PUT");
-      else handleSpotifyAction("play", "PUT");
-    } else {
-      setLocalIsPlaying(!localIsPlaying);
-    }
-  };
-
-  const handleNext = () => {
-    if (token) handleSpotifyAction("next", "POST");
-    else setGuestSongIndex((prev) => (prev + 1) % guestSongs.length);
-  };
-
-  const handlePrev = () => {
-    if (token) handleSpotifyAction("previous", "POST");
-    else setGuestSongIndex((prev) => (prev - 1 + guestSongs.length) % guestSongs.length);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); 
-    window.location.reload(); 
+    localStorage.removeItem("echoa_token"); // Clears YOUR specific token
+    window.location.href = "/"; // Redirect to login
   };
 
-  // --- GUEST SONGS ---
-  const guestSongs = [
-    { title: "Filter", artist: "Jimin (BTS)", albumUrl: "https://upload.wikimedia.org/wikipedia/en/a/a1/BTS_-_Map_of_the_Soul_Persona.png" },
-    { title: "Daechwita", artist: "Agust D", albumUrl: "https://ibighit.com/bts/images/bts/discography/mots_7/album-cover.jpg" },
-    { title: "Blue & Grey", artist: "BTS", albumUrl: "https://ibighit.com/bts/images/bts/discography/be/album-cover.jpg" },
-    { title: "Starboy", artist: "The Weeknd", albumUrl: "https://upload.wikimedia.org/wikipedia/en/3/39/The_Weeknd_-_Starboy.png" },
-    { title: "Blinding Lights", artist: "The Weeknd", albumUrl: "https://upload.wikimedia.org/wikipedia/en/e/e6/The_Weeknd_-_Blinding_Lights.png" }
-  ];
-
-  // --- DATA LOGIC (Strict Integration) ---
-  let displayData = {};
-
-  if (token) {
-    // --- USER MODE (Uses Props from backend) ---
-    // 1. Profile Data
-    const userName = userProfile?.display_name || "Spotify User";
-    const userImg = userProfile?.images?.[0]?.url || "https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg";
+  // --- 4. PREPARE DISPLAY DATA ---
+  // If data exists from backend, use it. Otherwise show default.
+  const display = {
+    userName: profile?.display_name || "Spotify User",
+    userImg: profile?.images?.[0]?.url || "https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg",
     
-    // 2. Song Data (Using 'item' prop directly)
-    if (item) {
-      displayData = {
-        userName,
-        userImg,
-        title: item.name,
-        artist: item.artists.map(a => a.name).join(', '),
-        cover: item.album.images[0].url,
-        isPlaying: is_playing, 
-        isUser: true
-      };
-    } else {
-      // Logged in but No Song Playing
-      displayData = {
-        userName,
-        userImg,
-        title: "No Active Song",
-        artist: "Play on Spotify to sync",
-        cover: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png",
-        isPlaying: false,
-        isUser: true
-      };
-    }
-  } else {
-    // --- GUEST MODE ---
-    displayData = {
-      userName: "Rkive's cutie 💜🤌🏻",
-      userImg: "https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg",
-      title: guestSongs[guestSongIndex].title,
-      artist: guestSongs[guestSongIndex].artist,
-      cover: guestSongs[guestSongIndex].albumUrl,
-      isPlaying: localIsPlaying,
-      isUser: false
-    };
-  }
+    // Mapping YOUR backend variables (current.song, current.artist, etc.)
+    title: current?.song || "No Active Song",
+    artist: current?.artist || "Play on Spotify to sync",
+    cover: current?.albumImage || "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png",
+    isPlaying: current?.playing || false
+  };
 
   return (
-    // CONTAINER: 100vh Fixed (No Scroll)
+    // CONTAINER: 100vh Fixed (No Scrolling)
     <div style={{ 
       height: '100vh', 
       width: '100vw', 
@@ -238,11 +238,11 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
           )}
         </div>
 
-        {/* Profile (Dynamic Data) */}
+        {/* Profile (Fetched from /me) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '14px', fontWeight: '500', color: '#eee' }}>{displayData.userName}</span>
+          <span style={{ fontSize: '14px', fontWeight: '500', color: '#eee' }}>{display.userName}</span>
           <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '1px solid #555' }}>
-            <img src={displayData.userImg} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={display.userImg} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
       </div>
@@ -255,7 +255,7 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
           
           {/* Rotating Disc */}
           <div 
-            className={displayData.isPlaying ? 'animate-spin-slow' : ''}
+            className={display.isPlaying ? 'animate-spin-slow' : ''}
             style={{ 
               position: 'relative', 
               width: '250px', 
@@ -268,16 +268,16 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
               justifyContent: 'center', 
               backgroundColor: '#111', 
               transition: 'all 1s',
-              animationPlayState: displayData.isPlaying ? 'running' : 'paused'
+              animationPlayState: display.isPlaying ? 'running' : 'paused'
             }}
           >
             {[10, 30, 50].map(m => (
               <div key={m} style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid #222', opacity: 0.4, margin: `${m}px` }}></div>
             ))}
             
-            {/* Album Art (Dynamic) */}
+            {/* Album Art (Fetched from /currently-playing) */}
             <div style={{ width: '150px', height: '150px', borderRadius: '50%', overflow: 'hidden', zIndex: 10, position: 'relative', border: '2px solid #000' }}>
-               <img src={displayData.cover} alt="Album Art" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+               <img src={display.cover} alt="Album Art" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <div style={{ position: 'absolute', width: '12px', height: '12px', backgroundColor: 'black', borderRadius: '50%', zIndex: 20 }}></div>
           </div>
@@ -293,7 +293,7 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
               zIndex: 30, 
               transition: 'transform 0.7s ease-in-out', 
               transformOrigin: 'top right',
-              transform: displayData.isPlaying ? 'rotate(15deg)' : 'rotate(-25deg)',
+              transform: display.isPlaying ? 'rotate(15deg)' : 'rotate(-25deg)',
               pointerEvents: 'none' 
             }}
           >
@@ -305,39 +305,37 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
 
         {/* Song Info */}
         <div style={{ marginTop: '30px', textAlign: 'center', zIndex: 10 }}>
-          <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: 'white', marginBottom: '5px', letterSpacing: '0.02em' }}>{displayData.title}</h2>
-          <p style={{ color: '#aaa', fontSize: '16px', fontWeight: '500' }}>{displayData.artist}</p>
+          <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: 'white', marginBottom: '5px', letterSpacing: '0.02em' }}>{display.title}</h2>
+          <p style={{ color: '#aaa', fontSize: '16px', fontWeight: '500' }}>{display.artist}</p>
         </div>
       </div>
 
       {/* --- CONTROLS --- */}
       <div style={{ width: '100%', paddingBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         
-        {/* Progress Bar */}
-        <div style={{ width: '40%', minWidth: '300px', height: '4px', background: '#333', borderRadius: '10px', marginBottom: '25px' }}>
-           <div style={{ width: `${progress || 0}%`, height: '100%', background: 'white', borderRadius: '10px' }}></div>
-        </div>
+        {/* Progress Bar (Optional - based on polling it might be jumpy so kept static/hidden logic for now, or you can add if backend sends progress) */}
+        {/* <div style={{ width: '40%', minWidth: '300px', height: '4px', background: '#333', borderRadius: '10px', marginBottom: '25px' }} /> */}
 
         <div style={{ 
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '40px',
           background: '#1a1a1a', padding: '15px 50px', borderRadius: '50px' 
         }}>
-          <svg onClick={handlePrev} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer', opacity: token ? 0.7 : 1 }}>
+          <svg onClick={() => handleControl("prev")} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
              <path d="M11 19V5l-9 7l9 7zm11 0V5l-9 7l9 7z"></path>
           </svg>
           
           <button 
-            onClick={togglePlay}
+            onClick={() => handleControl(display.isPlaying ? "pause" : "play")}
             style={{ width: '50px', height: '50px', backgroundColor: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
           >
-            {displayData.isPlaying ? (
+            {display.isPlaying ? (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
             ) : (
                <svg width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M8 5v14l11-7z"></path></svg>
             )}
           </button>
 
-           <svg onClick={handleNext} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer', opacity: token ? 0.7 : 1 }}>
+           <svg onClick={() => handleControl("next")} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
              <path d="M4 5v14l9-7l-9-7zm9 0v14l9-7l-9-7z"></path>
           </svg>
         </div>
@@ -354,6 +352,4 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
       `}</style>
     </div>
   );
-};
-
-export default Home;
+}
