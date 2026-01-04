@@ -171,3 +171,5 @@ export default function Login() {
     </div>
   );
 }
+/*this code now includes a guest login option that sets a special token and forces a reload to the Home page, ensuring the app recognizes the guest mode properly.*/
+/*this code also showing my spotify content also if something happens please rollback to "installed in backend"*/
