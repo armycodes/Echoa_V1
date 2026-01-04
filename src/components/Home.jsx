@@ -89,144 +89,116 @@ export default function Home() {
 import React, { useState, useEffect } from 'react';
 import "../styles/Home.css"; 
 
-// Default Spotify Image for fallback
-const DEFAULT_IMG = "https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg";
-
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [current, setCurrent] = useState(null);
-  const [player, setPlayer] = useState(undefined);
-  const [is_paused, setPaused] = useState(false);
-  const [is_active, setActive] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // --- 1. TOKEN HANDLING ---
+  // --- 1. STORE TOKEN (Your Original Logic) ---
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
 
     if (token) {
       localStorage.setItem("echoa_token", token);
+      // Clean URL
       window.history.replaceState({}, "", "/home");
     }
   }, []);
 
-  // --- 2. INITIALIZE SPOTIFY WEB PLAYBACK SDK (AUDIO PLAYER) ---
+  // --- 2. FETCH DATA FROM YOUR BACKEND (Your Original Logic) ---
   useEffect(() => {
     const token = localStorage.getItem("echoa_token");
     if (!token) return;
 
-    // Load Spotify SDK Script
-    const script = document.createElement("script");
-    script.src = "https://sdk.scdn.co/spotify-player.js";
-    script.async = true;
-    document.body.appendChild(script);
+    const fetchData = async () => {
+      try {
+        // Fetch Profile from YOUR Backend
+        const p = await fetch("https://echoa-backend.onrender.com/me", {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        });
+        if (p.ok) setProfile(await p.json());
 
-    // Initialize Player when SDK is ready
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      const newPlayer = new window.Spotify.Player({
-        name: 'Echoa Web Player',
-        getOAuthToken: cb => { cb(token); },
-        volume: 0.5
-      });
-
-      setPlayer(newPlayer);
-
-      newPlayer.addListener('ready', ({ device_id }) => {
-        console.log('Ready with Device ID', device_id);
-        // Auto-transfer playback to this browser
-        transferPlayback(token, device_id);
-      });
-
-      newPlayer.addListener('not_ready', ({ device_id }) => {
-        console.log('Device ID has gone offline', device_id);
-      });
-
-      newPlayer.addListener('player_state_changed', (state) => {
-        if (!state) {
-          return;
-        }
-        setCurrent(state.track_window.current_track);
-        setPaused(state.paused);
-        setActive(true);
+        // Fetch Current Song from YOUR Backend
+        const s = await fetch("https://echoa-backend.onrender.com/currently-playing", {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        });
         
-        // Update document title
-        document.title = state.track_window.current_track.name;
-      });
+        if (s.status === 204 || s.status > 400) {
+            setCurrent(null);
+        } else {
+            setCurrent(await s.json());
+        }
 
-      newPlayer.connect();
+      } catch (e) {
+        console.error("Backend Fetch Error:", e);
+      }
     };
 
-    // Also fetch profile for the header
-    fetchProfile(token);
-
+    fetchData();
+    const i = setInterval(fetchData, 6000); // Polling every 6s
+    return () => clearInterval(i);
   }, []);
 
-  // Helper: Transfer Playback to Browser
-  const transferPlayback = async (token, device_id) => {
-    await fetch('https://api.spotify.com/v1/me/player', {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        device_ids: [device_id],
-        play: true,
-      }),
-    });
-  };
+  // --- 3. CONTROLS (Attempting Direct Spotify Call) ---
+  // Note: If your backend has specific endpoints for play/pause, replace these URLs.
+  // Currently, this tries to use the token directly with Spotify.
+  const handleControl = async (command) => {
+    const token = localStorage.getItem("echoa_token");
+    if (!token) return;
 
-  // Helper: Fetch Profile
-  const fetchProfile = async (token) => {
-    try {
-      const response = await fetch("https://echoa-backend.onrender.com/me", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setProfile(data);
-    } catch (e) {
-      console.error("Profile fetch error", e);
+    let endpoint = "";
+    let method = "POST";
+
+    if (command === "play") {
+        endpoint = "https://api.spotify.com/v1/me/player/play";
+        method = "PUT";
+    } else if (command === "pause") {
+        endpoint = "https://api.spotify.com/v1/me/player/pause";
+        method = "PUT";
+    } else if (command === "next") {
+        endpoint = "https://api.spotify.com/v1/me/player/next";
+    } else if (command === "prev") {
+        endpoint = "https://api.spotify.com/v1/me/player/previous";
     }
-  };
 
-  // --- 3. CONTROLS (Using SDK Player) ---
-  const togglePlay = () => {
-    if (player) player.togglePlay();
-  };
-
-  const nextTrack = () => {
-    if (player) player.nextTrack();
-  };
-
-  const prevTrack = () => {
-    if (player) player.previousTrack();
+    try {
+        const res = await fetch(endpoint, {
+            method: method,
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (res.status === 401) {
+            console.error("Token expired or unauthorized. Please re-login.");
+            // Optional: Auto-logout on 401
+            // handleLogout();
+        }
+    } catch (e) {
+        console.error("Control Error:", e);
+    }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("echoa_token");
-    window.location.href = "/";
+    window.location.href = "/"; // Redirect to login
   };
 
-  // --- 4. PREPARE DISPLAY DATA ---
-  // If player is active, use SDK data. Else use Profile defaults.
+  // --- 4. DATA MAPPING (Backend -> UI) ---
   const display = {
     userName: profile?.display_name || "Spotify User",
-    userImg: profile?.images?.[0]?.url || DEFAULT_IMG,
+    userImg: profile?.images?.[0]?.url || "https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg",
     
-    // SDK Data Mapping
-    title: current?.name || "Ready to Play",
-    artist: current?.artists?.[0]?.name || "Select a song on Spotify",
-    cover: current?.album?.images?.[0]?.url || "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png",
-    isPlaying: !is_paused && is_active
+    // Mapping YOUR backend variables to UI
+    title: current?.song || "No Active Song",
+    artist: current?.artist || "Play on Spotify to sync",
+    cover: current?.albumImage || "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png",
+    isPlaying: current?.playing || false
   };
 
-  if (!localStorage.getItem("echoa_token")) {
-      return <div className="h-screen w-screen bg-black text-white flex items-center justify-center">Please Login</div>;
-  }
-
   return (
-    // CONTAINER: 100vh Fixed (No Scrolling)
+    // CONTAINER: Full Screen, Centered Content (No Phone Borders)
     <div style={{ 
       height: '100vh', 
       width: '100vw', 
@@ -240,9 +212,9 @@ export default function Home() {
     }}>
       
       {/* --- HEADER --- */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', width: '100%', boxSizing: 'border-box' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '30px 40px', width: '100%', boxSizing: 'border-box' }}>
         
-        {/* Menu */}
+        {/* Menu Icon */}
         <div style={{ position: 'relative' }}> 
           <svg 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -256,7 +228,7 @@ export default function Home() {
 
           {isMenuOpen && (
             <div style={{
-              position: 'absolute', top: '40px', left: '0', backgroundColor: '#222', border: '1px solid #444', borderRadius: '8px', padding: '10px', zIndex: 100, minWidth: '120px'
+              position: 'absolute', top: '50px', left: '0', backgroundColor: '#222', border: '1px solid #444', borderRadius: '8px', padding: '10px', zIndex: 100, minWidth: '120px'
             }}>
               <button 
                 onClick={handleLogout}
@@ -268,7 +240,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* Profile */}
+        {/* Profile Info */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '14px', fontWeight: '500', color: '#eee' }}>{display.userName}</span>
           <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '1px solid #555' }}>
@@ -277,7 +249,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- VINYL PLAYER --- */}
+      {/* --- VINYL PLAYER (Centered) --- */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', width: '100%' }}>
         
         {/* Disc Container */}
@@ -301,6 +273,7 @@ export default function Home() {
               animationPlayState: display.isPlaying ? 'running' : 'paused'
             }}
           >
+            {/* Vinyl Grooves */}
             {[10, 30, 50].map(m => (
               <div key={m} style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid #222', opacity: 0.4, margin: `${m}px` }}></div>
             ))}
@@ -309,6 +282,7 @@ export default function Home() {
             <div style={{ width: '150px', height: '150px', borderRadius: '50%', overflow: 'hidden', zIndex: 10, position: 'relative', border: '2px solid #000' }}>
                <img src={display.cover} alt="Album Art" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
+            {/* Center Hole */}
             <div style={{ position: 'absolute', width: '12px', height: '12px', backgroundColor: 'black', borderRadius: '50%', zIndex: 20 }}></div>
           </div>
 
@@ -334,27 +308,27 @@ export default function Home() {
         </div>
 
         {/* Song Info */}
-        <div style={{ marginTop: '30px', textAlign: 'center', zIndex: 10 }}>
-          <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: 'white', marginBottom: '5px', letterSpacing: '0.02em' }}>{display.title}</h2>
-          <p style={{ color: '#aaa', fontSize: '16px', fontWeight: '500' }}>{display.artist}</p>
+        <div style={{ marginTop: '40px', textAlign: 'center', zIndex: 10 }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: 'white', marginBottom: '8px', letterSpacing: '0.02em' }}>{display.title}</h2>
+          <p style={{ color: '#aaa', fontSize: '18px', fontWeight: '500' }}>{display.artist}</p>
         </div>
       </div>
 
       {/* --- CONTROLS --- */}
-      <div style={{ width: '100%', paddingBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        
-        {/* Progress Bar (Hidden for SDK simplicity, can add later) */}
+      <div style={{ width: '100%', paddingBottom: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         
         <div style={{ 
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '40px',
           background: '#1a1a1a', padding: '15px 50px', borderRadius: '50px' 
         }}>
-          <svg onClick={prevTrack} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
+          {/* Prev */}
+          <svg onClick={() => handleControl("prev")} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
              <path d="M11 19V5l-9 7l9 7zm11 0V5l-9 7l9 7z"></path>
           </svg>
           
+          {/* Play/Pause */}
           <button 
-            onClick={togglePlay}
+            onClick={() => handleControl(display.isPlaying ? "pause" : "play")}
             style={{ width: '50px', height: '50px', backgroundColor: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
           >
             {display.isPlaying ? (
@@ -364,7 +338,8 @@ export default function Home() {
             )}
           </button>
 
-           <svg onClick={nextTrack} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
+           {/* Next */}
+           <svg onClick={() => handleControl("next")} width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
              <path d="M4 5v14l9-7l-9-7zm9 0v14l9-7l-9-7z"></path>
           </svg>
         </div>
