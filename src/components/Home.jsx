@@ -94,46 +94,23 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [guestSongIndex, setGuestSongIndex] = useState(0); 
 
-  // Sync local state with Spotify Prop state
+  // Sync state with Spotify Prop
   useEffect(() => {
     setLocalIsPlaying(is_playing);
   }, [is_playing]);
 
-  // --- 1. REAL SPOTIFY API CALLS (Fixed Integration) ---
-  const handleSpotifyAction = async (action) => {
+  // --- 1. REAL SPOTIFY API CALLS (This fixes the controls) ---
+  const handleSpotifyAction = async (endpoint, method = "PUT") => {
     if (!token) return;
 
-    let endpoint = "";
-    let method = "POST";
-
-    switch (action) {
-      case "play":
-        endpoint = "https://api.spotify.com/v1/me/player/play";
-        method = "PUT";
-        break;
-      case "pause":
-        endpoint = "https://api.spotify.com/v1/me/player/pause";
-        method = "PUT";
-        break;
-      case "next":
-        endpoint = "https://api.spotify.com/v1/me/player/next";
-        break;
-      case "previous":
-        endpoint = "https://api.spotify.com/v1/me/player/previous";
-        break;
-      default:
-        return;
-    }
-
     try {
-      await fetch(endpoint, {
+      await fetch(`https://api.spotify.com/v1/me/player/${endpoint}`, {
         method: method,
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
-      // Note: The UI updates via the 'item' prop polling from your App.js
     } catch (error) {
       console.error("Spotify API Error:", error);
     }
@@ -141,22 +118,21 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
 
   const togglePlay = () => {
     if (token) {
-      // Calls Real Spotify API
-      if (is_playing) handleSpotifyAction("pause");
-      else handleSpotifyAction("play");
+      // Calls Official Spotify API
+      if (is_playing) handleSpotifyAction("pause", "PUT");
+      else handleSpotifyAction("play", "PUT");
     } else {
-      // Guest Mode Local Toggle
       setLocalIsPlaying(!localIsPlaying);
     }
   };
 
   const handleNext = () => {
-    if (token) handleSpotifyAction("next");
+    if (token) handleSpotifyAction("next", "POST");
     else setGuestSongIndex((prev) => (prev + 1) % guestSongs.length);
   };
 
   const handlePrev = () => {
-    if (token) handleSpotifyAction("previous");
+    if (token) handleSpotifyAction("previous", "POST");
     else setGuestSongIndex((prev) => (prev - 1 + guestSongs.length) % guestSongs.length);
   };
 
@@ -174,23 +150,24 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
     { title: "Blinding Lights", artist: "The Weeknd", albumUrl: "https://upload.wikimedia.org/wikipedia/en/e/e6/The_Weeknd_-_Blinding_Lights.png" }
   ];
 
-  // --- DATA LOGIC (Strict Separation) ---
+  // --- DATA LOGIC (Strict Integration) ---
   let displayData = {};
 
   if (token) {
     // --- USER MODE (Uses Props from backend) ---
+    // 1. Profile Data
     const userName = userProfile?.display_name || "Spotify User";
     const userImg = userProfile?.images?.[0]?.url || "https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg";
     
+    // 2. Song Data (Using 'item' prop directly)
     if (item) {
-      // Song Playing
       displayData = {
         userName,
         userImg,
         title: item.name,
         artist: item.artists.map(a => a.name).join(', '),
         cover: item.album.images[0].url,
-        isPlaying: is_playing, // Uses Prop from backend
+        isPlaying: is_playing, 
         isUser: true
       };
     } else {
@@ -219,7 +196,7 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
   }
 
   return (
-    // 1. CONTAINER: Fixed 100vh (No Scrolling) & Compact Layout
+    // CONTAINER: 100vh Fixed (No Scroll)
     <div style={{ 
       height: '100vh', 
       width: '100vw', 
@@ -229,10 +206,10 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
       justifyContent: 'space-between', 
       fontFamily: 'sans-serif',
       color: 'white',
-      overflow: 'hidden' // Prevents scroll
+      overflow: 'hidden' 
     }}>
       
-      {/* --- HEADER (Compact Padding) --- */}
+      {/* --- HEADER --- */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', width: '100%', boxSizing: 'border-box' }}>
         
         {/* Menu */}
@@ -261,7 +238,7 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
           )}
         </div>
 
-        {/* Profile */}
+        {/* Profile (Dynamic Data) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '14px', fontWeight: '500', color: '#eee' }}>{displayData.userName}</span>
           <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '1px solid #555' }}>
@@ -270,13 +247,13 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
         </div>
       </div>
 
-      {/* --- VINYL PLAYER (Resized to fit Screen) --- */}
+      {/* --- VINYL PLAYER --- */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', width: '100%' }}>
         
-        {/* Disc Container reduced from 350px to 280px */}
+        {/* Disc Container */}
         <div style={{ position: 'relative', width: '280px', height: '280px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           
-          {/* Rotating Disc (250px) */}
+          {/* Rotating Disc */}
           <div 
             className={displayData.isPlaying ? 'animate-spin-slow' : ''}
             style={{ 
@@ -298,14 +275,14 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
               <div key={m} style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid #222', opacity: 0.4, margin: `${m}px` }}></div>
             ))}
             
-            {/* Album Art (150px) */}
+            {/* Album Art (Dynamic) */}
             <div style={{ width: '150px', height: '150px', borderRadius: '50%', overflow: 'hidden', zIndex: 10, position: 'relative', border: '2px solid #000' }}>
                <img src={displayData.cover} alt="Album Art" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <div style={{ position: 'absolute', width: '12px', height: '12px', backgroundColor: 'black', borderRadius: '50%', zIndex: 20 }}></div>
           </div>
 
-          {/* Tone Arm (Compact) */}
+          {/* Tone Arm */}
           <div 
             style={{ 
               position: 'absolute', 
@@ -333,7 +310,7 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
         </div>
       </div>
 
-      {/* --- CONTROLS (Compact Bottom) --- */}
+      {/* --- CONTROLS --- */}
       <div style={{ width: '100%', paddingBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         
         {/* Progress Bar */}
