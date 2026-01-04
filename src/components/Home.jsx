@@ -92,16 +92,36 @@ import "../styles/Home.css";
 const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfile }) => {
   const [localIsPlaying, setLocalIsPlaying] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
-  // Track Guest Song Index
   const [guestSongIndex, setGuestSongIndex] = useState(0); 
 
   useEffect(() => {
     setLocalIsPlaying(is_playing);
   }, [is_playing]);
 
-  const togglePlay = () => {
-    setLocalIsPlaying(!localIsPlaying);
+  // --- FUNCTIONALITY RESTORED: REAL SPOTIFY API CALLS ---
+  const togglePlay = async () => {
+    if (token) {
+      // User Login Mode: Call Real Spotify API
+      const endpoint = is_playing 
+        ? "https://api.spotify.com/v1/me/player/pause" 
+        : "https://api.spotify.com/v1/me/player/play";
+      
+      try {
+        await fetch(endpoint, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        // State updates via App.js polling
+      } catch (error) {
+        console.error("Error toggling play:", error);
+      }
+    } else {
+      // Guest Mode: Local only
+      setLocalIsPlaying(!localIsPlaying);
+    }
   };
 
   const handleLogout = () => {
@@ -109,7 +129,7 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
     window.location.reload(); 
   };
 
-  // --- GUEST SONGS LIST (POPULAR SONGS ADDED BACK) ---
+  // --- RESTORED GUEST SONGS LIST ---
   const guestSongs = [
     {
       title: "Filter",
@@ -119,7 +139,7 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
     {
       title: "Daechwita",
       artist: "Agust D",
-      albumUrl: "https://ibighit.com/bts/images/bts/discography/mots_7/album-cover.jpg" 
+      albumUrl: "https://ibighit.com/bts/images/bts/discography/mots_7/album-cover.jpg"
     },
     {
       title: "Blue & Grey",
@@ -143,27 +163,48 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
     }
   ];
 
-  // Helper to change guest songs
-  const nextGuestSong = () => {
-    setGuestSongIndex((prev) => (prev + 1) % guestSongs.length);
-  };
+  const nextGuestSong = () => setGuestSongIndex((prev) => (prev + 1) % guestSongs.length);
+  const prevGuestSong = () => setGuestSongIndex((prev) => (prev - 1 + guestSongs.length) % guestSongs.length);
 
-  const prevGuestSong = () => {
-    setGuestSongIndex((prev) => (prev - 1 + guestSongs.length) % guestSongs.length);
-  };
+  // --- FIXED DATA LOGIC: PRIORITIZE USER DATA IF TOKEN EXISTS ---
+  // Step 1: Determine User Info
+  const userDisplayName = token && userProfile ? userProfile.display_name : "Rkive's cutie 💜🤌🏻";
+  const userDisplayImage = token && userProfile?.images?.[0]?.url 
+    ? userProfile.images[0].url 
+    : "https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg";
 
-  // --- DATA LOGIC ---
-  const displayData = token && item ? {
-    title: item.name,
-    artist: item.artists[0].name,
-    cover: item.album.images[0].url,
-    isPlaying: is_playing
-  } : {
-    title: guestSongs[guestSongIndex].title,
-    artist: guestSongs[guestSongIndex].artist,
-    cover: guestSongs[guestSongIndex].albumUrl,
-    isPlaying: localIsPlaying
-  };
+  // Step 2: Determine Song Info
+  let currentSong = {};
+  
+  if (token) {
+    // User Mode
+    if (item) {
+      // Playing something
+      currentSong = {
+        title: item.name,
+        artist: item.artists[0].name,
+        cover: item.album.images[0].url,
+        isPlaying: is_playing
+      };
+    } else {
+      // User Logged in but NOT playing anything (Paused/Idle)
+      // Show "No active song" or fallback to a default visual but KEEP User Profile
+      currentSong = {
+        title: "Paused / Idle",
+        artist: "Play on Spotify",
+        cover: "https://developer.spotify.com/images/guidelines/design/icon3@2x.png", // Generic Spotify Icon
+        isPlaying: false
+      };
+    }
+  } else {
+    // Guest Mode
+    currentSong = {
+      title: guestSongs[guestSongIndex].title,
+      artist: guestSongs[guestSongIndex].artist,
+      cover: guestSongs[guestSongIndex].albumUrl,
+      isPlaying: localIsPlaying
+    };
+  }
 
   return (
     <div style={{ 
@@ -227,14 +268,14 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
           )}
         </div>
 
-        {/* PROFILE */}
+        {/* PROFILE (Dynamic based on Login) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <span style={{ fontSize: '16px', fontWeight: '500', color: '#e5e7eb', letterSpacing: '0.025em' }}>
-            {userProfile?.display_name || "Rkive's cutie 💜🤌🏻"}
+            {userDisplayName}
           </span>
            <div style={{ width: '45px', height: '45px', borderRadius: '50%', overflow: 'hidden', border: '1px solid #4b5563' }}>
             <img 
-              src={userProfile?.images?.[0]?.url || "https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg"} 
+              src={userDisplayImage} 
               alt="Profile" 
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
@@ -247,8 +288,9 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
         
         <div style={{ position: 'relative', width: '350px', height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           
+          {/* ROTATING DISC */}
           <div 
-            className={displayData.isPlaying ? 'animate-spin-slow' : ''}
+            className={currentSong.isPlaying ? 'animate-spin-slow' : ''}
             style={{ 
               position: 'relative', 
               width: '320px', 
@@ -261,16 +303,17 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
               justifyContent: 'center', 
               backgroundColor: '#050505', 
               transition: 'all 1s',
-              animationPlayState: displayData.isPlaying ? 'running' : 'paused'
+              animationPlayState: currentSong.isPlaying ? 'running' : 'paused'
             }}
           >
             {[15, 35, 55].map(m => (
               <div key={m} style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid #222', opacity: 0.4, margin: `${m}px` }}></div>
             ))}
             
+            {/* ALBUM ART (Dynamic) */}
             <div style={{ width: '200px', height: '200px', borderRadius: '50%', overflow: 'hidden', zIndex: 10, position: 'relative', border: '2px solid #111' }}>
                <img 
-                src={displayData.cover} 
+                src={currentSong.cover} 
                 alt="Album Art" 
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
@@ -278,7 +321,7 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
             <div style={{ position: 'absolute', width: '15px', height: '15px', backgroundColor: 'black', borderRadius: '50%', zIndex: 20, border: '1px solid #333' }}></div>
           </div>
 
-          {/* Tone Arm */}
+          {/* TONE ARM (STICK) */}
           <div 
             style={{ 
               position: 'absolute', 
@@ -289,7 +332,7 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
               zIndex: 30, 
               transition: 'transform 0.7s ease-in-out', 
               transformOrigin: 'top right',
-              transform: displayData.isPlaying ? 'rotate(20deg)' : 'rotate(-25deg)',
+              transform: currentSong.isPlaying ? 'rotate(20deg)' : 'rotate(-25deg)',
               pointerEvents: 'none' 
             }}
           >
@@ -299,10 +342,10 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
           </div>
         </div>
 
-        {/* Song Info */}
+        {/* SONG INFO (Dynamic) */}
         <div style={{ marginTop: '40px', textAlign: 'center', zIndex: 10 }}>
-          <h2 style={{ fontSize: '32px', fontWeight: 'bold', color: 'white', letterSpacing: '0.05em', marginBottom: '8px' }}>{displayData.title}</h2>
-          <p style={{ color: '#9ca3af', fontSize: '18px', fontWeight: '500' }}>{displayData.artist}</p>
+          <h2 style={{ fontSize: '32px', fontWeight: 'bold', color: 'white', letterSpacing: '0.05em', marginBottom: '8px' }}>{currentSong.title}</h2>
+          <p style={{ color: '#9ca3af', fontSize: '18px', fontWeight: '500' }}>{currentSong.artist}</p>
         </div>
       </div>
 
@@ -319,30 +362,30 @@ const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfil
           width: 'fit-content'
         }}>
           
-          {/* PREV (Guest Logic) */}
+          {/* PREV (Only for Guest Mode locally, real Spotify needs API but sticking to safe UI) */}
           <svg 
             onClick={token ? null : prevGuestSong} 
-            width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}
+            width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer', opacity: token ? 0.5 : 1 }}
           >
              <path d="M11 19V5l-9 7l9 7zm11 0V5l-9 7l9 7z"></path>
           </svg>
           
-          {/* Play/Pause */}
+          {/* Play/Pause (Triggers API if logged in) */}
           <button 
             onClick={togglePlay}
             style={{ width: '50px', height: '50px', backgroundColor: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
           >
-            {displayData.isPlaying ? (
+            {currentSong.isPlaying ? (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
             ) : (
                <svg width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M8 5v14l11-7z"></path></svg>
             )}
           </button>
 
-           {/* NEXT (Guest Logic) */}
+           {/* NEXT */}
            <svg 
              onClick={token ? null : nextGuestSong} 
-             width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}
+             width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer', opacity: token ? 0.5 : 1 }}
            >
              <path d="M4 5v14l9-7l-9-7zm9 0v14l9-7l-9-7z"></path>
           </svg>
