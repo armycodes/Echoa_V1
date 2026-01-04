@@ -86,169 +86,270 @@ export default function Home() {
     </div>
   );
 }*/
-import { useEffect, useState, useRef } from "react";
-import "../styles/Home.css";
-import React, { useState } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Menu, Heart } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import "../styles/Home.css"; 
 
-// --- GUEST SONGS LIST ---
-const GUEST_PLAYLIST = [
-  { 
-    id: "K4DyBUG242c", 
-    title: "On & On", 
-    artist: "Cartoon, Daniel Levi", 
-    image: "https://i1.sndcdn.com/artworks-000130386062-h327f2-t500x500.jpg" 
-  },
-  { 
-    id: "34Na4j8AVgA", 
-    title: "Starboy", 
-    artist: "The Weeknd", 
-    image: "https://upload.wikimedia.org/wikipedia/en/3/39/The_Weeknd_-_Starboy.png" 
-  },
-  { 
-    id: "fHI8X4OXluQ", 
-    title: "Blinding Lights", 
-    artist: "The Weeknd", 
-    image: "https://upload.wikimedia.org/wikipedia/en/e/e6/The_Weeknd_-_Blinding_Lights.png" 
-  },
-  { 
-    id: "TUVcZfQe-Kw", 
-    title: "Levitating", 
-    artist: "Dua Lipa", 
-    image: "https://upload.wikimedia.org/wikipedia/en/f/f5/Dua_Lipa_-_Levitating.png" 
-  },
-  {
-    id: "ApXoWvfEYVU",
-    title: "Sunflower",
-    artist: "Post Malone, Swae Lee",
-    image: "https://upload.wikimedia.org/wikipedia/en/2/22/Post_Malone_and_Swae_Lee_-_Sunflower.png"
-  }
-];
+const Home = ({ token, item, is_playing, progress, no_data, deviceId, userProfile }) => {
+  const [localIsPlaying, setLocalIsPlaying] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Track Guest Song Index
+  const [guestSongIndex, setGuestSongIndex] = useState(0); 
 
-const Home = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(30); 
+  useEffect(() => {
+    setLocalIsPlaying(is_playing);
+  }, [is_playing]);
 
   const togglePlay = () => {
-    setIsPlaying(!isPlaying);
+    setLocalIsPlaying(!localIsPlaying);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); 
+    window.location.reload(); 
+  };
+
+  // --- GUEST SONGS LIST (POPULAR SONGS ADDED BACK) ---
+  const guestSongs = [
+    {
+      title: "Filter",
+      artist: "Jimin (BTS)",
+      albumUrl: "https://upload.wikimedia.org/wikipedia/en/a/a1/BTS_-_Map_of_the_Soul_Persona.png"
+    },
+    {
+      title: "Daechwita",
+      artist: "Agust D",
+      albumUrl: "https://ibighit.com/bts/images/bts/discography/mots_7/album-cover.jpg" 
+    },
+    {
+      title: "Blue & Grey",
+      artist: "BTS",
+      albumUrl: "https://ibighit.com/bts/images/bts/discography/be/album-cover.jpg"
+    },
+    {
+      title: "Starboy",
+      artist: "The Weeknd",
+      albumUrl: "https://upload.wikimedia.org/wikipedia/en/3/39/The_Weeknd_-_Starboy.png"
+    },
+    {
+      title: "Blinding Lights",
+      artist: "The Weeknd",
+      albumUrl: "https://upload.wikimedia.org/wikipedia/en/e/e6/The_Weeknd_-_Blinding_Lights.png"
+    },
+    {
+      title: "Die For You",
+      artist: "The Weeknd",
+      albumUrl: "https://upload.wikimedia.org/wikipedia/en/3/39/The_Weeknd_-_Starboy.png"
+    }
+  ];
+
+  // Helper to change guest songs
+  const nextGuestSong = () => {
+    setGuestSongIndex((prev) => (prev + 1) % guestSongs.length);
+  };
+
+  const prevGuestSong = () => {
+    setGuestSongIndex((prev) => (prev - 1 + guestSongs.length) % guestSongs.length);
+  };
+
+  // --- DATA LOGIC ---
+  const displayData = token && item ? {
+    title: item.name,
+    artist: item.artists[0].name,
+    cover: item.album.images[0].url,
+    isPlaying: is_playing
+  } : {
+    title: guestSongs[guestSongIndex].title,
+    artist: guestSongs[guestSongIndex].artist,
+    cover: guestSongs[guestSongIndex].albumUrl,
+    isPlaying: localIsPlaying
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col font-sans overflow-hidden relative">
+    <div style={{ 
+      minHeight: '100vh', 
+      width: '100vw', 
+      backgroundColor: 'black', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      justifyContent: 'space-between',
+      fontFamily: 'sans-serif',
+      color: 'white',
+      overflow: 'hidden'
+    }}>
       
-      {/* 1. Header Section */}
-      <div className="flex items-center justify-between p-4 pt-6 z-10">
-        <Menu className="w-6 h-6 text-gray-300" />
-        <div className="flex items-center gap-2 mr-auto ml-4">
-          <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-600">
-             {/* Profile Pic */}
-            <img src="https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg" alt="Profile" className="w-full h-full object-cover" />
-          </div>
-          <span className="text-sm font-medium text-gray-200">Rkive's cutie 💜🤌🏻</span>
-        </div>
-      </div>
-
-      {/* 2. Main Vinyl Player Section */}
-      <div className="flex-1 flex flex-col items-center justify-center relative mt-[-20px]">
+      {/* --- HEADER --- */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '30px 40px', width: '100%' }}>
         
-        {/* The Vinyl Container */}
-        <div className="relative w-[300px] h-[300px] flex items-center justify-center">
-          
-          {/* Background Dark Square (Subtle card effect) */}
-          <div className="absolute inset-4 bg-[#1a1a1a] rounded-xl shadow-2xl opacity-50"></div>
-
-          {/* THE VINYL DISC (Rotates when playing) */}
-          <div 
-            className={`relative w-[260px] h-[260px] rounded-full border-4 border-[#121212] shadow-2xl flex items-center justify-center bg-black transition-all duration-1000 ${isPlaying ? 'animate-spin-slow' : ''}`}
-            style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}
+        {/* MENU / LOGOUT */}
+        <div style={{ position: 'relative' }}> 
+          <svg 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
+            style={{ color: '#d1d5db', cursor: 'pointer' }}
           >
-            {/* Vinyl Texture */}
-            <div className="absolute inset-0 rounded-full border-[10px] border-[#181818]"></div>
-            <div className="absolute inset-8 rounded-full border border-[#222]"></div>
-            <div className="absolute inset-12 rounded-full border border-[#222]"></div>
-            
-            {/* Album Art */}
-            <div className="w-[160px] h-[160px] rounded-full overflow-hidden z-10 relative">
-               <img 
-                src="https://upload.wikimedia.org/wikipedia/en/a/a1/BTS_-_Map_of_the_Soul_Persona.png" 
-                alt="Album Art" 
-                className="w-full h-full object-cover" 
-              />
-              <div className="absolute inset-0 bg-pink-500 opacity-20 mix-blend-overlay"></div>
-            </div>
-
-            {/* Center Hole */}
-            <div className="absolute w-4 h-4 bg-black rounded-full z-20 border border-gray-700"></div>
-          </div>
-
-          {/* THE STICK (Tone Arm) - Moves onto record when playing */}
-          <div className="absolute top-[-20px] right-[-10px] w-12 h-12 bg-[#2a2a2a] rounded-full shadow-lg z-30 flex items-center justify-center border border-[#444]">
-            <div className="w-4 h-4 bg-gray-400 rounded-full shadow-inner"></div>
-          </div>
-          
-          <div 
-            className={`absolute top-0 right-2 w-[100px] h-[140px] z-20 transition-transform duration-700 ease-in-out origin-top-right`}
-            style={{ transform: isPlaying ? 'rotate(15deg)' : 'rotate(-25deg)' }}
-          >
-            {/* Stick Body */}
-            <div className="absolute top-4 right-4 w-2 h-[100px] bg-gradient-to-b from-gray-500 to-gray-700 rounded-full shadow-xl transform -rotate-12"></div>
-            {/* Needle Head */}
-            <div className="absolute bottom-6 left-6 w-8 h-12 bg-[#333] rounded-md transform rotate-12 flex items-center justify-center shadow-lg border-t border-gray-600">
-               <div className="w-1 h-3 bg-white mt-auto mb-1"></div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* 3. Song Info */}
-        <div className="mt-12 text-center z-10">
-          <h2 className="text-2xl font-bold text-gray-100 tracking-wide">Jamais Vu</h2>
-          <p className="text-gray-400 text-sm mt-1">BTS</p>
-        </div>
-      </div>
-
-      {/* 4. Controls */}
-      <div className="pb-12 px-8 w-full z-10">
-        
-        {/* Progress Bar */}
-        <div className="w-full bg-gray-800 h-1 rounded-full mb-6 relative group cursor-pointer">
-          <div className="bg-white h-1 rounded-full relative" style={{ width: `${progress}%` }}>
-            <div className="w-3 h-3 bg-white rounded-full absolute right-0 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          </div>
-        </div>
-
-        {/* Buttons */}
-        <div className="flex items-center justify-between max-w-[280px] mx-auto">
-          {/* Shuffle Icon */}
-          <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
 
-          <SkipBack className="w-6 h-6 text-white cursor-pointer hover:text-gray-300 transition" />
+          {isMenuOpen && (
+            <div style={{
+              position: 'absolute',
+              top: '40px',
+              left: '0',
+              backgroundColor: '#333',
+              borderRadius: '8px',
+              padding: '10px',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.5)',
+              zIndex: 100,
+              minWidth: '120px'
+            }}>
+              <button 
+                onClick={handleLogout}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  width: '100%',
+                  textAlign: 'left',
+                  padding: '5px'
+                }}
+                onMouseOver={(e) => e.target.style.color = '#1DB954'}
+                onMouseOut={(e) => e.target.style.color = 'white'}
+              >
+                LOGOUT
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* PROFILE */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <span style={{ fontSize: '16px', fontWeight: '500', color: '#e5e7eb', letterSpacing: '0.025em' }}>
+            {userProfile?.display_name || "Rkive's cutie 💜🤌🏻"}
+          </span>
+           <div style={{ width: '45px', height: '45px', borderRadius: '50%', overflow: 'hidden', border: '1px solid #4b5563' }}>
+            <img 
+              src={userProfile?.images?.[0]?.url || "https://i.pinimg.com/736x/88/02/56/880256247df60787e91d848e02573cc0.jpg"} 
+              alt="Profile" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* --- CENTER VINYL PLAYER --- */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+        
+        <div style={{ position: 'relative', width: '350px', height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          
+          <div 
+            className={displayData.isPlaying ? 'animate-spin-slow' : ''}
+            style={{ 
+              position: 'relative', 
+              width: '320px', 
+              height: '320px', 
+              borderRadius: '50%', 
+              border: '4px solid #111', 
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              backgroundColor: '#050505', 
+              transition: 'all 1s',
+              animationPlayState: displayData.isPlaying ? 'running' : 'paused'
+            }}
+          >
+            {[15, 35, 55].map(m => (
+              <div key={m} style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid #222', opacity: 0.4, margin: `${m}px` }}></div>
+            ))}
+            
+            <div style={{ width: '200px', height: '200px', borderRadius: '50%', overflow: 'hidden', zIndex: 10, position: 'relative', border: '2px solid #111' }}>
+               <img 
+                src={displayData.cover} 
+                alt="Album Art" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+            <div style={{ position: 'absolute', width: '15px', height: '15px', backgroundColor: 'black', borderRadius: '50%', zIndex: 20, border: '1px solid #333' }}></div>
+          </div>
+
+          {/* Tone Arm */}
+          <div 
+            style={{ 
+              position: 'absolute', 
+              top: '-20px', 
+              right: '0px', 
+              width: '100px', 
+              height: '180px', 
+              zIndex: 30, 
+              transition: 'transform 0.7s ease-in-out', 
+              transformOrigin: 'top right',
+              transform: displayData.isPlaying ? 'rotate(20deg)' : 'rotate(-25deg)',
+              pointerEvents: 'none' 
+            }}
+          >
+             <div style={{ position: 'absolute', top: 0, right: 0, width: '40px', height: '40px', background: '#333', borderRadius: '50%' }}></div>
+             <div style={{ position: 'absolute', top: '20px', right: '20px', width: '8px', height: '140px', background: 'linear-gradient(to bottom, #666, #222)', borderRadius: '99px', transform: 'rotate(-15deg)', transformOrigin: 'top right' }}></div>
+             <div style={{ position: 'absolute', bottom: '20px', left: '10px', width: '30px', height: '45px', background: '#222', borderRadius: '4px', transform: 'rotate(10deg)' }}></div>
+          </div>
+        </div>
+
+        {/* Song Info */}
+        <div style={{ marginTop: '40px', textAlign: 'center', zIndex: 10 }}>
+          <h2 style={{ fontSize: '32px', fontWeight: 'bold', color: 'white', letterSpacing: '0.05em', marginBottom: '8px' }}>{displayData.title}</h2>
+          <p style={{ color: '#9ca3af', fontSize: '18px', fontWeight: '500' }}>{displayData.artist}</p>
+        </div>
+      </div>
+
+      {/* --- CONTROLS --- */}
+      <div style={{ width: '100%', paddingBottom: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          gap: '40px',
+          background: '#222', 
+          padding: '15px 50px',
+          borderRadius: '50px',
+          width: 'fit-content'
+        }}>
+          
+          {/* PREV (Guest Logic) */}
+          <svg 
+            onClick={token ? null : prevGuestSong} 
+            width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}
+          >
+             <path d="M11 19V5l-9 7l9 7zm11 0V5l-9 7l9 7z"></path>
+          </svg>
           
           {/* Play/Pause */}
           <button 
             onClick={togglePlay}
-            className="w-14 h-14 bg-white rounded-full flex items-center justify-center hover:scale-105 transition active:scale-95 shadow-lg shadow-white/10"
+            style={{ width: '50px', height: '50px', backgroundColor: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
           >
-            {isPlaying ? (
-              <Pause className="w-6 h-6 text-black fill-current" />
+            {displayData.isPlaying ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
             ) : (
-              <Play className="w-6 h-6 text-black fill-current ml-1" />
+               <svg width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M8 5v14l11-7z"></path></svg>
             )}
           </button>
 
-          <SkipForward className="w-6 h-6 text-white cursor-pointer hover:text-gray-300 transition" />
-
-          {/* Loop Icon */}
-          <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+           {/* NEXT (Guest Logic) */}
+           <svg 
+             onClick={token ? null : nextGuestSong} 
+             width="28" height="28" viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}
+           >
+             <path d="M4 5v14l9-7l-9-7zm9 0v14l9-7l-9-7z"></path>
           </svg>
         </div>
       </div>
 
-      {/* Animation Styles */}
-      <style jsx>{`
+      <style>{`
         @keyframes spin-slow {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
