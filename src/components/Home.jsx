@@ -92,34 +92,34 @@ import "../styles/Home.css";
 // --- ASSETS ---
 const VINYL_DEFAULT = "https://upload.wikimedia.org/wikipedia/commons/b/b6/12in-Vinyl-LP-Record-Angle.jpg";
 
-// --- GUEST SONGS (Updated IDs & Covers) ---
+// --- GUEST SONGS LIST ---
 const GUEST_PLAYLIST = [
   { 
-    id: "K4DyBUG242c", // NCS: On & On (Safe)
+    id: "K4DyBUG242c", 
     title: "On & On", 
     artist: "Cartoon, Daniel Levi", 
     image: "https://i1.sndcdn.com/artworks-000130386062-h327f2-t500x500.jpg" 
   },
   { 
-    id: "34Na4j8AVgA", // Starboy (Audio Version - Safer than Video)
+    id: "34Na4j8AVgA", 
     title: "Starboy", 
     artist: "The Weeknd", 
     image: "https://upload.wikimedia.org/wikipedia/en/3/39/The_Weeknd_-_Starboy.png" 
   },
   { 
-    id: "fHI8X4OXluQ", // Blinding Lights (Audio)
+    id: "fHI8X4OXluQ", 
     title: "Blinding Lights", 
     artist: "The Weeknd", 
     image: "https://upload.wikimedia.org/wikipedia/en/e/e6/The_Weeknd_-_Blinding_Lights.png" 
   },
   { 
-    id: "TUVcZfQe-Kw", // Levitating (Audio)
+    id: "TUVcZfQe-Kw", 
     title: "Levitating", 
     artist: "Dua Lipa", 
     image: "https://upload.wikimedia.org/wikipedia/en/f/f5/Dua_Lipa_-_Levitating.png" 
   },
   {
-    id: "ApXoWvfEYVU", // Sunflower
+    id: "ApXoWvfEYVU",
     title: "Sunflower",
     artist: "Post Malone, Swae Lee",
     image: "https://upload.wikimedia.org/wikipedia/en/2/22/Post_Malone_and_Swae_Lee_-_Sunflower.png"
@@ -127,30 +127,34 @@ const GUEST_PLAYLIST = [
 ];
 
 export default function Home() {
-  // Logic to determine user mode immediately
+  // 1. Check Mode Immediately
   const token = localStorage.getItem("echoa_token");
   const isGuestMode = token === "guest_mode_token";
 
-  // STATE: Init with GUEST_PLAYLIST[0] immediately if Guest
-  const [profile, setProfile] = useState(isGuestMode ? { display_name: "Guest", isGuest: true } : null);
-  const [current, setCurrent] = useState(isGuestMode ? GUEST_PLAYLIST[0] : null);
-  
+  // 2. States
+  const [profile, setProfile] = useState(null);
+  const [current, setCurrent] = useState(isGuestMode ? GUEST_PLAYLIST[0] : null); // Guest aithe first song load chey
   const [isPlaying, setIsPlaying] = useState(false);
   const [guestIndex, setGuestIndex] = useState(0);
   const playerRef = useRef(null);
 
-  /* ---------- SETUP ON LOAD ---------- */
+  // --- INITIAL SETUP ---
   useEffect(() => {
-    // 1. Handle Token in URL (if returning from Spotify)
+    // A. URL lo Token unte (Spotify return)
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get("token");
+    
     if (urlToken) {
       localStorage.setItem("echoa_token", urlToken);
       window.history.replaceState({}, "", "/home");
+      window.location.reload(); // Clean refresh for Spotify mode
+      return;
     }
 
-    // 2. Guest Mode Setup
+    // B. Guest Mode Setup
     if (isGuestMode) {
+        setProfile({ display_name: "Guest Listener", isGuest: true });
+        // Load YouTube API
         if (!window.YT) {
             const tag = document.createElement('script');
             tag.src = "https://www.youtube.com/iframe_api";
@@ -159,57 +163,64 @@ export default function Home() {
         window.onYouTubeIframeAPIReady = initGuestPlayer;
         if (window.YT && window.YT.Player) initGuestPlayer();
     } 
-    // 3. Spotify Mode Setup
+    // C. Spotify Mode Setup
     else {
-        const t = urlToken || token;
+        const t = localStorage.getItem("echoa_token");
         if (t) {
             fetchSpotifyData(t);
+            // Poll every 5 seconds for updates
             const interval = setInterval(() => fetchSpotifyData(t), 5000);
             return () => clearInterval(interval);
         }
     }
   }, [isGuestMode]);
 
-  /* --- SPOTIFY DATA FETCH --- */
+  /* --- SPOTIFY FUNCTIONS --- */
   const fetchSpotifyData = async (t) => {
       try {
-        // Fetch Profile
-        const p = await fetch("https://echoa-backend.onrender.com/me", { headers: { Authorization: `Bearer ${t}` } });
-        if(p.ok) setProfile(await p.json());
+        // Get Profile
+        if(!profile) {
+            const p = await fetch("https://echoa-backend.onrender.com/me", { headers: { Authorization: `Bearer ${t}` } });
+            if(p.ok) setProfile(await p.json());
+        }
 
-        // Fetch Song
+        // Get Song
         const s = await fetch("https://echoa-backend.onrender.com/currently-playing", { headers: { Authorization: `Bearer ${t}` } });
         if(s.ok) {
             const data = await s.json();
             setCurrent(data);
             setIsPlaying(data.playing); 
         }
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error("Spotify Fetch Error:", e); }
   };
 
   /* --- GUEST PLAYER (YOUTUBE) --- */
   const initGuestPlayer = () => {
       if (playerRef.current) return;
       playerRef.current = new window.YT.Player('audio-player', {
-          height: '200', width: '200',
+          height: '0', width: '0', // Hidden Player
           videoId: GUEST_PLAYLIST[0].id,
           playerVars: { 'autoplay': 0, 'controls': 0, 'origin': window.location.origin },
           events: { 'onReady': (e) => e.target.unMute() }
       });
   };
 
-  /* --- CONTROLS --- */
+  /* --- CONTROLS LOGIC (Unified) --- */
   const handlePlayPause = async () => {
+    // GUEST LOGIC
     if (isGuestMode) {
         if (!playerRef.current) return;
         if (isPlaying) playerRef.current.pauseVideo();
         else playerRef.current.playVideo();
         setIsPlaying(!isPlaying);
-    } else {
+    } 
+    // SPOTIFY LOGIC
+    else {
         const t = localStorage.getItem("echoa_token");
         const endpoint = isPlaying ? "/player/pause" : "/player/play";
         await fetch(`https://echoa-backend.onrender.com${endpoint}`, { method: 'POST', headers: { Authorization: `Bearer ${t}` } });
         setIsPlaying(!isPlaying);
+        setTimeout(() => fetchSpotifyData(t), 500); // Quick refresh after click
     }
   };
 
@@ -221,6 +232,7 @@ export default function Home() {
       } else {
           const t = localStorage.getItem("echoa_token");
           await fetch(`https://echoa-backend.onrender.com/player/next`, { method: 'POST', headers: { Authorization: `Bearer ${t}` } });
+          setTimeout(() => fetchSpotifyData(t), 1000);
       }
   };
 
@@ -232,12 +244,13 @@ export default function Home() {
       } else {
           const t = localStorage.getItem("echoa_token");
           await fetch(`https://echoa-backend.onrender.com/player/previous`, { method: 'POST', headers: { Authorization: `Bearer ${t}` } });
+          setTimeout(() => fetchSpotifyData(t), 1000);
       }
   };
 
   const updateGuestSong = (index) => {
       const song = GUEST_PLAYLIST[index];
-      setCurrent(song); // Updates Image & Text
+      setCurrent(song);
       setIsPlaying(true);
       if (playerRef.current) playerRef.current.loadVideoById(song.id);
   };
@@ -247,45 +260,54 @@ export default function Home() {
       window.location.href = "/";
   };
 
-  // --- IMAGE LOGIC (FIXED) ---
-  // Checks 'image' (Guest) OR 'albumImage' (Spotify) OR Default
+  // --- UI PREPARATION ---
+  // Ikkada Logic: Guest aite 'image' teesko, Spotify aite 'albumImage' teesko.
   const displayImg = current?.image || current?.albumImage || VINYL_DEFAULT;
-  const displaySong = current?.title || current?.song || "Loading...";
-  const displayArtist = current?.artist || "...";
+  const displaySong = current?.title || current?.song || "Welcome to Echoa";
+  const displayArtist = current?.artist || "Ready to play...";
 
   return (
     <div className="home-root">
-      <div id="audio-player" style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}></div>
+      {/* Hidden Youtube Player for Guest */}
+      <div id="audio-player" style={{ position: 'absolute', top: '-1000px' }}></div>
 
-      {/* NAV */}
+      {/* NAVBAR */}
       <div className="nav">
         <div className="hamburger">☰</div>
-        <button onClick={handleLogout} style={{background:'transparent', border:'none', color:'white', fontSize:'12px', cursor:'pointer', marginRight:'auto', marginLeft:'15px', opacity:0.7}}>LOGOUT</button>
+        <button onClick={handleLogout} className="logout-btn">LOGOUT</button>
 
         {profile && (
           <div className="profile-menu">
-            {profile.isGuest ? (
-                <div className="guest-pfp">G</div>
+            {profile.images && profile.images[0] ? (
+                <img src={profile.images[0].url} alt="Profile" />
             ) : (
-                <img src={profile.images?.[0]?.url} alt="" />
+                <div className="guest-pfp">{profile.display_name?.charAt(0) || "U"}</div>
             )}
             <span>{profile.display_name}</span>
           </div>
         )}
       </div>
 
-      {/* STAGE */}
+      {/* MAIN STAGE (Unified Design) */}
       <div className="vinyl-stage">
+        
+        {/* VINYL DISC */}
         <div className="vinyl-box">
-          {/* TONEARM */}
-          <div className="tonearm" style={{ transform: isPlaying ? 'rotate(0deg)' : 'rotate(-25deg)', transition: 'transform 0.5s' }} />
+          <div className="tonearm" style={{ 
+              transform: isPlaying ? 'rotate(0deg)' : 'rotate(-25deg)', 
+              transition: 'transform 0.5s' 
+          }} />
           
-          {/* VINYL DISC */}
           <div className={`vinyl ${isPlaying ? "spinning" : ""}`}>
-            <img src={displayImg} alt="Album Art" onError={(e) => e.target.src = VINYL_DEFAULT} />
+            <img 
+                src={displayImg} 
+                alt="Album Art" 
+                onError={(e) => e.target.src = VINYL_DEFAULT} 
+            />
           </div>
         </div>
 
+        {/* SONG INFO */}
         <div className="track-info">
             <h2>{displaySong}</h2>
             <p>{displayArtist}</p>
@@ -299,7 +321,10 @@ export default function Home() {
             </button>
             <button className="ctrl-btn" onClick={handleNext}>⏭</button>
         </div>
+
       </div>
     </div>
   );
 }
+
+
