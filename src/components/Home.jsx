@@ -91,10 +91,6 @@ import "../styles/Home.css";
 import React, { useState } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Menu, Heart } from 'lucide-react';
 
-
-// --- ASSETS ---
-const VINYL_DEFAULT = "https://upload.wikimedia.org/wikipedia/commons/b/b6/12in-Vinyl-LP-Record-Angle.jpg";
-
 // --- GUEST SONGS LIST ---
 const GUEST_PLAYLIST = [
   { 
