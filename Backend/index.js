@@ -298,7 +298,7 @@ app.get("/login", (req, res) => {
         }));
 });
 
-app.get("/callback", async (req, res) => {
+/*app.get("/callback", async (req, res) => {
     const code = req.query.code || null;
     if (!code) return res.redirect(`${FRONTEND_URI}/?error=no_code`);
     try {
@@ -316,7 +316,46 @@ app.get("/callback", async (req, res) => {
     } catch (error) {
         res.redirect(`${FRONTEND_URI}/?error=auth_failed`);
     }
+});*/
+app.get("/callback", async (req, res) => {
+    const code = req.query.code || null;
+    if (!code) return res.redirect(`${FRONTEND_URI}/?error=no_code`);
+
+    try {
+        // Log starting
+        console.log("🔹 Attempting to exchange code for token...");
+        console.log("🔹 Redirect URI being used:", SPOTIFY_REDIRECT_URI); 
+
+        const response = await axios.post("https://accounts.spotify.com/api/token", 
+            new URLSearchParams({
+                grant_type: "authorization_code",
+                code,
+                redirect_uri: SPOTIFY_REDIRECT_URI,
+                client_id: SPOTIFY_CLIENT_ID,
+                client_secret: SPOTIFY_CLIENT_SECRET,
+            }), { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+        );
+
+        console.log("✅ Token received successfully!");
+        
+        const userJwt = jwt.sign({ accessToken: response.data.access_token }, JWT_SECRET, { expiresIn: "1h" });
+        res.redirect(`${FRONTEND_URI}/home?token=${userJwt}`);
+    
+    } catch (error) {
+        // Ikkada Real Error Print avtundi
+        console.error("❌ SPOTIFY LOGIN ERROR:");
+        if (error.response) {
+            // Spotify server nundi vachina error (Ex: 400 Bad Request)
+            console.error("Status:", error.response.status);
+            console.error("Data:", JSON.stringify(error.response.data));
+        } else {
+            // Code/Network error
+            console.error("Message:", error.message);
+        }
+        res.redirect(`${FRONTEND_URI}/?error=auth_failed`);
+    }
 });
+
 
 app.get("/me", authenticateToken, async (req, res) => {
     try {
