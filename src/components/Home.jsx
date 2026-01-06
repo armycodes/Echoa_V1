@@ -92,64 +92,102 @@ import "../styles/Home.css";
 export default function Home() {
   const [profile, setProfile] = useState(null);
   const [song, setSong] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const p = await fetch(
-          "https://echoa-backend.onrender.com/me"
+        /* -------- PROFILE -------- */
+        const profileRes = await fetch(
+          "https://echoa-backend.onrender.com/me",
+          { cache: "no-store" }
         );
-        setProfile(await p.json());
 
-        const s = await fetch(
-          "https://echoa-backend.onrender.com/currently-playing"
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          setProfile(profileData);
+        }
+
+        /* -------- CURRENTLY PLAYING -------- */
+        const songRes = await fetch(
+          "https://echoa-backend.onrender.com/currently-playing",
+          { cache: "no-store" }
         );
-        setSong(await s.json());
-      } catch (e) {
-        console.error(e);
+
+        // Spotify sometimes returns 204 (no content)
+        if (songRes.status === 204) {
+          setSong(null);
+        } else if (songRes.ok) {
+          const songData = await songRes.json();
+
+          if (songData.playing) {
+            setSong(songData);
+          } else {
+            setSong(null);
+          }
+        }
+      } catch (err) {
+        console.error("Echoa fetch error:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-    const i = setInterval(fetchData, 6000);
-    return () => clearInterval(i);
+    const interval = setInterval(fetchData, 6000);
+    return () => clearInterval(interval);
   }, []);
+
+  /* -------- LOADING STATE -------- */
+  if (loading) {
+    return (
+      <div className="home-root">
+        <p className="loading-text">Initializing Echoa…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="home-root">
-      {/* NAV */}
+      {/* -------- NAV -------- */}
       <div className="nav">
         <div className="hamburger">☰</div>
 
         {profile && (
           <div className="profile-menu">
-            <img src={profile.images?.[0]?.url} alt="" />
+            <img
+              src={profile.images?.[0]?.url}
+              alt="profile"
+            />
             <span>{profile.display_name}</span>
           </div>
         )}
       </div>
 
-      {/* PLAYER */}
+      {/* -------- PLAYER -------- */}
       <div className="vinyl-stage">
         <div className="vinyl-box">
           <div className="vinyl">
-            {song?.albumImage && (
+            {song?.albumImage ? (
               <img src={song.albumImage} alt="album" />
-            )}
+            ) : null}
           </div>
+
+          {/* Tonearm */}
           <div className="tonearm" />
         </div>
 
-        {song?.playing ? (
+        {song ? (
           <div className="track-info">
             <h2>{song.song}</h2>
             <p>{song.artist}</p>
           </div>
         ) : (
-          <p className="no-song">No song playing 🎧</p>
+          <p className="no-song">
+            Play a song on Spotify 🎧
+          </p>
         )}
       </div>
     </div>
   );
 }
-
