@@ -90,135 +90,72 @@ import { useEffect, useState } from "react";
 import "../styles/Home.css";
 
 export default function Home() {
-  const [token, setToken] = useState(null);
-  const [view, setView] = useState("loading"); // 'loading' | 'landing' | 'guest' | 'player'
-  
   const [profile, setProfile] = useState(null);
   const [song, setSong] = useState(null);
+  
+  // NEW: State for Menu
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // --- 1. INITIAL TOKEN CHECK (Prevents Layout Flash) ---
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const urlToken = params.get("token");
-    const localToken = localStorage.getItem("echoa_token");
-
-    if (urlToken) {
-      localStorage.setItem("echoa_token", urlToken);
-      setToken(urlToken);
-      setView("player");
-      window.history.replaceState({}, "", "/home"); // Clean URL
-    } else if (localToken) {
-      setToken(localToken);
-      setView("player");
-    } else {
-      setView("landing");
-    }
-  }, []);
-
-  // --- 2. DATA FETCHING (FIXED: Added Headers) ---
-  useEffect(() => {
-    if (view !== "player" || !token) return;
-
+    // --- SAME LOGIC AS YOUR CODE ---
     const fetchData = async () => {
       try {
-        // 1. Fetch Profile (WITH TOKEN HEADER)
-        const p = await fetch("https://echoa-backend.onrender.com/me", {
-           headers: { Authorization: `Bearer ${token}` }
-        });
-        if (p.ok) {
-            setProfile(await p.json());
-        }
+        const token = localStorage.getItem("echoa_token"); // Ensure we use the stored token
+        if (!token) return;
 
-        // 2. Fetch Song (WITH TOKEN HEADER)
-        const s = await fetch("https://echoa-backend.onrender.com/currently-playing", {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        const p = await fetch(
+          "https://echoa-backend.onrender.com/me", 
+          { headers: { Authorization: `Bearer ${token}` }} // Added header safety
+        );
+        if (p.ok) setProfile(await p.json());
+
+        const s = await fetch(
+          "https://echoa-backend.onrender.com/currently-playing",
+          { headers: { Authorization: `Bearer ${token}` }} // Added header safety
+        );
         
-        // Handle Empty Response (204) properly
         if (s.status === 204) {
-            setSong(null);
+           setSong(null);
         } else if (s.ok) {
-            setSong(await s.json());
+           setSong(await s.json());
         }
       } catch (e) {
-        console.error("Fetch Error:", e);
+        console.error(e);
       }
     };
 
-    fetchData(); // Run immediately
-    const i = setInterval(fetchData, 6000); // Poll every 6s
+    fetchData();
+    const i = setInterval(fetchData, 6000);
     return () => clearInterval(i);
-  }, [view, token]);
+  }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("echoa_token");
+    window.location.href = "/"; // Refresh/Redirect to login
+  };
 
-  // --- VIEW 1: LOADING ---
-  if (view === "loading") {
-    return <div style={{ height: '100vh', background: 'black' }} />;
-  }
-
-  // --- VIEW 2: GUEST MODE (COMING SOON) ---
-  if (view === "guest") {
-    return (
-      <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
-        <h1 style={{ fontSize: '2rem', marginBottom: '20px' }}>Guest Mode</h1>
-        <div style={{ padding: '20px', border: '1px solid #333', borderRadius: '10px', background: '#111', textAlign: 'center' }}>
-          <p style={{ fontSize: '1.2rem', marginBottom: '10px' }}>🚧 Coming Soon</p>
-          <button 
-            onClick={() => setView("landing")}
-            style={{ marginTop: '20px', background: 'transparent', color: '#fff', border: '1px solid #555', padding: '8px 20px', borderRadius: '20px', cursor: 'pointer' }}
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // --- VIEW 3: LANDING SCREEN (Login / Guest Buttons) ---
-  if (view === "landing") {
-    return (
-      <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '30px', fontFamily: 'sans-serif' }}>
-        <h1 style={{ letterSpacing: '4px', fontSize: '3rem', fontWeight: 'bold' }}>ECHOA</h1>
-        
-        {/* Login Button */}
-        <a href="https://echoa-backend.onrender.com/login" style={{ textDecoration: 'none' }}>
-          <button style={{ 
-            background: '#1DB954', color: 'black', fontWeight: 'bold', 
-            padding: '14px 40px', borderRadius: '30px', border: 'none', 
-            fontSize: '16px', cursor: 'pointer', minWidth: '220px',
-            textTransform: 'uppercase', letterSpacing: '1px'
-          }}>
-            Login with Spotify
-          </button>
-        </a>
-
-        {/* Guest Mode Button */}
-        <button 
-          onClick={() => setView("guest")}
-          style={{ 
-            background: 'transparent', color: 'white', 
-            padding: '12px 40px', borderRadius: '30px', 
-            border: '1px solid #ffffffaa', fontSize: '14px', 
-            cursor: 'pointer', minWidth: '220px',
-            textTransform: 'uppercase', letterSpacing: '1px'
-          }}
-        >
-          Guest Mode
-        </button>
-      </div>
-    );
-  }
-
-  // --- VIEW 4: PLAYER (NEE ORIGINAL LAYOUT) ---
   return (
     <div className="home-root">
       {/* NAV */}
       <div className="nav">
-        <div className="hamburger">☰</div>
+        {/* HAMBURGER WITH DROPDOWN */}
+        <div className="menu-container">
+          <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+            ☰
+          </div>
+          
+          {menuOpen && (
+            <div className="dropdown">
+              <button onClick={handleLogout} className="logout-btn">
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
 
         {profile && (
           <div className="profile-menu">
-            <img src={profile.images?.[0]?.url} alt="Profile" />
+            <img src={profile.images?.[0]?.url} alt="" />
             <span>{profile.display_name}</span>
           </div>
         )}
@@ -226,16 +163,26 @@ export default function Home() {
 
       {/* PLAYER */}
       <div className="vinyl-stage">
+        {/* VINYL BOX */}
         <div className="vinyl-box">
-          <div className="vinyl">
-            {song?.albumImage ? (
-              <img src={song.albumImage} alt="album" />
-            ) : (
-               // Placeholder so layout doesn't break if no song
-               <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#222', border: '1px solid #333' }}></div>
-            )}
+          
+          {/* THE RECORD DISC */}
+          <div className={`vinyl-disc ${song?.playing ? 'spinning' : ''}`}>
+             {/* Realistic Grooves (CSS) */}
+             <div className="grooves"></div>
+             
+             {/* Album Art (Center Label) */}
+             <div className="album-label">
+                {song?.albumImage ? (
+                  <img src={song.albumImage} alt="album" />
+                ) : (
+                  <div className="empty-label"></div>
+                )}
+             </div>
           </div>
-          <div className="tonearm" />
+
+          {/* THE TONE ARM */}
+          <div className={`tonearm ${song?.playing ? 'active' : ''}`} />
         </div>
 
         {song?.playing ? (
