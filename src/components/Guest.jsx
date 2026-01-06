@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; // Navigation kosam
+import { useNavigate } from "react-router-dom"; 
 
 export default function Guest() {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export default function Guest() {
           We are crafting a special vinyl experience for our guests. Stay tuned.
         </p>
         
-        {/* Back Button */}
+        {/* Back Button -> Goes back to Home */}
         <button 
           onClick={() => navigate('/')} 
           style={{ 
