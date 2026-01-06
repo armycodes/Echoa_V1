@@ -86,7 +86,7 @@ export default function Home() {
     </div>
   );
 }*/
-import { useEffect, useState } from "react";
+/*import { useEffect, useState } from "react";
 import "../styles/Home.css";
 
 export default function Home() {
@@ -184,6 +184,170 @@ export default function Home() {
   }
 
   // --- VIEW: PLAYER ---
+  return (
+    <div className="home-root">
+      {/* NAV *//*}
+      <div className="nav">
+        <div className="menu-container">
+          <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>☰</div>
+          {menuOpen && (
+            <div className="dropdown">
+              <button onClick={handleLogout} className="logout-btn">Logout</button>
+            </div>
+          )}
+        </div>
+
+        {profile && (
+          <div className="profile-menu">
+            <img src={profile.images?.[0]?.url} alt="" />
+            <span>{profile.display_name}</span>
+          </div>
+        )}
+      </div>
+
+      {/* PLAYER *//*}
+      <div className="vinyl-stage">
+        <div className="vinyl-box">
+          <div className={`vinyl-disc ${song?.playing ? 'spinning' : ''}`}>
+             <div className="grooves"></div>
+             <div className="album-label">
+                {song?.albumImage ? (
+                  <img src={song.albumImage} alt="album" />
+                ) : (
+                  <div className="empty-label"></div>
+                )}
+             </div>
+          </div>
+          <div className={`tonearm ${song?.playing ? 'active' : ''}`} />
+        </div>
+
+        {song?.playing ? (
+          <div className="track-info">
+            <h2>{song.song}</h2>
+            <p>{song.artist}</p>
+          </div>
+        ) : (
+          <p className="no-song">No song playing 🎧</p>
+        )}
+      </div>
+    </div>
+  );
+}*/
+import { useEffect, useState } from "react";
+import "../styles/Home.css";
+
+export default function Home() {
+  const [token, setToken] = useState(null);
+  const [view, setView] = useState("loading"); // States: 'loading' | 'landing' | 'guest' | 'player'
+  
+  const [profile, setProfile] = useState(null);
+  const [song, setSong] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // --- 1. INITIAL TOKEN CHECK ---
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get("token");
+    const localToken = localStorage.getItem("echoa_token");
+
+    if (urlToken) {
+      localStorage.setItem("echoa_token", urlToken);
+      setToken(urlToken);
+      setView("player");
+      window.history.replaceState({}, "", "/home"); 
+    } else if (localToken) {
+      setToken(localToken);
+      setView("player");
+    } else {
+      setView("landing"); // Token lekapothe Landing page chupinchu
+    }
+  }, []);
+
+  // --- 2. DATA FETCHING (ONLY FOR PLAYER) ---
+  useEffect(() => {
+    if (view !== "player" || !token) return;
+
+    const fetchData = async () => {
+      try {
+        const p = await fetch("https://echoa-backend.onrender.com/me", {
+           headers: { Authorization: `Bearer ${token}` }
+        });
+        if (p.ok) setProfile(await p.json());
+
+        const s = await fetch("https://echoa-backend.onrender.com/currently-playing", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (s.status === 204) {
+            setSong(null);
+        } else if (s.ok) {
+            setSong(await s.json());
+        }
+      } catch (e) {
+        console.error("Backend Fetch Error:", e);
+      }
+    };
+
+    fetchData(); 
+    const i = setInterval(fetchData, 6000); 
+    return () => clearInterval(i);
+  }, [view, token]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("echoa_token");
+    window.location.href = "/";
+  };
+
+  // --- VIEW 1: LOADING ---
+  if (view === "loading") return <div style={{ height: '100vh', background: 'black' }} />;
+
+  // --- VIEW 2: GUEST MODE (COMING SOON) ---
+  // Ikkade nuvvu adigina "Coming Soon" vastundi
+  if (view === "guest") {
+    return (
+      <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
+        <h1 style={{ fontSize: '2.5rem', marginBottom: '20px', letterSpacing: '1px' }}>Guest Mode</h1>
+        
+        <div style={{ padding: '30px', border: '1px solid #333', borderRadius: '15px', background: '#111', textAlign: 'center', maxWidth: '300px' }}>
+          <p style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🚧 Coming Soon</p>
+          <p style={{ color: '#888', fontSize: '1rem', lineHeight: '1.5' }}>We are crafting a special experience for guests.</p>
+          
+          <button 
+            onClick={() => setView("landing")} 
+            style={{ marginTop: '25px', background: 'transparent', color: '#fff', border: '1px solid #555', padding: '10px 25px', borderRadius: '25px', cursor: 'pointer', fontSize: '14px', transition: 'all 0.3s' }}
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // --- VIEW 3: LANDING PAGE (LOGIN / GUEST) ---
+  if (view === "landing") {
+    return (
+      <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '30px', fontFamily: 'sans-serif' }}>
+        <h1 style={{ letterSpacing: '4px', fontSize: '3rem', fontWeight: 'bold', marginBottom: '10px' }}>ECHOA</h1>
+        
+        {/* Button 1: Login */}
+        <a href="https://echoa-backend.onrender.com/login" style={{ textDecoration: 'none' }}>
+          <button style={{ background: '#1DB954', color: 'black', fontWeight: 'bold', padding: '14px 40px', borderRadius: '30px', border: 'none', fontSize: '16px', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            Login with Spotify
+          </button>
+        </a>
+
+        {/* Button 2: Enter as Guest -> Triggers "Coming Soon" */}
+        <button 
+          onClick={() => setView("guest")} 
+          style={{ background: 'transparent', color: 'white', padding: '12px 40px', borderRadius: '30px', border: '1px solid #ffffffaa', fontSize: '14px', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}
+        >
+          Enter as Guest
+        </button>
+      </div>
+    );
+  }
+
+  // --- VIEW 4: PLAYER (LOGGED IN) ---
   return (
     <div className="home-root">
       {/* NAV */}
