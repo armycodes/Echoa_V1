@@ -234,17 +234,18 @@ export default function Home() {
   );
 }*/
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // IMPORTANT
 import "../styles/Home.css";
 
 export default function Home() {
   const [token, setToken] = useState(null);
-  const [view, setView] = useState("loading"); // States: 'loading' | 'landing' | 'guest' | 'player'
-  
   const [profile, setProfile] = useState(null);
   const [song, setSong] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  
+  const navigate = useNavigate(); // Hook for navigation
 
-  // --- 1. INITIAL TOKEN CHECK ---
+  // --- 1. TOKEN HANDLING ---
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get("token");
@@ -253,19 +254,15 @@ export default function Home() {
     if (urlToken) {
       localStorage.setItem("echoa_token", urlToken);
       setToken(urlToken);
-      setView("player");
       window.history.replaceState({}, "", "/home"); 
     } else if (localToken) {
       setToken(localToken);
-      setView("player");
-    } else {
-      setView("landing"); // Token lekapothe Landing page chupinchu
     }
   }, []);
 
-  // --- 2. DATA FETCHING (ONLY FOR PLAYER) ---
+  // --- 2. DATA FETCHING (Only if Token Exists) ---
   useEffect(() => {
-    if (view !== "player" || !token) return;
+    if (!token) return;
 
     const fetchData = async () => {
       try {
@@ -284,70 +281,46 @@ export default function Home() {
             setSong(await s.json());
         }
       } catch (e) {
-        console.error("Backend Fetch Error:", e);
+        console.error("Fetch Error:", e);
       }
     };
 
     fetchData(); 
     const i = setInterval(fetchData, 6000); 
     return () => clearInterval(i);
-  }, [view, token]);
+  }, [token]);
 
   const handleLogout = () => {
     localStorage.removeItem("echoa_token");
-    window.location.href = "/";
+    setToken(null);
+    navigate('/'); // Reload or go to root
   };
 
-  // --- VIEW 1: LOADING ---
-  if (view === "loading") return <div style={{ height: '100vh', background: 'black' }} />;
-
-  // --- VIEW 2: GUEST MODE (COMING SOON) ---
-  // Ikkade nuvvu adigina "Coming Soon" vastundi
-  if (view === "guest") {
-    return (
-      <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '20px', letterSpacing: '1px' }}>Guest Mode</h1>
-        
-        <div style={{ padding: '30px', border: '1px solid #333', borderRadius: '15px', background: '#111', textAlign: 'center', maxWidth: '300px' }}>
-          <p style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🚧 Coming Soon</p>
-          <p style={{ color: '#888', fontSize: '1rem', lineHeight: '1.5' }}>We are crafting a special experience for guests.</p>
-          
-          <button 
-            onClick={() => setView("landing")} 
-            style={{ marginTop: '25px', background: 'transparent', color: '#fff', border: '1px solid #555', padding: '10px 25px', borderRadius: '25px', cursor: 'pointer', fontSize: '14px', transition: 'all 0.3s' }}
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // --- VIEW 3: LANDING PAGE (LOGIN / GUEST) ---
-  if (view === "landing") {
+  // --- VIEW 1: LANDING SCREEN (If No Token) ---
+  if (!token) {
     return (
       <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '30px', fontFamily: 'sans-serif' }}>
         <h1 style={{ letterSpacing: '4px', fontSize: '3rem', fontWeight: 'bold', marginBottom: '10px' }}>ECHOA</h1>
         
-        {/* Button 1: Login */}
+        {/* LOGIN BUTTON */}
         <a href="https://echoa-backend.onrender.com/login" style={{ textDecoration: 'none' }}>
           <button style={{ background: '#1DB954', color: 'black', fontWeight: 'bold', padding: '14px 40px', borderRadius: '30px', border: 'none', fontSize: '16px', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}>
             Login with Spotify
           </button>
         </a>
 
-        {/* Button 2: Enter as Guest -> Triggers "Coming Soon" */}
+        {/* GUEST BUTTON -> Redirects to /guest Route */}
         <button 
-          onClick={() => setView("guest")} 
+          onClick={() => navigate('/guest')} 
           style={{ background: 'transparent', color: 'white', padding: '12px 40px', borderRadius: '30px', border: '1px solid #ffffffaa', fontSize: '14px', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}
         >
-          Enter as Guest
+          Guest Mode
         </button>
       </div>
     );
   }
 
-  // --- VIEW 4: PLAYER (LOGGED IN) ---
+  // --- VIEW 2: PLAYER (If Token Exists) ---
   return (
     <div className="home-root">
       {/* NAV */}
