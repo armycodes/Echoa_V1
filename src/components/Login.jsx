@@ -77,7 +77,6 @@ useEffect(() => {
 import "../styles/Login.css";
 import loginBg from "../assets/login-bg.png";
 import { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom"; // Not needed if using window.location for hard refresh
 
 export default function Login() {
   const fullText = "ECHOA";
@@ -117,11 +116,11 @@ export default function Login() {
     };
   }, []);
 
-  // --- 3. GUEST HANDLER ---
+  // --- 3. GUEST HANDLER (UPDATED) ---
   const handleGuestLogin = () => {
-    localStorage.setItem("echoa_token", "guest_mode_token");
-    // Force reload to ensure Home.jsx picks up the new mode cleanly
-    window.location.href = "/home"; 
+    // Updated: Manam fake token set cheyyatledu. 
+    // Direct ga separate /guest route ki force redirect chestunnam.
+    window.location.href = "/guest"; 
   };
 
   return (
@@ -171,5 +170,3 @@ export default function Login() {
     </div>
   );
 }
-/*this code now includes a guest login option that sets a special token and forces a reload to the Home page, ensuring the app recognizes the guest mode properly.*/
-/*this code also showing my spotify content also if something happens please rollback to "installed in backend"*/
