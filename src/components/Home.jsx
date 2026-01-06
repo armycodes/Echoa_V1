@@ -95,61 +95,63 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 🔑 get token
+    const token = localStorage.getItem("echoa_token");
+
+    if (!token) {
+      console.error("No token found, redirecting to login");
+      window.location.href = "/";
+      return;
+    }
+
     const fetchData = async () => {
       try {
-        /* -------- PROFILE -------- */
-        const profileRes = await fetch(
+        // 👤 profile
+        const p = await fetch(
           "https://echoa-backend.onrender.com/me",
-          { cache: "no-store" }
-        );
-
-        if (profileRes.ok) {
-          const profileData = await profileRes.json();
-          setProfile(profileData);
-        }
-
-        /* -------- CURRENTLY PLAYING -------- */
-        const songRes = await fetch(
-          "https://echoa-backend.onrender.com/currently-playing",
-          { cache: "no-store" }
-        );
-
-        // Spotify sometimes returns 204 (no content)
-        if (songRes.status === 204) {
-          setSong(null);
-        } else if (songRes.ok) {
-          const songData = await songRes.json();
-
-          if (songData.playing) {
-            setSong(songData);
-          } else {
-            setSong(null);
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        }
-      } catch (err) {
-        console.error("Echoa fetch error:", err);
-      } finally {
+        );
+        const profileData = await p.json();
+        setProfile(profileData);
+
+        // 🎵 currently playing
+        const s = await fetch(
+          "https://echoa-backend.onrender.com/currently-playing",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const songData = await s.json();
+        setSong(songData);
+
         setLoading(false);
+      } catch (e) {
+        console.error(e);
       }
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 6000);
-    return () => clearInterval(interval);
+    const i = setInterval(fetchData, 6000); // auto refresh
+    return () => clearInterval(i);
   }, []);
 
-  /* -------- LOADING STATE -------- */
   if (loading) {
     return (
-      <div className="home-root">
-        <p className="loading-text">Initializing Echoa…</p>
+      <div style={{ color: "white", padding: "40px" }}>
+        Initializing Echoa…
       </div>
     );
   }
 
   return (
     <div className="home-root">
-      {/* -------- NAV -------- */}
+      {/* 🔹 NAV */}
       <div className="nav">
         <div className="hamburger">☰</div>
 
@@ -164,28 +166,26 @@ export default function Home() {
         )}
       </div>
 
-      {/* -------- PLAYER -------- */}
+      {/* 🔹 PLAYER */}
       <div className="vinyl-stage">
         <div className="vinyl-box">
           <div className="vinyl">
-            {song?.albumImage ? (
+            {song?.albumImage && (
               <img src={song.albumImage} alt="album" />
-            ) : null}
+            )}
           </div>
 
-          {/* Tonearm */}
+          {/* tonearm */}
           <div className="tonearm" />
         </div>
 
-        {song ? (
+        {song?.playing ? (
           <div className="track-info">
             <h2>{song.song}</h2>
             <p>{song.artist}</p>
           </div>
         ) : (
-          <p className="no-song">
-            Play a song on Spotify 🎧
-          </p>
+          <p className="no-song">No song playing 🎧</p>
         )}
       </div>
     </div>
