@@ -310,15 +310,6 @@ export default function Home() {
           </button>
         </a>
 
-        {/* GUEST BUTTON (FIXED WITH LINK) */}
-        {/* Using Link prevents page refresh and goes directly to route */}
-        <Link to="/guest" style={{ textDecoration: 'none' }}>
-          <button 
-            style={{ background: 'transparent', color: 'white', padding: '12px 40px', borderRadius: '30px', border: '1px solid #ffffffaa', fontSize: '14px', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}
-          >
-            Guest Mode
-          </button>
-        </Link>
       </div>
     );
   }
