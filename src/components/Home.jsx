@@ -302,13 +302,6 @@ export default function Home() {
     return (
       <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '30px', fontFamily: 'sans-serif' }}>
         <h1 style={{ letterSpacing: '4px', fontSize: '3rem', fontWeight: 'bold', marginBottom: '10px' }}>ECHOA</h1>
-        
-        {/* LOGIN BUTTON */}
-        <a href="https://echoa-backend.onrender.com/login" style={{ textDecoration: 'none' }}>
-          <button style={{ background: '#1DB954', color: 'black', fontWeight: 'bold', padding: '14px 40px', borderRadius: '30px', border: 'none', fontSize: '16px', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            Login with Spotify
-          </button>
-        </a>
       {/* GUEST BUTTON (SIMPLE HTML LINK) */}
         {/* Idi manual ga type chesinatte work avtundi - 100% Safe */}
         <a href="/guest" style={{ textDecoration: 'none' }}>
