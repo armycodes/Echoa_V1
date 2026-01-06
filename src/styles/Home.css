@@ -95,63 +95,59 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    padding-bottom: 50px;
+    padding-bottom: 40px;
 }
 
 /* TURNTABLE BASE AREA */
 .vinyl-box {
     position: relative;
-    width: 300px;
-    height: 300px;
+    width: 320px; /* Increased overall size slightly */
+    height: 320px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* --- CLEANER VINYL DISC CSS (Fixed Lines Issue) --- */
+/* --- VINYL DISC (Black Ring Reduced) --- */
 .vinyl-disc {
     position: relative;
-    width: 280px;
-    height: 280px;
+    width: 300px;  /* Disc is bigger */
+    height: 300px;
     border-radius: 50%;
-    /* Changed gradient for a cleaner, smoother look with fewer lines */
+    /* Subtle texture, mostly dark */
     background: radial-gradient(
       circle at center,
-      #222 25%,  /* Dark center near label */
-      #111 50%,  /* Mid-tone */
-      #080808 100% /* Darkest at edge */
+      #1a1a1a 40%, 
+      #111 70%,
+      #050505 100%
     );
-    /* Subtle inset shadow for depth instead of harsh lines */
-    box-shadow: 
-        inset 0 0 0 3px #050505,
-        inset 0 0 0 8px #151515,
-        0 20px 40px rgba(0,0,0,0.6);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.7); /* Deep shadow for 3D feel */
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 3px solid #050505;
+    border: 2px solid #0a0a0a;
 }
 
-/* Subtle Shine effect */
+/* Subtle shine */
 .vinyl-disc::after {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     border-radius: 50%;
-    background: linear-gradient(150deg, rgba(255,255,255,0.08) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.05) 100%);
+    background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.03) 100%);
     pointer-events: none;
 }
 
-/* Center Album Art (The Sticker) */
+/* --- ALBUM LABEL (Big & Clear) --- */
 .album-label {
-    width: 145px; /* Slightly bigger to pop out */
-    height: 145px;
+    width: 210px; /* INCREASED SIZE (Was 145px) - Now the star of the show */
+    height: 210px;
     border-radius: 50%;
     overflow: hidden;
     position: relative;
     z-index: 10;
-    border: 4px solid #111; /* Dark border around album art */
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    border: 3px solid #000; /* Clean separation */
+    box-shadow: 0 0 20px rgba(0,0,0,0.5); /* Pops out */
 }
 
 .album-label img {
@@ -164,35 +160,34 @@
     width: 100%;
     height: 100%;
     background: #222;
-    background-image: radial-gradient(circle at center, #333 0%, #222 100%);
+    background-image: radial-gradient(circle at center, #333 0%, #1a1a1a 100%);
 }
 
 /* SPIN ANIMATION */
 .spinning {
-    animation: spin 8s linear infinite; /* Slightly slower spin for elegance */
+    animation: spin 8s linear infinite;
 }
 
 @keyframes spin {
     100% { transform: rotate(360deg); }
 }
 
-/* --- TONE ARM STYLING --- */
+/* --- TONE ARM STYLING (Adjusted for bigger disc) --- */
 .tonearm {
     position: absolute;
     top: -30px;
-    right: -10px;
+    right: -15px; /* Moved slightly */
     width: 100px;
-    height: 160px;
+    height: 170px;
     z-index: 20;
     pointer-events: none;
     transform-origin: 80px 30px;
-    transform: rotate(-35deg); /* Resting position */
+    transform: rotate(-35deg);
     transition: transform 1.2s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-/* Active position */
 .tonearm.active {
-    transform: rotate(20deg);
+    transform: rotate(22deg); /* Angles in to hit the bigger record */
 }
 
 /* The Stick */
@@ -202,26 +197,26 @@
     top: 25px;
     right: 25px;
     width: 8px;
-    height: 130px;
+    height: 140px;
     background: linear-gradient(to right, #444, #222, #444);
     border-radius: 4px;
     transform: rotate(-15deg);
-    box-shadow: -2px 2px 5px rgba(0,0,0,0.4);
+    box-shadow: -2px 2px 6px rgba(0,0,0,0.4);
 }
 
 /* The Head/Needle */
 .tonearm::after {
     content: '';
     position: absolute;
-    bottom: 20px;
-    left: 15px;
-    width: 28px;
-    height: 42px;
+    bottom: 18px;
+    left: 12px;
+    width: 30px;
+    height: 44px;
     background: #1a1a1a;
     border-radius: 4px 4px 8px 8px;
     transform: rotate(12deg);
     box-shadow: 2px 5px 10px rgba(0,0,0,0.5);
-    border-bottom: 2px solid #555; /* Needle hint */
+    border-bottom: 2px solid #666; 
 }
 
 /* Pivot Base Circle */
@@ -230,29 +225,29 @@
     position: absolute;
     top: 5px;
     right: 15px;
-    width: 45px;
-    height: 45px;
+    width: 48px;
+    height: 48px;
     background: radial-gradient(circle at top left, #444, #222);
     border-radius: 50%;
     border: 2px solid #111;
     z-index: 15;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
 }
 
 /* TRACK INFO */
 .track-info {
-    margin-top: 50px;
+    margin-top: 40px;
     text-align: center;
     z-index: 10;
     padding: 0 20px;
 }
 
 .track-info h2 {
-    font-size: 28px;
+    font-size: 32px; /* Bigger Title */
     font-weight: 700;
     margin-bottom: 8px;
     color: white;
-    letter-spacing: 0.5px;
+    letter-spacing: -0.5px;
 }
 
 .track-info p {
@@ -263,7 +258,7 @@
 
 .no-song {
     margin-top: 50px;
-    color: #777;
+    color: #666;
     font-size: 16px;
     letter-spacing: 1px;
 }
