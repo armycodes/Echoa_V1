@@ -234,7 +234,7 @@ export default function Home() {
   );
 }*/
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // IMPORTANT
+import { Link, useNavigate } from "react-router-dom"; // Import Link
 import "../styles/Home.css";
 
 export default function Home() {
@@ -243,7 +243,7 @@ export default function Home() {
   const [song, setSong] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate(); 
 
   // --- 1. TOKEN HANDLING ---
   useEffect(() => {
@@ -254,13 +254,14 @@ export default function Home() {
     if (urlToken) {
       localStorage.setItem("echoa_token", urlToken);
       setToken(urlToken);
+      // Remove token from URL for cleaner look
       window.history.replaceState({}, "", "/home"); 
     } else if (localToken) {
       setToken(localToken);
     }
   }, []);
 
-  // --- 2. DATA FETCHING (Only if Token Exists) ---
+  // --- 2. DATA FETCHING ---
   useEffect(() => {
     if (!token) return;
 
@@ -293,10 +294,10 @@ export default function Home() {
   const handleLogout = () => {
     localStorage.removeItem("echoa_token");
     setToken(null);
-    navigate('/'); // Reload or go to root
+    navigate('/'); 
   };
 
-  // --- VIEW 1: LANDING SCREEN (If No Token) ---
+  // --- VIEW 1: LANDING SCREEN (Login / Guest) ---
   if (!token) {
     return (
       <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '30px', fontFamily: 'sans-serif' }}>
@@ -309,21 +310,22 @@ export default function Home() {
           </button>
         </a>
 
-        {/* GUEST BUTTON -> Redirects to /guest Route */}
-        <button 
-          onClick={() => navigate('/guest')} 
-          style={{ background: 'transparent', color: 'white', padding: '12px 40px', borderRadius: '30px', border: '1px solid #ffffffaa', fontSize: '14px', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}
-        >
-          Guest Mode
-        </button>
+        {/* GUEST BUTTON (FIXED WITH LINK) */}
+        {/* Using Link prevents page refresh and goes directly to route */}
+        <Link to="/guest" style={{ textDecoration: 'none' }}>
+          <button 
+            style={{ background: 'transparent', color: 'white', padding: '12px 40px', borderRadius: '30px', border: '1px solid #ffffffaa', fontSize: '14px', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}
+          >
+            Guest Mode
+          </button>
+        </Link>
       </div>
     );
   }
 
-  // --- VIEW 2: PLAYER (If Token Exists) ---
+  // --- VIEW 2: PLAYER (Logged In) ---
   return (
     <div className="home-root">
-      {/* NAV */}
       <div className="nav">
         <div className="menu-container">
           <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>☰</div>
@@ -333,7 +335,6 @@ export default function Home() {
             </div>
           )}
         </div>
-
         {profile && (
           <div className="profile-menu">
             <img src={profile.images?.[0]?.url} alt="" />
@@ -342,7 +343,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* PLAYER */}
       <div className="vinyl-stage">
         <div className="vinyl-box">
           <div className={`vinyl-disc ${song?.playing ? 'spinning' : ''}`}>
