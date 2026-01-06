@@ -90,65 +90,109 @@ import { useEffect, useState } from "react";
 import "../styles/Home.css";
 
 export default function Home() {
+  const [token, setToken] = useState(null);
+  const [view, setView] = useState("loading"); 
+  
   const [profile, setProfile] = useState(null);
   const [song, setSong] = useState(null);
-  
-  // NEW: State for Menu
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // --- 1. INITIAL TOKEN CHECK ---
   useEffect(() => {
-    // --- SAME LOGIC AS YOUR CODE ---
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get("token");
+    const localToken = localStorage.getItem("echoa_token");
+
+    if (urlToken) {
+      localStorage.setItem("echoa_token", urlToken);
+      setToken(urlToken);
+      setView("player");
+      window.history.replaceState({}, "", "/home"); 
+    } else if (localToken) {
+      setToken(localToken);
+      setView("player");
+    } else {
+      setView("landing");
+    }
+  }, []);
+
+  // --- 2. DATA FETCHING (FROM YOUR BACKEND ONLY) ---
+  useEffect(() => {
+    if (view !== "player" || !token) return;
+
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("echoa_token"); // Ensure we use the stored token
-        if (!token) return;
-
-        const p = await fetch(
-          "https://echoa-backend.onrender.com/me", 
-          { headers: { Authorization: `Bearer ${token}` }} // Added header safety
-        );
+        // Fetch Profile
+        const p = await fetch("https://echoa-backend.onrender.com/me", {
+           headers: { Authorization: `Bearer ${token}` }
+        });
         if (p.ok) setProfile(await p.json());
 
-        const s = await fetch(
-          "https://echoa-backend.onrender.com/currently-playing",
-          { headers: { Authorization: `Bearer ${token}` }} // Added header safety
-        );
+        // Fetch Song
+        const s = await fetch("https://echoa-backend.onrender.com/currently-playing", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
         
         if (s.status === 204) {
-           setSong(null);
+            // 204 means Spotify said "No Content" (Not playing)
+            setSong(null);
         } else if (s.ok) {
-           setSong(await s.json());
+            setSong(await s.json());
         }
       } catch (e) {
-        console.error(e);
+        console.error("Backend Fetch Error:", e);
       }
     };
 
-    fetchData();
-    const i = setInterval(fetchData, 6000);
+    fetchData(); 
+    const i = setInterval(fetchData, 6000); // Check every 6s
     return () => clearInterval(i);
-  }, []);
+  }, [view, token]);
 
   const handleLogout = () => {
     localStorage.removeItem("echoa_token");
-    window.location.href = "/"; // Refresh/Redirect to login
+    window.location.href = "/";
   };
 
+  // --- VIEW: LOADING ---
+  if (view === "loading") return <div style={{ height: '100vh', background: 'black' }} />;
+
+  // --- VIEW: GUEST ---
+  if (view === "guest") {
+    return (
+      <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
+        <h1 style={{ fontSize: '2rem', marginBottom: '20px' }}>Guest Mode</h1>
+        <div style={{ padding: '20px', border: '1px solid #333', borderRadius: '10px', background: '#111', textAlign: 'center' }}>
+          <p style={{ fontSize: '1.2rem', marginBottom: '10px' }}>🚧 Coming Soon</p>
+          <button onClick={() => setView("landing")} style={{ marginTop: '20px', background: 'transparent', color: '#fff', border: '1px solid #555', padding: '8px 20px', borderRadius: '20px', cursor: 'pointer' }}>Go Back</button>
+        </div>
+      </div>
+    );
+  }
+
+  // --- VIEW: LANDING ---
+  if (view === "landing") {
+    return (
+      <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '30px', fontFamily: 'sans-serif' }}>
+        <h1 style={{ letterSpacing: '4px', fontSize: '3rem', fontWeight: 'bold' }}>ECHOA</h1>
+        <a href="https://echoa-backend.onrender.com/login" style={{ textDecoration: 'none' }}>
+          <button style={{ background: '#1DB954', color: 'black', fontWeight: 'bold', padding: '14px 40px', borderRadius: '30px', border: 'none', fontSize: '16px', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}>Login with Spotify</button>
+        </a>
+        <button onClick={() => setView("guest")} style={{ background: 'transparent', color: 'white', padding: '12px 40px', borderRadius: '30px', border: '1px solid #ffffffaa', fontSize: '14px', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}>Guest Mode</button>
+      </div>
+    );
+  }
+
+  // --- VIEW: PLAYER ---
   return (
     <div className="home-root">
       {/* NAV */}
       <div className="nav">
-        {/* HAMBURGER WITH DROPDOWN */}
         <div className="menu-container">
-          <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-            ☰
-          </div>
-          
+          <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>☰</div>
           {menuOpen && (
             <div className="dropdown">
-              <button onClick={handleLogout} className="logout-btn">
-                Logout
-              </button>
+              <button onClick={handleLogout} className="logout-btn">Logout</button>
             </div>
           )}
         </div>
@@ -163,15 +207,9 @@ export default function Home() {
 
       {/* PLAYER */}
       <div className="vinyl-stage">
-        {/* VINYL BOX */}
         <div className="vinyl-box">
-          
-          {/* THE RECORD DISC */}
           <div className={`vinyl-disc ${song?.playing ? 'spinning' : ''}`}>
-             {/* Realistic Grooves (CSS) */}
              <div className="grooves"></div>
-             
-             {/* Album Art (Center Label) */}
              <div className="album-label">
                 {song?.albumImage ? (
                   <img src={song.albumImage} alt="album" />
@@ -180,8 +218,6 @@ export default function Home() {
                 )}
              </div>
           </div>
-
-          {/* THE TONE ARM */}
           <div className={`tonearm ${song?.playing ? 'active' : ''}`} />
         </div>
 
