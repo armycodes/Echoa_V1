@@ -309,7 +309,26 @@ export default function Home() {
             Login with Spotify
           </button>
         </a>
-
+      {/* GUEST BUTTON (SIMPLE HTML LINK) */}
+        {/* Idi manual ga type chesinatte work avtundi - 100% Safe */}
+        <a href="/guest" style={{ textDecoration: 'none' }}>
+          <button 
+            style={{ 
+              background: 'transparent', 
+              color: 'white', 
+              padding: '12px 40px', 
+              borderRadius: '30px', 
+              border: '1px solid #ffffffaa', 
+              fontSize: '14px', 
+              cursor: 'pointer', 
+              minWidth: '220px', 
+              textTransform: 'uppercase', 
+              letterSpacing: '1px' 
+            }}
+          >
+            Guest Mode
+          </button>
+        </a>
       </div>
     );
   }
