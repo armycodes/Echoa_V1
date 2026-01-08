@@ -206,8 +206,8 @@ export default function Guest() {
     try {
       // Trying the Saavn API with a different Proxy (AllOrigins)
       // This is the strongest free proxy available.
-      const targetApi = `https://saavn.dev/api/search/songs?query=${encodeURIComponent(query)}`;
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetApi)}`;
+      /*const targetApi = `https://saavn.dev/api/search/songs?query=${encodeURIComponent(query)}`;
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetApi)}`;*/
 
       const res = await axios.get(proxyUrl);
 
