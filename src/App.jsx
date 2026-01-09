@@ -11,6 +11,7 @@ export default function App() {
       <Route path="/bootstrap" element={<Bootstrap />} />
       <Route path="/home" element={<Home />} />
       <Route path="/guest" element={<Guest />} />
+      
     </Routes>
   );
 }

@@ -233,7 +233,7 @@ export default function Home() {
     </div>
   );
 }*/
-import { useEffect, useState } from "react";
+/*import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Import Link
 import "../styles/Home.css";
 
@@ -302,8 +302,8 @@ export default function Home() {
     return (
       <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '30px', fontFamily: 'sans-serif' }}>
         <h1 style={{ letterSpacing: '4px', fontSize: '3rem', fontWeight: 'bold', marginBottom: '10px' }}>ECHOA</h1>
-      {/* GUEST BUTTON (SIMPLE HTML LINK) */}
-        {/* Idi manual ga type chesinatte work avtundi - 100% Safe */}
+      {/* GUEST BUTTON (SIMPLE HTML LINK) *//*}
+        {/* Idi manual ga type chesinatte work avtundi - 100% Safe *//*}
         <a href="/guest" style={{ textDecoration: 'none' }}>
           <button 
             style={{ 
@@ -328,6 +328,7 @@ export default function Home() {
 
   // --- VIEW 2: PLAYER (Logged In) ---
   return (
+    
     <div className="home-root">
       <div className="nav">
         <div className="menu-container">
@@ -365,6 +366,172 @@ export default function Home() {
           <div className="track-info">
             <h2>{song.song}</h2>
             <p>{song.artist}</p>
+          </div>
+        ) : (
+          <p className="no-song">No song playing 🎧</p>
+        )}
+      </div>
+    </div>
+  );
+}*/
+/*aesthetics background logic in home.jsx*/
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; 
+import "../styles/Home.css";
+
+// 👇 IMPORT THE NEW AESTHETIC COMPONENT
+import AestheticBackground from "../components/AestheticBackground"; 
+
+export default function Home() {
+  const [token, setToken] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [song, setSong] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  
+  const navigate = useNavigate(); 
+
+  // --- 1. TOKEN HANDLING ---
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get("token");
+    const localToken = localStorage.getItem("echoa_token");
+
+    if (urlToken) {
+      localStorage.setItem("echoa_token", urlToken);
+      setToken(urlToken);
+      window.history.replaceState({}, "", "/home"); 
+    } else if (localToken) {
+      setToken(localToken);
+    }
+  }, []);
+
+  // --- 2. DATA FETCHING ---
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchData = async () => {
+      try {
+        const p = await fetch("https://echoa-backend.onrender.com/me", {
+           headers: { Authorization: `Bearer ${token}` }
+        });
+        if (p.ok) setProfile(await p.json());
+
+        const s = await fetch("https://echoa-backend.onrender.com/currently-playing", {
+             headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (s.status === 204) {
+            setSong(null);
+        } else if (s.ok) {
+            setSong(await s.json());
+        }
+      } catch (e) {
+        console.error("Fetch Error:", e);
+      }
+    };
+
+    fetchData(); 
+    const i = setInterval(fetchData, 6000); 
+    return () => clearInterval(i);
+  }, [token]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("echoa_token");
+    setToken(null);
+    navigate('/'); 
+  };
+
+  // --- VIEW 1: LANDING SCREEN (Login / Guest) ---
+  if (!token) {
+    return (
+      <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '30px', fontFamily: 'sans-serif' }}>
+        <h1 style={{ letterSpacing: '4px', fontSize: '3rem', fontWeight: 'bold', marginBottom: '10px' }}>ECHOA</h1>
+      
+        {/* LOGIN BUTTON (Ideally this should point to your backend auth) */}
+        <a href="https://echoa-backend.onrender.com/login" style={{ textDecoration: 'none' }}>
+           <button style={{ background: '#1DB954', color: 'black', padding: '12px 40px', borderRadius: '30px', border: 'none', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+             Connect Spotify
+           </button>
+        </a>
+
+        {/* GUEST BUTTON */}
+        <a href="/guest" style={{ textDecoration: 'none' }}>
+          <button 
+            style={{ 
+              background: 'transparent', 
+              color: 'white', 
+              padding: '12px 40px', 
+              borderRadius: '30px', 
+              border: '1px solid #ffffffaa', 
+              fontSize: '14px', 
+              cursor: 'pointer', 
+              minWidth: '220px', 
+              textTransform: 'uppercase', 
+              letterSpacing: '1px' 
+            }}
+          >
+            Guest Mode
+          </button>
+        </a>
+      </div>
+    );
+  }
+
+  // --- VIEW 2: PLAYER (Logged In) ---
+  return (
+    // 🔴 CRITICAL: Added 'background: transparent' so the video behind shows through
+    <div className="home-root" style={{ background: 'transparent' }}>
+      
+      {/* 🔥 AESTHETIC BACKGROUND LAYER 🔥 */}
+      {/* We convert your backend data format (song.song) to what the component expects (item.name) */}
+      {song && (
+        <AestheticBackground 
+            currentSong={{
+                name: song.song, 
+                artists: [{ name: song.artist }]
+            }} 
+        />
+      )}
+
+      {/* --- NAV BAR --- */}
+      <div className="nav">
+        <div className="menu-container">
+          <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>☰</div>
+          {menuOpen && (
+            <div className="dropdown">
+              <button onClick={handleLogout} className="logout-btn">Logout</button>
+            </div>
+          )}
+        </div>
+        {profile && (
+          <div className="profile-menu">
+            <img src={profile.images?.[0]?.url} alt="" />
+            <span>{profile.display_name}</span>
+          </div>
+        )}
+      </div>
+
+      {/* --- VINYL STAGE --- */}
+      <div className="vinyl-stage">
+        <div className="vinyl-box">
+          <div className={`vinyl-disc ${song?.playing ? 'spinning' : ''}`}>
+             <div className="grooves"></div>
+             <div className="album-label">
+                {song?.albumImage ? (
+                  <img src={song.albumImage} alt="album" />
+                ) : (
+                  <div className="empty-label"></div>
+                )}
+             </div>
+          </div>
+          <div className={`tonearm ${song?.playing ? 'active' : ''}`} />
+        </div>
+
+        {song?.playing ? (
+          <div className="track-info">
+            {/* Added text-shadow so text is visible over any video background */}
+            <h2 style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>{song.song}</h2>
+            <p style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>{song.artist}</p>
           </div>
         ) : (
           <p className="no-song">No song playing 🎧</p>
