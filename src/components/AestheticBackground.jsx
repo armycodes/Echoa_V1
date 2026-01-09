@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getSongMoodSearchTerm } from "../services/GeminiService";
 
 // 🔴 PASTE YOUR PEXELS API KEY HERE
-const PEXELS_API_KEY = process.env.REACT_APP_PEXELS_API_KEY;
+const PEXELS_API_KEY = import.meta.env.VITE_PEXELS_API_KEY;
 export default function AestheticBackground({ currentSong }) {
   const [videoUrl, setVideoUrl] = useState(null);
   
