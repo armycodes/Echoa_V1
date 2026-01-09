@@ -374,12 +374,11 @@ export default function Home() {
     </div>
   );
 }*/
-/*aesthetics background logic in home.jsx*/
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import "../styles/Home.css";
 
-// 👇 IMPORT THE NEW AESTHETIC COMPONENT
+// 👇 IMPORT THE AESTHETIC COMPONENT (This will now be AI Powered)
 import AestheticBackground from "../components/AestheticBackground"; 
 
 export default function Home() {
@@ -447,14 +446,12 @@ export default function Home() {
       <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '30px', fontFamily: 'sans-serif' }}>
         <h1 style={{ letterSpacing: '4px', fontSize: '3rem', fontWeight: 'bold', marginBottom: '10px' }}>ECHOA</h1>
       
-        {/* LOGIN BUTTON (Ideally this should point to your backend auth) */}
         <a href="https://echoa-backend.onrender.com/login" style={{ textDecoration: 'none' }}>
            <button style={{ background: '#1DB954', color: 'black', padding: '12px 40px', borderRadius: '30px', border: 'none', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}>
              Connect Spotify
            </button>
         </a>
 
-        {/* GUEST BUTTON */}
         <a href="/guest" style={{ textDecoration: 'none' }}>
           <button 
             style={{ 
@@ -479,11 +476,11 @@ export default function Home() {
 
   // --- VIEW 2: PLAYER (Logged In) ---
   return (
-    // 🔴 CRITICAL: Added 'background: transparent' so the video behind shows through
+    // 🔴 CRITICAL: background: 'transparent' ensures the video behind is visible
     <div className="home-root" style={{ background: 'transparent' }}>
       
-      {/* 🔥 AESTHETIC BACKGROUND LAYER 🔥 */}
-      {/* We convert your backend data format (song.song) to what the component expects (item.name) */}
+      {/* 🔥 AI POWERED BACKGROUND 🔥 */}
+      {/* We pass the song details to the component. It handles the Gemini + Pexels logic internally */}
       {song && (
         <AestheticBackground 
             currentSong={{
@@ -529,7 +526,6 @@ export default function Home() {
 
         {song?.playing ? (
           <div className="track-info">
-            {/* Added text-shadow so text is visible over any video background */}
             <h2 style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>{song.song}</h2>
             <p style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>{song.artist}</p>
           </div>

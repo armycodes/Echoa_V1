@@ -1,107 +1,74 @@
 import React, { useState, useEffect } from "react";
+import { getSongMoodSearchTerm } from "../services/GeminiService";
 
-// --- VIDEO ASSETS (High Quality Loops) ---
-// Note: These are direct links to Pexels videos. You can replace them with your own local assets later if you want.
-const VIDEOS = {
-  // 1. PARTY / HIGH ENERGY (Neon, lights, movement)
-  party: "https://videos.pexels.com/video-files/3163534/3163534-hd_1920_1080_30fps.mp4",
-  
-  // 2. ROMANTIC / LOVE (Soft colors, sunset, flowers)
-  love: "https://videos.pexels.com/video-files/6653198/6653198-hd_1920_1080_25fps.mp4",
-  
-  // 3. SAD / LONELY (Rain, dark windows, grey)
-  sad: "https://videos.pexels.com/video-files/4440846/4440846-hd_1920_1080_24fps.mp4",
-  
-  // 4. CHILL / NATURE (Ocean, clouds, green)
-  chill: "https://videos.pexels.com/video-files/2611250/2611250-hd_1920_1080_30fps.mp4",
-  
-  // 5. DARK / MYSTERIOUS (Smoke, black & white, abstract)
-  dark: "https://videos.pexels.com/video-files/2759484/2759484-hd_1920_1080_30fps.mp4",
-  
-  // 6. DEFAULT (Abstract fluids, safe for any song)
-  default: "https://videos.pexels.com/video-files/2658826/2658826-hd_1920_1080_30fps.mp4"
-};
-
+// 🔴 PASTE YOUR PEXELS API KEY HERE
+const PEXELS_API_KEY = process.env.REACT_APP_PEXELS_API_KEY;
 export default function AestheticBackground({ currentSong }) {
-  const [videoUrl, setVideoUrl] = useState(VIDEOS.default);
-  const [isFading, setIsFading] = useState(false);
+  const [videoUrl, setVideoUrl] = useState(null);
+  
+  // Default video (Abstract) so screen isn't black while thinking
+  const DEFAULT_VIDEO = "https://assets.mixkit.co/videos/preview/mixkit-abstract-blue-and-purple-liquid-background-2788-large.mp4";
 
   useEffect(() => {
-    // If no song is playing, keep default
     if (!currentSong) return;
 
-    // Start transition
-    setIsFading(true);
+    const fetchAesthetic = async () => {
+      // 1. Ask Gemini for the vibe
+      const songName = currentSong.name;
+      const artistName = currentSong.artists?.[0]?.name || "";
+      
+      console.log(`🤖 Gemini Analyzing: ${songName}...`);
+      const searchQuery = await getSongMoodSearchTerm(songName, artistName);
+      console.log(`🎨 Visual Concept: "${searchQuery}"`);
 
-    // --- MOOD DETECTION LOGIC ---
-    // Combine Song Name & Artist Name to check keywords
-    const text = (currentSong.name + " " + (currentSong.artists?.[0]?.name || "")).toLowerCase();
-    
-    let nextVideo = VIDEOS.default;
+      // 2. Ask Pexels for a video matching that vibe
+      try {
+        const pexelsUrl = `https://api.pexels.com/videos/search?query=${encodeURIComponent(searchQuery)}&per_page=1&orientation=landscape&size=medium`;
+        
+        const response = await fetch(pexelsUrl, {
+          headers: { Authorization: PEXELS_API_KEY }
+        });
 
-    // KEYWORD MATCHING
-    if (text.includes("remix") || text.includes("party") || text.includes("dance") || text.includes("dj") || text.includes("club") || text.includes("rock")) {
-        nextVideo = VIDEOS.party;
-    } 
-    else if (text.includes("love") || text.includes("heart") || text.includes("baby") || text.includes("kiss") || text.includes("beautiful")) {
-        nextVideo = VIDEOS.love;
-    }
-    else if (text.includes("sad") || text.includes("lonely") || text.includes("cry") || text.includes("pain") || text.includes("break") || text.includes("sorry")) {
-        nextVideo = VIDEOS.sad;
-    }
-    else if (text.includes("night") || text.includes("dark") || text.includes("star") || text.includes("moon") || text.includes("black")) {
-        nextVideo = VIDEOS.dark;
-    }
-    else if (text.includes("ocean") || text.includes("sea") || text.includes("sky") || text.includes("blue") || text.includes("rain") || text.includes("water")) {
-        nextVideo = VIDEOS.chill;
-    }
+        const data = await response.json();
 
-    // Delay the switch slightly to allow fade-out animation
-    const timeout = setTimeout(() => {
-        setVideoUrl(nextVideo);
-        setIsFading(false);
-    }, 500); // 0.5s transition
+        if (data.videos && data.videos.length > 0) {
+          // Find a good quality MP4 (HD)
+          const videoFiles = data.videos[0].video_files;
+          const bestFile = videoFiles.find(v => v.width >= 1280 && v.width <= 1920) || videoFiles[0];
+          setVideoUrl(bestFile.link);
+        } else {
+          setVideoUrl(DEFAULT_VIDEO);
+        }
+      } catch (error) {
+        console.error("Pexels Error:", error);
+        setVideoUrl(DEFAULT_VIDEO);
+      }
+    };
 
-    return () => clearTimeout(timeout);
+    fetchAesthetic();
 
-  }, [currentSong?.name]); // Only trigger when song changes
+  }, [currentSong?.name]); 
 
   return (
     <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        zIndex: -1, // CRITICAL: Puts this behind everything
-        overflow: "hidden",
-        backgroundColor: "#000"
+        position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+        zIndex: -1, overflow: "hidden", backgroundColor: "#000"
     }}>
-      
       <video
-        key={videoUrl} // Forces React to refresh the video element when URL changes
-        src={videoUrl}
-        autoPlay
-        loop
-        muted // Required for auto-play
-        playsInline
+        key={videoUrl || "default"} 
+        src={videoUrl || DEFAULT_VIDEO}
+        autoPlay loop muted playsInline
         style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover", // Ensures video fills screen without stretching
-            opacity: isFading ? 0 : 0.5, // Dim video to 50% so Vinyl is readable
-            transition: "opacity 0.8s ease-in-out",
-            filter: "contrast(1.2) brightness(0.8)" // Cinematic look
+            width: "100%", height: "100%", objectFit: "cover",
+            opacity: 0.6, // Dim video slightly
+            transition: "opacity 1s ease-in-out",
+            filter: "brightness(0.6) contrast(1.1)" 
         }}
       />
-      
-      {/* Dark Gradient Overlay - Makes sure text/icons on top are visible */}
       <div style={{
-          position: "absolute",
-          top: 0, left: 0, width: "100%", height: "100%",
-          background: "radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.9) 100%)"
+          position: "absolute", top: 0, left: 0, width: "100%", height: "100%",
+          background: "radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.9) 100%)"
       }}></div>
-
     </div>
   );
 }
