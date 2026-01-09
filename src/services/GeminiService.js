@@ -7,7 +7,8 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export const getSongMoodSearchTerm = async (songName, artistName) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+// Use the newer 1.5 Flash model (Faster & Supported)
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // The Prompt: We teach Gemini to be a Visual Director
     const prompt = `
