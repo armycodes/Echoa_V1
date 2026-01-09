@@ -1,46 +1,77 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Ensure this matches your .env file variable name (VITE_GEMINI_API_KEY)
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
+// 👇 HELPER: Retry Logic
+async function generateWithRetry(model, prompt, retries = 3, delay = 1000) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text().trim();
+        } catch (error) {
+            const isOverloaded = error.message.includes('503') || error.message.includes('overloaded');
+            if (isOverloaded && i < retries - 1) {
+                console.warn(`⚠️ Gemini Overloaded. Retrying in ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2; 
+            } else {
+                throw error;
+            }
+        }
+    }
+}
+
 export const getSongMoodSearchTerm = async (songName, artistName) => {
   if (!GEMINI_API_KEY) {
-      console.error("❌ Gemini API Key is missing! Check .env file.");
+      console.error("❌ Gemini API Key is missing!");
       return "abstract lights";
   }
 
   try {
-    // 🔴 UPDATED MODEL NAME HERE
+    // Model set to 2.5 Flash
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
+    // 🔥 UPDATED PROMPT: FOCUSED ANALYSIS 🔥
     const prompt = `
-      Analyze the song "${songName}" by "${artistName}" deeply.
+      Act as a precise visual keyword generator.
+      Target Song: "${songName}" by "${artistName}".
       
-      Step 1: Analyze the Lyrics & Meaning. (Is it about heartbreak, falling in love, partying, confidence, or loneliness?)
-      Step 2: Analyze the Beat & Genre. (Is it upbeat Disco, slow R&B, heavy Rock, or chill Lo-fi?)
-      Step 3: Analyze the "Vibe". (Is it dark and moody, bright and colorful, or dreamy and blurry?)
+      Perform a quick analysis on these 4 elements:
+      1. **About the Song:** What is the core subject? (e.g., Party, Heartbreak, Nature, Space)
+      2. **Song Theme:** What is the underlying emotion? (e.g., Nostalgic, Aggressive, Romantic)
+      3. **Lyrics Meaning:** Extract key visual metaphors from lyrics (e.g., "burning fire", "cold rain", "shining stars").
+      4. **The Beat:** How does it sound? (e.g., Fast Techno, Slow Piano, Lo-fi, Orchestral).
 
-      Step 4: Based on the above, create a VISUAL SEARCH QUERY for a background video.
+      TASK: Combine the strongest keywords from these 4 points into a SINGLE, PRECISE 2-4 word video search query.
+
+      CRITICAL RESTRICTIONS:
+      - STRICTLY NO PEOPLE, NO FACES, NO CROWDS. (Must be abstract, nature, or texture).
+      - Output ONLY the search query. Do not explain the analysis.
       
-      CRITICAL RULES for the Visual:
-      1. STRICTLY NO PEOPLE, NO FACES, NO CROWDS. (The background must be abstract or scenery).
-      2. If the song is energetic/pop (like Twice), look for "Neon movement", "Disco lights", "Bright particles".
-      3. If the song is romantic/sensual (like Jimin), look for "Red fluid ink", "Dark water ripples", "Moody smoke".
-      4. If the lyrics are sad, look for "Rain on glass", "Foggy forest".
-      5. Output ONLY the search query.
-      
-      OUTPUT FORMAT:
-      Return ONLY a 2-4 word search term. 
-      Examples: "Neon purple tunnel", "Sunset ocean waves", "Pink glitter bokeh", "Dark storm clouds".
+      Examples:
+      - Song: "Be Mine" (Jimin) -> "Dark tropical neon"
+      - Song: "The Feels" (Twice) -> "Pink disco sparkles"
+      - Song: "Someone Like You" (Adele) -> "Black and white rain"
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text().trim();
+    let text = await generateWithRetry(model, prompt);
+    
+    // 🧹 CLEANUP LOGIC 🧹
+    if (text.includes("\n")) {
+        const lines = text.split("\n").filter(line => line.trim() !== "");
+        text = lines[lines.length - 1]; 
+    }
+
+    text = text.replace(/\*\*/g, '').replace(/"/g, '').trim();
+
+    console.log(`🎯 Final Search Query: "${text}"`);
+    return text;
+    
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "abstract lights"; 
+    return "abstract neon"; 
   }
 };
