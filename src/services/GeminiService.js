@@ -33,26 +33,39 @@ export const getSongMoodSearchTerm = async (songName, artistName) => {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     // 🔥 SMART PROMPT: VIBE vs LITERAL DECISION 🔥
-    const prompt = `
-      Act as a smart visual director for a music player.
-      Target Song: "${songName}" by "${artistName}".
-      
-      Your Task: Analyze the following to decide the best background video:
-      1. **Genre & Beat:** (Is it Fast/Aggressive, Slow/Melancholic, or Pop/Fun?)
-      2. **Theme & Feel:** (Is it Dark, Bright, Romantic, or Mysterious?)
-      3. **Concept:** (Is the title a Metaphor? e.g., "Butter" is not about food, it's about smooth charm.)
+   const prompt = `
+        Act as a Visual Director for a Music Player that plays both Global Hits and Indian Local Mass Songs.
+        
+        Song: "${songName}" | Movie/Album: "${movieName}" | Artist: "${artist}".
 
-      DECISION LOGIC (Crucial):
-      - **Case A (Vibe/Abstract):** If the song is aggressive, electronic, or hype (e.g., "Danger", "Idol"), use TEXTURES.
-        -> Output: "Red glitch", "Neon strobe", "Fast particles".
-      - **Case B (Scenery/Literal):** If the song is atmospheric, sad, or nature-based (e.g., "Rain", "Spring Day"), use SCENERY.
-        -> Output: "Rain on glass", "Pastel sky clouds", "Ocean sunset".
-      - **Case C (Metaphor Check):** If the title is an object but the song is a vibe (e.g., "Butter"), IGNORE the object. Use the feeling.
-        -> Output: "Yellow liquid smooth" (Not "Butter stick").
+        Analyze the genre and energy. Return a search query for a background video.
 
-      FINAL OUTPUT:
-      Provide ONLY the precise 2-4 word search term. No explanations.
-    `;
+        STRICT RULES:
+        1. NO FACES, NO PEOPLE (Silhouettes okay).
+        2. REAL FOOTAGE only (No cartoons).
+
+        --- LOGIC FOR DIFFERENT VIBES ---
+        
+        CASE 1: TELUGU/INDIAN MASS & ITEM SONGS (Ex: DSP, Thaman, Folk beats)
+        * Context: Raw energy, Festival, Street, Dance.
+        * Since stock videos lack specific Indian streets, focus on LIGHTING & ELEMENTS.
+        * Keywords to use: "Bonfire sparks", "Red smoke", "Fast flashing lights", "Golden dust particles", "Fire background", "Disco lights abstract".
+        * GOAL: Make it look like a "Jatara" or "Party" background.
+
+        CASE 2: MELODY & LOVE (Universal or Indian)
+        * Context: Romantic, Calm, Travel.
+        * Keywords: "Moonlight reflection water", "Train window rainy", "Flower field wind", "Sunrise mountains", "Slow waves".
+
+        CASE 3: UNIVERSAL POP / HIPHOP / TRANCE (Ex: English, Anirudh Western)
+        * Context: Stylish, Cool, Modern.
+        * Keywords: "Neon tunnel", "City night drive POV", "Cyberpunk street", "Abstract laser lights".
+
+        CASE 4: SAD / DEEP / 3AM
+        * Keywords: "Rain on glass", "Foggy forest", "Lonely street lamp".
+
+        OUTPUT FORMAT:
+        Return ONLY the 3-5 word search query. Nothing else.
+      `;
 
     let text = await generateWithRetry(model, prompt);
     
