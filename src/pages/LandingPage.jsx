@@ -1,128 +1,135 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion'; 
+import { FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa'; 
 
-// Import Lottie & File
-import Lottie from "lottie-react";
-// Ensure this path is correct based on where you saved the file
-import musicAnimation from "../assets/music-wave.json"; 
-
-import { FaGithub, FaLinkedin, FaInstagram, FaGlobe } from 'react-icons/fa'; 
+// Import Styles
 import '../styles/Landing.css';
+import '../styles/Stars.css'; 
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
-  // --- LOGIC: Redirect & Wake Up Server ---
+  // --- LOGIC: Generate Random Stars ---
+  const stars = useMemo(() => {
+    return Array.from({ length: 60 }).map((_, i) => ({
+      id: i,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      size: `${Math.random() * 2 + 1}px`, 
+      duration: `${Math.random() * 3 + 3}s`, 
+      delay: `${Math.random() * 5}s`
+    }));
+  }, []);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("token")) {
         navigate('/login' + window.location.search);
-        return;
     }
-    // Wake up Render Server silently
+    // Wake up server silently
     fetch("https://echoa-backend.onrender.com").catch(() => {});
   }, [navigate]);
 
-  // --- ANIMATION SETTINGS ---
   const fadeInUp = {
-    hidden: { opacity: 0, y: 60 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } }
   };
 
   return (
     <div className="landing-container">
       
-      {/* === SECTION 1: HERO INTRO (With Background Animation) === */}
-      <section className="section hero-section">
-        
-        {/* 🔥 1. BACKGROUND ANIMATION LAYER */}
-<div className="hero-bg-animation">
-   <Lottie 
-      animationData={musicAnimation} 
-      loop={true} 
-      
-      // 👇 Ee STYLE confirm chesko
-      style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }} 
-      
-      // 👇👇👇 IDI MAGIC FIX! (Full Screen Cover) 👇👇👇
-      rendererSettings={{
-        preserveAspectRatio: "xMidYMid slice" 
-      }}
-   />
-</div>
+      {/* ✨ STARRY NIGHT BACKGROUND (Pitch Dark) ✨ */}
+      <div className="star-container">
+        {stars.map((star) => (
+          <div
+            key={star.id}
+            className="star"
+            style={{
+              top: star.top,
+              left: star.left,
+              width: star.size,
+              height: star.size,
+              animationDuration: star.duration,
+              animationDelay: star.delay
+            }}
+          />
+        ))}
+      </div>
 
-        {/* 🔥 2. FOREGROUND TEXT CONTENT */}
+      {/* === HERO SECTION === */}
+      <section className="section hero-section">
         <motion.div 
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
           className="hero-content"
         >
-          <h1 className="brand-title">ECHOA</h1>
-          <p className="tagline">Don't just hear the music. <span className="highlight">Feel it.</span></p>
+          {/* Brand Title: Sensual & Elegant */}
+          <h1 className="brand-title" style={{ 
+              fontFamily: 'var(--font-title)', 
+              color: 'white', 
+              fontWeight: '400', 
+              letterSpacing: '8px', 
+              textShadow: 'none' 
+          }}>
+            ECHOA
+          </h1>
+          
+          <p className="tagline">Music doesn’t end with sound. Echoa is what lingers. <span className="highlight">Feel it.</span></p>
+          
+          {/* 🔥 NEW DESCRIPTION (No AI word) */}
           <p className="description">
-            Your Spotify, Reimagined. Sync your vibe with AI-curated cinematic atmospheres.
+            A living canvas that breathes with your sound. <br/>
+            We translate the unseen emotions of your playlist into a visual void, <br/>
+            syncing every beat with an atmosphere that feels just right.
           </p>
+          
           <div className="scroll-indicator" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
-             ↓ Scroll to Explore
+             Enter the Void ↓
           </div>
         </motion.div>
       </section>
 
-      {/* === SECTION 2: DESKTOP MOCKUP === */}
-      <section className="section mockup-section">
-        <motion.div 
-          initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
-          className="mockup-container"
-        >
-          <div className="mac-window">
-            <div className="mac-header">
-              <span className="dot red"></span><span className="dot yellow"></span><span className="dot green"></span>
-            </div>
-            {/* Replace src with your actual screenshot later */}
-            <img 
-              src="https://images.unsplash.com/photo-1614149162883-504ce4d13909?q=80&w=2574&auto=format&fit=crop" 
-              alt="Echoa Desktop Interface" 
-              className="mockup-image" 
-            />
-            <div className="overlay-text">Experience on Desktop</div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* === SECTION 3: WHAT'S SPECIAL === */}
+      {/* === FEATURE SECTION (THE SOUL) === */}
       <section className="section feature-section">
         <motion.div 
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
           className="feature-grid"
+          style={{textAlign: 'center', maxWidth: '700px'}}
         >
-          <div className="feature-text">
-            <h2>Why Echoa?</h2>
-            <p>
-              Traditional players are static. <strong>Echoa is alive.</strong><br/><br/>
-              Using <strong>Gemini AI</strong>, we analyze every beat, lyric, and emotion 
-              of your song to fetch a background that matches the soul of the track.
+            <h2 style={{fontFamily: 'var(--font-title)', fontSize:'3rem', fontWeight:'400', marginBottom:'25px'}}>
+              The Soul of Echoa
+            </h2>
+            
+            {/* 🔥 NEW SOULFUL TEXT (No Tech Stack) */}
+            <p style={{fontSize:'1.15rem', color:'#a1a1aa', lineHeight:'1.9', fontStyle: 'italic'}}>
+              Music is not meant to be just heard; it is meant to be felt. <br/><br/>
+              Echoa exists to bridge the gap between sound and sight. 
+              It listens to the heartbeat of your tracks—the sorrow in a ballad, 
+              the fire in an anthem—and mirrors it instantly, creating an immersive space 
+              where you and your music are the only things that exist.
             </p>
-          </div>
-          
-          <div className="feature-visual-placeholder">
-              <h3>🎵 AI Powered Emotions</h3>
-          </div>
         </motion.div>
       </section>
 
-      {/* === SECTION 4: DEVELOPER INFO === */}
+      {/* === DEVELOPER SECTION === */}
       <section className="section developer-section">
         <motion.div 
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
           className="dev-card"
         >
-          <p className="dev-label">Architected By</p>
-          <h2>Siri Mahalaxmi</h2>
-          <p className="dev-bio">
-             Final Year CSE Student & Full Stack Developer.<br/>
-             Passionate about merging AI with Human Emotion.
+          <p className="dev-label">Developed By</p>
+          
+          <h2 style={{fontFamily: 'var(--font-title)', fontSize:'2.5rem', margin:'15px 0', fontWeight:'400'}}>
+            Siri Mahalaxmi
+          </h2>
+          
+          {/* 🔥 UPDATED BIO (Short & Creative) */}
+          <p style={{color:'#666', marginBottom:'30px', maxWidth: '500px', marginInline: 'auto'}}>
+             A creator at the intersection of logic and emotion. <br/>
+             Crafting digital experiences that don't just function, but feel.
           </p>
-          <div className="social-links">
+          
+          <div className="social-links" style={{display:'flex', gap:'20px', justifyContent:'center', marginTop: '20px'}}>
             <a href="https://github.com" target="_blank" rel="noreferrer"><FaGithub /></a>
             <a href="https://linkedin.com" target="_blank" rel="noreferrer"><FaLinkedin /></a>
             <a href="https://instagram.com" target="_blank" rel="noreferrer"><FaInstagram /></a>
@@ -130,12 +137,14 @@ const LandingPage = () => {
         </motion.div>
       </section>
 
-      {/* === SECTION 5: CTA === */}
+      {/* === CTA SECTION === */}
       <section className="section cta-section">
-        <motion.div initial={{ scale: 0.8 }} whileInView={{ scale: 1 }}>
-          <h2>Ready to feel the music?</h2>
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} transition={{duration:0.5}}>
+          <h2 style={{fontFamily: 'var(--font-title)', marginBottom:'30px', fontWeight:'400'}}>
+            Ready to experience the unseen?
+          </h2>
           <button className="cta-btn big-btn" onClick={() => navigate('/login')}>
-            Get Started with Spotify ➔
+            Get Started with Spotify
           </button>
         </motion.div>
       </section>
