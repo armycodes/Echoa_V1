@@ -1,16 +1,18 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion'; 
-import { FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa'; 
 
-// Import Styles
+// New Icons: Envelope (Mail) & Globe (Portfolio)
+import { FaGithub, FaLinkedin, FaEnvelope, FaGlobe } from 'react-icons/fa'; 
+
 import '../styles/Landing.css';
 import '../styles/Stars.css'; 
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [meteor, setMeteor] = useState(null); // State to handle meteor
 
-  // --- LOGIC: Generate Random Stars ---
+  // --- LOGIC 1: Static Background Stars ---
   const stars = useMemo(() => {
     return Array.from({ length: 60 }).map((_, i) => ({
       id: i,
@@ -22,12 +24,34 @@ const LandingPage = () => {
     }));
   }, []);
 
+  // --- LOGIC 2: Random Meteor Shower 🌠 ---
+  useEffect(() => {
+    const triggerMeteor = () => {
+      // Random position start (Top-Right area mostly)
+      const topPos = Math.random() * 50; // Top 50% of screen
+      const rightPos = Math.random() * 50; // Right 50% of screen
+      
+      setMeteor({ top: `${topPos}%`, right: `${rightPos}%`, id: Date.now() });
+
+      // Remove meteor after animation ends to clean up
+      setTimeout(() => setMeteor(null), 1500); 
+
+      // Schedule next meteor (Randomly between 5s and 9s)
+      const nextDelay = Math.random() * 4000 + 5000; 
+      setTimeout(triggerMeteor, nextDelay);
+    };
+
+    // Start the first meteor after a small delay
+    const initialTimer = setTimeout(triggerMeteor, 3000);
+    return () => clearTimeout(initialTimer);
+  }, []);
+
+  // --- LOGIC 3: Wake up Server ---
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("token")) {
         navigate('/login' + window.location.search);
     }
-    // Wake up server silently
     fetch("https://echoa-backend.onrender.com").catch(() => {});
   }, [navigate]);
 
@@ -39,8 +63,9 @@ const LandingPage = () => {
   return (
     <div className="landing-container">
       
-      {/* ✨ STARRY NIGHT BACKGROUND (Pitch Dark) ✨ */}
+      {/* ✨ BACKGROUND LAYERS ✨ */}
       <div className="star-container">
+        {/* 1. Static Twinkling Stars */}
         {stars.map((star) => (
           <div
             key={star.id}
@@ -55,6 +80,14 @@ const LandingPage = () => {
             }}
           />
         ))}
+
+        {/* 2. The Shooting Meteor (Conditionally Rendered) */}
+        {meteor && (
+          <div 
+            className="meteor" 
+            style={{ top: meteor.top, right: meteor.right }} 
+          />
+        )}
       </div>
 
       {/* === HERO SECTION === */}
@@ -63,7 +96,6 @@ const LandingPage = () => {
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
           className="hero-content"
         >
-          {/* Brand Title: Sensual & Elegant */}
           <h1 className="brand-title" style={{ 
               fontFamily: 'var(--font-title)', 
               color: 'white', 
@@ -74,9 +106,8 @@ const LandingPage = () => {
             ECHOA
           </h1>
           
-          <p className="tagline">Music doesn’t end with sound. Echoa is what lingers. <span className="highlight">Feel it.</span></p>
+          <p className="tagline">Don't just hear the music. <span className="highlight">Feel it.</span></p>
           
-          {/* 🔥 NEW DESCRIPTION (No AI word) */}
           <p className="description">
             A living canvas that breathes with your sound. <br/>
             We translate the unseen emotions of your playlist into a visual void, <br/>
@@ -89,7 +120,7 @@ const LandingPage = () => {
         </motion.div>
       </section>
 
-      {/* === FEATURE SECTION (THE SOUL) === */}
+      {/* === FEATURE SECTION === */}
       <section className="section feature-section">
         <motion.div 
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
@@ -99,8 +130,6 @@ const LandingPage = () => {
             <h2 style={{fontFamily: 'var(--font-title)', fontSize:'3rem', fontWeight:'400', marginBottom:'25px'}}>
               The Soul of Echoa
             </h2>
-            
-            {/* 🔥 NEW SOULFUL TEXT (No Tech Stack) */}
             <p style={{fontSize:'1.15rem', color:'#a1a1aa', lineHeight:'1.9', fontStyle: 'italic'}}>
               Music is not meant to be just heard; it is meant to be felt. <br/><br/>
               Echoa exists to bridge the gap between sound and sight. 
@@ -111,28 +140,46 @@ const LandingPage = () => {
         </motion.div>
       </section>
 
-      {/* === DEVELOPER SECTION === */}
+      {/* === DEVELOPER SECTION (Updated Links) === */}
       <section className="section developer-section">
         <motion.div 
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
           className="dev-card"
         >
-          <p className="dev-label">Developed By</p>
+          <p className="dev-label">Architected By</p>
           
           <h2 style={{fontFamily: 'var(--font-title)', fontSize:'2.5rem', margin:'15px 0', fontWeight:'400'}}>
             Siri Mahalaxmi
           </h2>
           
-          {/* 🔥 UPDATED BIO (Short & Creative) */}
           <p style={{color:'#666', marginBottom:'30px', maxWidth: '500px', marginInline: 'auto'}}>
              A creator at the intersection of logic and emotion. <br/>
              Crafting digital experiences that don't just function, but feel.
           </p>
           
-          <div className="social-links" style={{display:'flex', gap:'20px', justifyContent:'center', marginTop: '20px'}}>
-            <a href="https://github.com" target="_blank" rel="noreferrer"><FaGithub /></a>
-            <a href="https://linkedin.com" target="_blank" rel="noreferrer"><FaLinkedin /></a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer"><FaInstagram /></a>
+          {/* 🔥 UPDATED SOCIAL LINKS 🔥 */}
+          <div className="social-links" style={{display:'flex', gap:'25px', justifyContent:'center', marginTop: '20px'}}>
+            
+            {/* 1. Personal Portfolio (Put your link in href) */}
+            <a href="#" target="_blank" rel="noreferrer" title="Personal Portfolio">
+               <FaGlobe />
+            </a>
+
+            {/* 2. LinkedIn */}
+            <a href="https://www.linkedin.com/in/vemula-siri-mahalaxmi-b4b624319/" target="_blank" rel="noreferrer" title="LinkedIn">
+               <FaLinkedin />
+            </a>
+
+            {/* 3. GitHub */}
+            <a href="https://github.com/armycodes" target="_blank" rel="noreferrer" title="GitHub">
+               <FaGithub />
+            </a>
+
+            {/* 4. Mail */}
+            <a href="mailto:sirimahalaxmivemula@gmail.com" title="Email Me">
+               <FaEnvelope />
+            </a>
+
           </div>
         </motion.div>
       </section>

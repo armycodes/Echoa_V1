@@ -34,3 +34,60 @@
     50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 6px rgba(255, 255, 255, 0.9); }
     100% { opacity: 0; transform: scale(0.5); }
 }
+/* ... (Patha code same unchu) ... */
+
+/* Starry Background Container */
+.star-container {
+    /* ... (Same as before) ... */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    background-color: #000000;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* ... (.star class same) ... */
+
+/* 🔥 NEW: METEOR (Shooting Star) STYLE */
+.meteor {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
+    border-radius: 50%;
+    opacity: 0;
+    transform: rotate(-45deg); /* Slant angle */
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+    animation: shoot 1.5s linear forwards;
+}
+
+/* The Tail of the Meteor */
+.meteor::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 150px; /* Length of the tail */
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,1), transparent);
+    right: 0; /* Tail trails behind */
+}
+
+/* Animation: Moves from Top-Right to Bottom-Left */
+@keyframes shoot {
+    0% {
+        opacity: 1;
+        transform: rotate(-45deg) translateX(0);
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: rotate(-45deg) translateX(-800px); /* Travel distance */
+    }
+}
