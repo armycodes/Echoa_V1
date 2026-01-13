@@ -324,7 +324,7 @@ const LandingPage = () => {
                   </li>
                   <li>
                     <strong>How to Register:</strong> To get access, please send your <b>Full Name</b> and <b>Spotify Email ID</b> to: <br/>
-                    <a href="mailto:supportechoa@gmail.com" className="modal-email">supportechoa@gmail.com</a>
+                    <a href="mailto:echoahelp@gmail.com" className="modal-email">echoahelp@gmail.com</a>
                   </li>
                   <li>
                     <strong>Confirmation:</strong> Once you receive a reply from us confirming your addition, you can happily enjoy Echoa!
