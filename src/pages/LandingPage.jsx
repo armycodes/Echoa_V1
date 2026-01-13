@@ -433,7 +433,7 @@ const LandingPage = () => {
           {/* ✅ YOUR LINKS RESTORED */}
           <div className="social-links" style={{display:'flex', gap:'25px', justifyContent:'center', marginTop: '20px'}}>
             {/* Portfolio */}
-            <a href="https://personal-portfolio-3vb.pages.dev/" target="_blank" rel="noreferrer" title="Personal Portfolio">
+            <a href="https://personal-portfolio-3vb.pages.dev" target="_blank" rel="noreferrer" title="Personal Portfolio">
                <FaGlobe />
             </a>
             {/* LinkedIn */}
