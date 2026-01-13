@@ -188,6 +188,7 @@
     transform: rotate(22deg); 
 }
 
+/* The Stick */
 .tonearm::before {
     content: '';
     position: absolute;
@@ -201,6 +202,7 @@
     box-shadow: -2px 2px 6px rgba(0,0,0,0.4);
 }
 
+/* The Head/Needle */
 .tonearm::after {
     content: '';
     position: absolute;
@@ -215,6 +217,7 @@
     border-bottom: 2px solid #666; 
 }
 
+/* Pivot Base Circle (The box you mentioned) */
 .vinyl-box::after {
     content: '';
     position: absolute;
@@ -258,50 +261,62 @@
     letter-spacing: 1px;
 }
 
-/* 🔥🔥 MOBILE RESPONSIVE FIX (UPDATED - EXTRA SMALL) 🔥🔥 */
+/* 🔥🔥 MOBILE RESPONSIVE FIX (PERFECT PROPORTIONS) 🔥🔥 */
 @media screen and (max-width: 768px) {
     
-    /* 1. Shrink the Vinyl Box significantly */
+    /* 1. Shrink the Vinyl Box Container */
     .vinyl-box {
-        width: 180px;  /* Reduced from 220px */
+        width: 180px;
         height: 180px;
     }
 
     /* 2. Shrink the Disc */
     .vinyl-disc {
-        width: 170px;  /* Reduced from 200px */
+        width: 170px;
         height: 170px;
     }
 
-    /* 3. Shrink the Album Label (Image inside) */
+    /* 3. Shrink the Album Label */
     .album-label {
-        width: 100px;  /* Reduced from 130px */
+        width: 100px;
         height: 100px;
     }
 
-    /* 4. Adjust Tone Arm Position & Size */
+    /* 4. 🔥 Shrink the PIVOT BASE (The Box) 🔥 */
+    /* Reducing it from 48px to 28px to match the small disc */
+    .vinyl-box::after {
+        width: 28px;
+        height: 28px;
+        top: 10px;
+        right: 10px;
+    }
+
+    /* 5. 🔥 Shrink the TONE ARM 🔥 */
+    /* Scale down to 60% and move it to sit on the new small pivot */
     .tonearm {
-        transform: scale(0.55); /* Scale it down to almost half size */
-        top: -45px;
-        right: -30px;
+        transform: scale(0.6); 
+        top: -25px;   /* Adjusted to align with new pivot */
+        right: -15px; /* Adjusted to align with new pivot */
+    }
+    
+    /* When active, we need to respect the scale */
+    .tonearm.active {
+        transform: scale(0.6) rotate(22deg);
     }
 
-    /* 5. Adjust Text Size & Spacing */
+    /* 6. Adjust Text */
     .track-info {
-        margin-top: 15px; /* Closer to disc */
+        margin-top: 15px;
     }
-
     .track-info h2 {
-        font-size: 22px; /* Smaller Title */
-        text-shadow: 0 2px 4px rgba(0,0,0,0.8); /* Better readability on video */
+        font-size: 22px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.8);
     }
-
     .track-info p {
         font-size: 14px;
         text-shadow: 0 2px 4px rgba(0,0,0,0.8);
     }
 
-    /* 6. Compact Nav */
     .nav {
         padding: 15px 20px;
     }
