@@ -212,34 +212,52 @@
     opacity: 1;
 }
 
-/* --- 🛑 GLASS MODAL (POPUP) --- */
+/* --- 🛑 GLASS MODAL (POPUP) - FIXED FOR MOBILE --- */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.85); /* Darken background */
-    backdrop-filter: blur(8px); /* Blur effect */
-    z-index: 1000; /* Top of everything */
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 20px;
+    align-items: center; /* Centers vertically */
+    padding: 20px; /* Prevents touching screen edges */
 }
 
 .modal-content {
     background: rgba(20, 20, 20, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 40px;
+    padding: 30px; /* Reduced padding slightly for mobile */
     border-radius: 20px;
     max-width: 500px;
     width: 100%;
     text-align: center;
-    box-shadow: 0 0 50px rgba(255, 204, 0, 0.1); /* Subtle yellow glow */
+    box-shadow: 0 0 50px rgba(255, 204, 0, 0.1);
     animation: popIn 0.3s ease-out;
+
+    /* 🔥🔥 THE IOS FIX 🔥🔥 */
+    max-height: 85vh; /* Maximum 85% of screen height */
+    overflow-y: auto; /* Enable scrolling INSIDE the box if content is long */
+    
+    /* Scrollbar styling for webkit (Chrome/Safari) */
+    scrollbar-width: thin;
+    scrollbar-color: #444 transparent;
 }
 
+/* Custom Scrollbar for the modal */
+.modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-content::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 10px;
+}
+
+/* Animations & Inner Content */
 @keyframes popIn {
     from { opacity: 0; transform: scale(0.9); }
     to { opacity: 1; transform: scale(1); }
@@ -247,9 +265,10 @@
 
 .modal-header {
     font-family: var(--font-title);
-    font-size: 2rem;
+    font-size: 1.8rem; /* Slightly smaller for mobile safety */
     margin-bottom: 20px;
     color: white;
+    margin-top: 0; /* Remove top margin */
 }
 
 .modal-body {
@@ -257,7 +276,7 @@
     color: #ccc;
     line-height: 1.6;
     font-size: 1rem;
-    text-align: left; /* Easier to read list */
+    text-align: left;
 }
 
 .modal-body ol {
@@ -266,24 +285,34 @@
 }
 
 .modal-body li {
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .modal-email {
     color: #ffcc00;
     font-weight: bold;
     text-decoration: none;
+    word-break: break-all; /* Prevents email from breaking layout on small screens */
+}
+
+/* Button & Link Container */
+.modal-actions {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    padding-bottom: 10px; /* Extra space at bottom for scrolling */
 }
 
 .close-btn {
     background: white;
     color: black;
     border: none;
-    padding: 10px 30px;
+    padding: 12px 30px;
     border-radius: 50px;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 10px;
     transition: transform 0.2s;
 }
 
