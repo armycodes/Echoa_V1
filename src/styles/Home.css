@@ -98,37 +98,35 @@
     padding-bottom: 40px;
 }
 
-/* TURNTABLE BASE AREA */
+/* TURNTABLE BASE AREA (Desktop Size) */
 .vinyl-box {
     position: relative;
-    width: 320px; /* Increased overall size slightly */
+    width: 320px; 
     height: 320px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* --- VINYL DISC (Black Ring Reduced) --- */
+/* --- VINYL DISC (Desktop Size) --- */
 .vinyl-disc {
     position: relative;
-    width: 300px;  /* Disc is bigger */
+    width: 300px;
     height: 300px;
     border-radius: 50%;
-    /* Subtle texture, mostly dark */
     background: radial-gradient(
       circle at center,
       #1a1a1a 40%, 
       #111 70%,
       #050505 100%
     );
-    box-shadow: 0 25px 50px rgba(0,0,0,0.7); /* Deep shadow for 3D feel */
+    box-shadow: 0 25px 50px rgba(0,0,0,0.7); 
     display: flex;
     align-items: center;
     justify-content: center;
     border: 2px solid #0a0a0a;
 }
 
-/* Subtle shine */
 .vinyl-disc::after {
     content: '';
     position: absolute;
@@ -138,16 +136,16 @@
     pointer-events: none;
 }
 
-/* --- ALBUM LABEL (Big & Clear) --- */
+/* --- ALBUM LABEL (Desktop Size) --- */
 .album-label {
-    width: 210px; /* INCREASED SIZE (Was 145px) - Now the star of the show */
+    width: 210px;
     height: 210px;
     border-radius: 50%;
     overflow: hidden;
     position: relative;
     z-index: 10;
-    border: 3px solid #000; /* Clean separation */
-    box-shadow: 0 0 20px rgba(0,0,0,0.5); /* Pops out */
+    border: 3px solid #000;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
 .album-label img {
@@ -172,11 +170,11 @@
     100% { transform: rotate(360deg); }
 }
 
-/* --- TONE ARM STYLING (Adjusted for bigger disc) --- */
+/* --- TONE ARM STYLING (Desktop) --- */
 .tonearm {
     position: absolute;
     top: -30px;
-    right: -15px; /* Moved slightly */
+    right: -15px;
     width: 100px;
     height: 170px;
     z-index: 20;
@@ -187,10 +185,9 @@
 }
 
 .tonearm.active {
-    transform: rotate(22deg); /* Angles in to hit the bigger record */
+    transform: rotate(22deg); 
 }
 
-/* The Stick */
 .tonearm::before {
     content: '';
     position: absolute;
@@ -204,7 +201,6 @@
     box-shadow: -2px 2px 6px rgba(0,0,0,0.4);
 }
 
-/* The Head/Needle */
 .tonearm::after {
     content: '';
     position: absolute;
@@ -219,7 +215,6 @@
     border-bottom: 2px solid #666; 
 }
 
-/* Pivot Base Circle */
 .vinyl-box::after {
     content: '';
     position: absolute;
@@ -243,7 +238,7 @@
 }
 
 .track-info h2 {
-    font-size: 32px; /* Bigger Title */
+    font-size: 32px;
     font-weight: 700;
     margin-bottom: 8px;
     color: white;
@@ -261,4 +256,53 @@
     color: #666;
     font-size: 16px;
     letter-spacing: 1px;
+}
+
+/* 🔥🔥 MOBILE RESPONSIVE FIX (UPDATED - EXTRA SMALL) 🔥🔥 */
+@media screen and (max-width: 768px) {
+    
+    /* 1. Shrink the Vinyl Box significantly */
+    .vinyl-box {
+        width: 180px;  /* Reduced from 220px */
+        height: 180px;
+    }
+
+    /* 2. Shrink the Disc */
+    .vinyl-disc {
+        width: 170px;  /* Reduced from 200px */
+        height: 170px;
+    }
+
+    /* 3. Shrink the Album Label (Image inside) */
+    .album-label {
+        width: 100px;  /* Reduced from 130px */
+        height: 100px;
+    }
+
+    /* 4. Adjust Tone Arm Position & Size */
+    .tonearm {
+        transform: scale(0.55); /* Scale it down to almost half size */
+        top: -45px;
+        right: -30px;
+    }
+
+    /* 5. Adjust Text Size & Spacing */
+    .track-info {
+        margin-top: 15px; /* Closer to disc */
+    }
+
+    .track-info h2 {
+        font-size: 22px; /* Smaller Title */
+        text-shadow: 0 2px 4px rgba(0,0,0,0.8); /* Better readability on video */
+    }
+
+    .track-info p {
+        font-size: 14px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    /* 6. Compact Nav */
+    .nav {
+        padding: 15px 20px;
+    }
 }
