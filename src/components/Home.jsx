@@ -833,8 +833,12 @@ export default function Home() {
         const data = await res.json();
 
         if (data.videos && data.videos.length > 0) {
+          // 🔥 CHANGE 2: Pick a RANDOM video from the list
+            const randomIndex = Math.floor(Math.random() * data.videos.length);
+            const selectedVideo = data.videos[randomIndex];
             // Find best quality (HD)
-            const videoFiles = data.videos[0].video_files;
+
+            const videoFiles = selectedVideo.video_files;
             const bestFile = videoFiles.find(f => f.height >= 720 && f.height < 1080) || videoFiles[0];
             setVideoUrl(bestFile.link);
         }
@@ -882,6 +886,7 @@ export default function Home() {
       {/* 🔥 BACKGROUND VIDEO LAYER 🔥 */}
       {videoUrl && (
         <video 
+          key={videoUrl}
           src={videoUrl}
           autoPlay 
           muted 
