@@ -536,7 +536,7 @@ export default function Home() {
     </div>
   );
 }*/
-import { useEffect, useState } from "react";
+/*import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import "../styles/Home.css";
 
@@ -588,6 +588,216 @@ export default function Home() {
             setSong(null);
         } else if (s.ok) {
             setSong(await s.json());
+        }
+      } catch (e) {
+        console.error("Fetch Error:", e);
+      }
+    };
+
+    fetchData(); 
+    const i = setInterval(fetchData, 6000); 
+    return () => clearInterval(i);
+  }, [token]);
+
+  // --- 3. 🔥 NEW: AI VIDEO LOGIC 🔥 ---
+  useEffect(() => {
+    if (!song) return;
+
+    const updateBackground = async () => {
+      // Step A: Call Gemini (Brain)
+      // Manam song, album (movie), artist ni service ki pampisthunnam
+      const term = await getSongMoodSearchTerm(
+        song.song, 
+        song.album || song.song, // Fallback if album is missing
+        song.artist
+      );
+
+      // Step B: Call Pexels (Visuals)
+      // Using the term from Gemini to get a video
+      const pexelsUrl = `https://api.pexels.com/videos/search?query=${term}&per_page=1&orientation=landscape&size=medium`;
+
+      try {
+        const res = await fetch(pexelsUrl, {
+          headers: { Authorization: import.meta.env.VITE_PEXELS_API_KEY } 
+        });
+        const data = await res.json();
+
+        if (data.videos && data.videos.length > 0) {
+            // Find best quality (HD)
+            const videoFiles = data.videos[0].video_files;
+            const bestFile = videoFiles.find(f => f.height >= 720 && f.height < 1080) || videoFiles[0];
+            setVideoUrl(bestFile.link);
+        }
+      } catch (err) {
+        console.error("Pexels Error:", err);
+      }
+    };
+
+    // Run this only when Song Name changes
+    updateBackground();
+  }, [song?.song]);
+
+
+  const handleLogout = () => {
+    localStorage.removeItem("echoa_token");
+    setToken(null);
+    navigate('/'); 
+  };
+
+  // --- VIEW 1: LANDING SCREEN (Login / Guest) ---
+  if (!token) {
+    return (
+      <div style={{ height: '100vh', width: '100vw', background: 'black', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '30px', fontFamily: 'sans-serif' }}>
+        <h1 style={{ letterSpacing: '4px', fontSize: '3rem', fontWeight: 'bold', marginBottom: '10px' }}>ECHOA</h1>
+      
+        <a href="https://echoa-backend.onrender.com/login" style={{ textDecoration: 'none' }}>
+           <button style={{ background: '#1DB954', color: 'black', padding: '12px 40px', borderRadius: '30px', border: 'none', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+             Connect Spotify
+           </button>
+        </a>
+
+        <a href="/guest" style={{ textDecoration: 'none' }}>
+          <button style={{ background: 'transparent', color: 'white', padding: '12px 40px', borderRadius: '30px', border: '1px solid #ffffffaa', fontSize: '14px', cursor: 'pointer', minWidth: '220px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            Guest Mode
+          </button>
+        </a>
+      </div>
+    );
+  }
+
+  // --- VIEW 2: PLAYER (Logged In) ---
+  return (
+    <div className="home-root" style={{ background: 'black' }}>
+      
+      {/* 🔥 BACKGROUND VIDEO LAYER 🔥 *//*}
+      {videoUrl && (
+        <video 
+          src={videoUrl}
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          style={{
+            position: 'fixed',
+            top: 0, left: 0,
+            width: '100%', height: '100vh',
+            objectFit: 'cover',
+            zIndex: 0, // Behind everything
+            opacity: 0.6, // Slight dim so text is readable
+            transition: 'opacity 1s ease'
+          }}
+        />
+      )}
+
+      {/* --- NAV BAR --- *//*}
+      <div className="nav" style={{ position: 'relative', zIndex: 10 }}>
+        <div className="menu-container">
+          <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>☰</div>
+          {menuOpen && (
+            <div className="dropdown">
+              <button onClick={handleLogout} className="logout-btn">Logout</button>
+            </div>
+          )}
+        </div>
+        {profile && (
+          <div className="profile-menu">
+            <img src={profile.images?.[0]?.url} alt="" />
+            <span>{profile.display_name}</span>
+          </div>
+        )}
+      </div>
+
+      {/* --- VINYL STAGE (Z-Index increased to show above video) --- *//*}
+      <div className="vinyl-stage" style={{ position: 'relative', zIndex: 10 }}>
+        <div className="vinyl-box">
+          <div className={`vinyl-disc ${song?.playing ? 'spinning' : ''}`}>
+             <div className="grooves"></div>
+             <div className="album-label">
+                {song?.albumImage ? (
+                  <img src={song.albumImage} alt="album" />
+                ) : (
+                  <div className="empty-label"></div>
+                )}
+             </div>
+          </div>
+          <div className={`tonearm ${song?.playing ? 'active' : ''}`} />
+        </div>
+
+        {song?.playing ? (
+          <div className="track-info">
+            <h2 style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>{song.song}</h2>
+            <p style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>{song.artist}</p>
+          </div>
+        ) : (
+          <p className="no-song" style={{position: 'relative', zIndex: 10}}>No song playing 🎧</p>
+        )}
+      </div>
+    </div>
+  );
+}*/
+/*final code token refresh*/
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; 
+import "../styles/Home.css";
+
+// 👇 IMPORT THE BRAIN (Mana Gemini Service)
+import { getSongMoodSearchTerm } from "../services/GeminiService";
+
+export default function Home() {
+  const [token, setToken] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [song, setSong] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  
+  // 👇 NEW STATE FOR VIDEO
+  const [videoUrl, setVideoUrl] = useState(null);
+
+  const navigate = useNavigate(); 
+
+  // --- 1. TOKEN HANDLING (NO CHANGE) ---
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get("token");
+    const localToken = localStorage.getItem("echoa_token");
+
+    if (urlToken) {
+      localStorage.setItem("echoa_token", urlToken);
+      setToken(urlToken);
+      window.history.replaceState({}, "", "/home"); 
+    } else if (localToken) {
+      setToken(localToken);
+    }
+  }, []);
+
+  // --- 2. DATA FETCHING (UPDATED WITH FIX ✅) ---
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchData = async () => {
+      try {
+        const p = await fetch("https://echoa-backend.onrender.com/me", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (p.ok) setProfile(await p.json());
+
+        const s = await fetch("https://echoa-backend.onrender.com/currently-playing", {
+             headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // 🔥🔥 FIX ADDED HERE: TOKEN EXPIRY CHECK 🔥🔥
+        // 401 (Unauthorized) or 403 (Forbidden) vasthe automatic ga login ki redirect chesthundi
+        if (s.status === 401 || s.status === 403) {
+            console.warn("Token Expired! Redirecting to login...");
+            localStorage.removeItem("echoa_token");
+            setToken(null);
+            window.location.href = "https://echoa-backend.onrender.com/login";
+            return;
+        }
+
+        if (s.status === 204) {
+             setSong(null);
+        } else if (s.ok) {
+             setSong(await s.json());
         }
       } catch (e) {
         console.error("Fetch Error:", e);
