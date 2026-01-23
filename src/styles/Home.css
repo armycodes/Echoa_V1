@@ -267,3 +267,74 @@
     .track-info h2 { font-size: 22px; }
     .track-info p { font-size: 14px; }
 }
+
+/* ... (Existing CSS) ... */
+
+/* =========================================
+   🔥 NEW: SPICY ANIMATED ALBUM ART 🔥
+   ========================================= */
+
+/* Ensure container allows layering */
+.album-label {
+    position: relative; 
+    overflow: hidden;
+    /* Existing styles... */
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+    z-index: 10;
+    border: 3px solid #000;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* The actual image layer */
+.album-art-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: relative;
+    z-index: 1; /* Base layer */
+    /* Subtle zoom to make it feel alive */
+    animation: slowZoom 20s ease-in-out infinite alternate;
+}
+
+/* The "Holographic Glow" Layer */
+.album-label::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Use the same image as background for the glow effect */
+    background-image: var(--album-url); 
+    background-size: cover;
+    background-position: center;
+    z-index: 2; /* Layer on top */
+    
+    /* 🔥 THE MAGIC TRICK: Color Dodge Blend Mode 🔥 */
+    /* This creates a glowing, overexposed look based on the image's own colors */
+    mix-blend-mode: color-dodge;
+    
+    opacity: 0; /* Start invisible */
+    filter: blur(10px) brightness(1.5) contrast(1.2); /* Dreamy blurry glow */
+    animation: holographicPulse 8s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+/* Animations */
+@keyframes holographicPulse {
+    0% { opacity: 0; filter: blur(5px) brightness(1); }
+    50% { opacity: 0.6; filter: blur(15px) brightness(1.8); } /* Max glow */
+    100% { opacity: 0.2; filter: blur(8px) brightness(1.2); }
+}
+
+@keyframes slowZoom {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); } /* Gentle zoom in/out */
+}
+
+/* Mobile Adjustment */
+@media screen and (max-width: 768px) {
+    .album-label { width: 100px; height: 100px; }
+}
