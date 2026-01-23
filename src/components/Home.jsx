@@ -1097,7 +1097,7 @@ export default function Home() {
              </div>
           </div>
           <div className={`tonearm ${song?.playing ? 'active' : ''}`} />
-        </div>*/
+        </div>
 
         {song?.playing ? (
           <div className="track-info">
