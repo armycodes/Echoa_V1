@@ -1088,28 +1088,16 @@ export default function Home() {
         <div className="vinyl-box">
           <div className={`vinyl-disc ${song?.playing ? 'spinning' : ''}`}>
              <div className="grooves"></div>
-             
-             {/* 🔥 UPDATED ALBUM LABEL CONTAINER 🔥 */}
-             <div 
-                className="album-label"
-                // Passing the URL to CSS for the glow effect
-                style={{ '--album-url': song?.albumImage ? `url(${song.albumImage})` : 'none' }}
-             >
+             <div className="album-label">
                 {song?.albumImage ? (
-                  <img 
-                    src={song.albumImage} 
-                    alt="album" 
-                    className="album-art-img" // Added class name
-                  />
+                  <img src={song.albumImage} alt="album" />
                 ) : (
                   <div className="empty-label"></div>
                 )}
              </div>
-             {/* 🔥 END UPDATE 🔥 */}
-
           </div>
           <div className={`tonearm ${song?.playing ? 'active' : ''}`} />
-        </div>
+        </div>*/
 
         {song?.playing ? (
           <div className="track-info">
