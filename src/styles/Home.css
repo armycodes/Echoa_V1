@@ -21,15 +21,7 @@
     align-items: center;
     padding: 20px 30px;
     position: relative;
-    z-index: 5000;
-}
-
-/* MENU CONTAINER */
-.menu-container {
-    position: relative;
-    z-index: 5001;
-    display: flex;
-    align-items: center;
+    z-index: 5000; 
 }
 
 .nav-left {
@@ -38,28 +30,34 @@
     gap: 20px; 
 }
 
+/* =========================================
+   3. MENU
+   ========================================= */
+.menu-container {
+    position: relative;
+    z-index: 5001;
+    display: flex;
+    align-items: center;
+}
+
 .hamburger {
     font-size: 26px;
     cursor: pointer;
     color: #b3b3b3;
-    transition: color 0.3s;
+    transition: all 0.3s ease;
 }
-.hamburger:hover {
-    color: white;
-    text-shadow: 0 0 10px rgba(255,255,255,0.5); 
-}
+.hamburger:hover { color: white; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
-/* DROPDOWN */
 .dropdown {
     position: absolute;
     top: 50px;
     left: 0;
-    background-color: rgba(20, 20, 20, 0.95); 
+    background-color: rgba(20, 20, 20, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 8px;
     padding: 8px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-    min-width: 140px;
+    min-width: 140px; 
     border: 1px solid #333;
     z-index: 5002;
 }
@@ -67,7 +65,7 @@
 .logout-btn {
     background: transparent;
     border: none;
-    color: #ccc; 
+    color: #ccc;
     font-weight: 500;
     padding: 10px 15px;
     width: 100%;
@@ -75,16 +73,13 @@
     cursor: pointer;
     font-size: 14px;
     border-radius: 4px;
-    transition: all 0.2s;
-    position: relative;
     z-index: 5003;
 }
-.logout-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
+.logout-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
 
-/* MOOD SWITCHER */
+/* =========================================
+   4. MOOD SWITCHER
+   ========================================= */
 .mood-toggles {
     display: flex;
     align-items: center;
@@ -92,7 +87,7 @@
     backdrop-filter: blur(10px);
     border-radius: 30px;
     padding: 5px;
-    border: 1px solid rgba(255,255,255,0.15); 
+    border: 1px solid rgba(255,255,255,0.15);
     gap: 5px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
@@ -112,10 +107,7 @@
     transition: all 0.4s ease;
 }
 
-.toggle-btn:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.05);
-}
+.toggle-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
 
 .toggle-btn.active {
     background: #ffffff; 
@@ -124,13 +116,11 @@
     transform: scale(1.02); 
 }
 
-.divider {
-    width: 1px;
-    height: 15px;
-    background: rgba(255,255,255,0.15);
-}
+.divider { width: 1px; height: 15px; background: rgba(255,255,255,0.15); }
 
-/* PROFILE */
+/* =========================================
+   5. PROFILE
+   ========================================= */
 .profile-menu {
     display: flex;
     align-items: center;
@@ -139,7 +129,7 @@
     padding: 6px 16px 6px 6px;
     border-radius: 30px;
     border: 1px solid rgba(255,255,255,0.15);
-    margin-left: auto;
+    margin-left: auto; 
     backdrop-filter: blur(5px);
 }
 
@@ -155,12 +145,11 @@
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.5px;
-    display: inline-block;
     color: #ddd;
 }
 
 /* =========================================
-   6. VINYL STAGE (EXACT ORIGINAL ATTRIBUTES)
+   6. VINYL STAGE (YOUR EXACT SETTINGS RESTORED)
    ========================================= */
 .vinyl-stage {
     flex: 1;
@@ -175,20 +164,21 @@
 
 .vinyl-box {
     position: relative;
-    width: 320px;
+    width: 320px; 
     height: 320px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+/* DISC: 300px */
 .vinyl-disc {
     position: relative;
     width: 300px;
     height: 300px;
     border-radius: 50%;
     background: radial-gradient(circle at center, #1a1a1a 40%, #111 70%, #050505 100%);
-    box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.7); 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -203,26 +193,37 @@
     pointer-events: none;
 }
 
+/* 🔥 LABEL: 210px (AS YOU REQUESTED) 🔥 */
 .album-label {
-    width: 210px; /* Kept your original size */
+    width: 210px;
     height: 210px;
     border-radius: 50%;
     overflow: hidden;
     position: relative;
     z-index: 10;
-    border: 3px solid #000;
+    border: 3px solid #000; /* Your original border */
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    background: #000;
 }
 
-/* 🔥 COVER makes sure it FILLS the circle (corners cut is normal for circle) 🔥 */
-.album-art-img {
-    width: 100%;
-    height: 100%;
+/* 🔥 IMAGE: FULL COVER (No Black Bars, No Zoom Animation) 🔥 */
+.album-label img { 
+    width: 100%; 
+    height: 100%; 
     object-fit: cover; 
     display: block;
 }
 
-/* Original Tone Arm Logic */
+.empty-label {
+    width: 100%;
+    height: 100%;
+    background: #222;
+    background-image: radial-gradient(circle at center, #333 0%, #1a1a1a 100%);
+}
+
+.spinning { animation: spin 8s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
 .tonearm {
     position: absolute;
     top: -30px; right: -15px; width: 100px; height: 170px;
@@ -239,7 +240,7 @@
 .tonearm::after {
     content: ''; position: absolute; bottom: 18px; left: 12px; width: 30px; height: 44px;
     background: #1a1a1a; border-radius: 4px 4px 8px 8px;
-    transform: rotate(12deg); box-shadow: 2px 5px 10px rgba(0,0,0,0.5); border-bottom: 2px solid #666;
+    transform: rotate(12deg); box-shadow: 2px 5px 10px rgba(0,0,0,0.5); border-bottom: 2px solid #666; 
 }
 
 .vinyl-box::after {
@@ -252,13 +253,9 @@
 .track-info h2 { font-size: 32px; font-weight: 700; margin-bottom: 8px; color: white; letter-spacing: -0.5px; }
 .track-info p { font-size: 18px; color: #b3b3b3; font-weight: 500; }
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
-.empty-label { width: 100%; height: 100%; background: #222; }
-.spinning { animation: spin 8s linear infinite; }
-@keyframes spin { 100% { transform: rotate(360deg); } }
-
 
 /* =========================================
-   7. 🔥 NEW: APPLE MUSIC BACKGROUND (The Only New Thing) 🔥
+   7. BACKGROUND (Vibrant & Fixed)
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
@@ -275,17 +272,19 @@
     background-size: cover;
     background-position: center;
     border-radius: 50%;
-    /* Bright & Vivid */
+    
+    /* VIBRANT COLORS: Saturated & Bright */
     filter: blur(100px) saturate(200%) brightness(1.2);
     opacity: 0.6;
-    /* Normal blend to keep original colors true */
     mix-blend-mode: normal; 
+    
     transition: background-image 1s ease-in-out;
 }
 
+/* Animations */
 .blob-1 { top: -50%; left: -50%; animation: flow1 25s infinite alternate ease-in-out; }
 .blob-2 { bottom: -50%; right: -50%; filter: blur(100px) saturate(200%) hue-rotate(40deg); animation: flow2 30s infinite alternate ease-in-out; }
-.blob-3 { top: 20%; left: 20%; opacity: 0.4; animation: flow3 22s infinite alternate ease-in-out; }
+.blob-3 { top: 20%; left: 20%; opacity: 0.4; filter: blur(100px) saturate(200%) hue-rotate(-40deg); animation: flow3 22s infinite alternate ease-in-out; }
 
 .mesh-overlay {
     position: absolute;
@@ -294,21 +293,17 @@
     backdrop-filter: blur(20px);
 }
 
-@keyframes flow1 { from { transform: rotate(0deg); } to { transform: rotate(20deg); } }
-@keyframes flow2 { from { transform: rotate(0deg); } to { transform: rotate(-30deg); } }
+@keyframes flow1 { from { transform: translate(0,0) rotate(0deg); } to { transform: translate(10%, 10%) rotate(20deg); } }
+@keyframes flow2 { from { transform: translate(0,0) rotate(0deg); } to { transform: translate(-20%, -20%) rotate(-30deg); } }
 @keyframes flow3 { from { transform: scale(1); } to { transform: scale(1.2); } }
 
-
-/* =========================================
-   8. MOBILE RESPONSIVENESS
-   ========================================= */
+/* MOBILE RESPONSIVE */
 @media screen and (max-width: 768px) {
     .toggle-text { display: none; }
     .toggle-btn { padding: 8px 10px; }
-    .profile-menu span { font-size: 12px; }
     .nav { padding: 15px 15px; }
-    .nav-left { gap: 15px; }
-
+    .nav-left { gap: 15px; } 
+    
     .vinyl-box { width: 180px; height: 180px; }
     .vinyl-disc { width: 170px; height: 170px; }
     .album-label { width: 100px; height: 100px; }
