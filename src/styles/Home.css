@@ -165,7 +165,7 @@
 }
 
 /* =========================================
-   6. VINYL STAGE & ALBUM ART (Pure & Clean)
+   6. VINYL STAGE & ALBUM ART (Clean & Correct)
    ========================================= */
 .vinyl-stage {
     flex: 1;
@@ -221,16 +221,18 @@
     background: #000;
 }
 
-/* 🔥 CLEAN FIX: NO OVERLAYS, NO ZOOM ANIMATIONS 🔥 */
+/* 🔥 CLEAN FIX: NO ZOOM, NO GLITCH 🔥 */
 .album-art-img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Fills circle naturally */
+    /* 'cover' fills the circle naturally without shrinking like a sticker */
+    object-fit: cover; 
     position: relative;
     z-index: 1;
+    /* NO ANIMATION. Keeps image steady. */
 }
 
-/* 🚫 Removed ::after Holographic Overlay (Caused Glitch) */
+/* 🚫 DELETED ::after (Holographic layer) entirely. No more glitch. */
 
 .empty-label {
     width: 100%;
@@ -273,16 +275,17 @@
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
 
 /* =========================================
-   7. 🔥 CLEAN MAGIC BACKGROUND (Apple Style) 🔥
+   7. 🔥 MAGIC BACKGROUND (COLOR GENERATOR) 🔥
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100vh;
     z-index: 0;
     overflow: hidden;
-    background: #000;
+    background: #050505; 
 }
 
+/* Common style for drifting blobs */
 .mesh-blob {
     position: absolute;
     width: 150vmax; 
@@ -291,44 +294,47 @@
     background-position: center;
     border-radius: 50%;
     
-    /* Soft Glow - Not too harsh, not too dull */
-    filter: blur(100px) saturate(200%) brightness(1.2); 
-    opacity: 0.5;
+    /* Base filter to extract color */
+    filter: blur(90px) saturate(300%) brightness(1.2); 
+    opacity: 0.6;
     
-    /* Screen blends nicely on black without ruining colors */
     mix-blend-mode: screen; 
-    
     transition: background-image 1s ease-in-out;
 }
 
-/* Layer 1: Base */
+/* Layer 1: Base Image */
 .blob-1 {
     top: -50%; left: -50%;
     animation: flow1 25s infinite alternate ease-in-out;
 }
 
-/* Layer 2: Color Variation */
+/* Layer 2: SEPIA FORCER (Turns Gray/BW -> Warm Colors) */
 .blob-2 {
     bottom: -50%; right: -50%;
-    filter: blur(100px) saturate(200%) hue-rotate(30deg); 
+    /* Sepia creates color from gray. Hue-rotate shifts it to Pink/Purple. */
+    filter: blur(100px) sepia(1) saturate(500%) hue-rotate(300deg); 
+    opacity: 0.5;
     animation: flow2 30s infinite alternate ease-in-out;
 }
 
-/* Layer 3: Contrast */
+/* Layer 3: INVERT FORCER (Turns Dark -> Bright Colors) */
 .blob-3 {
     top: 20%; left: 20%;
-    filter: blur(100px) saturate(200%) hue-rotate(-30deg);
+    /* Invert flips colors. Sepia tones them. */
+    filter: blur(100px) invert(1) sepia(1) saturate(500%) hue-rotate(180deg);
+    opacity: 0.5;
     animation: flow3 22s infinite alternate ease-in-out;
 }
 
 .mesh-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.4); /* Darker overlay to make text pop */
-    backdrop-filter: blur(10px); 
+    background: rgba(0, 0, 0, 0.2); 
+    backdrop-filter: blur(20px); 
     z-index: 1;
 }
 
+/* Smooth Fluid Animations */
 @keyframes flow1 {
     0% { transform: translate(0, 0) rotate(0deg); }
     100% { transform: translate(15%, 15%) rotate(20deg); }
