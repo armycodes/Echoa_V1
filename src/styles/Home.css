@@ -165,7 +165,7 @@
 }
 
 /* =========================================
-   6. VINYL STAGE & ALBUM ART (Full Fill Fix)
+   6. VINYL STAGE & ALBUM ART (Restored Glory)
    ========================================= */
 .vinyl-stage {
     flex: 1;
@@ -221,17 +221,17 @@
     background: #000;
 }
 
-/* 🔥 FIX 1: VINYL FILL (Back to COVER) 🔥 */
-/* This ensures NO black bars. The circle will be full. */
+/* 🔥 RESTORED: This makes the album art fill the circle properly 🔥 */
 .album-art-img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* CHANGED FROM CONTAIN TO COVER */
+    object-fit: cover; /* BACK TO COVER (Fills the circle) */
     position: relative;
     z-index: 1;
+    /* Removed zoom animation to keep it steady, but kept cover so it looks full */
 }
 
-/* Holographic Glow */
+/* Holographic Glow (Kept subtle) */
 .album-label::after {
     content: '';
     position: absolute;
@@ -249,8 +249,8 @@
 
 @keyframes holographicPulse {
     0% { opacity: 0; filter: blur(5px) brightness(1); }
-    50% { opacity: 0.6; filter: blur(15px) brightness(1.8); }
-    100% { opacity: 0.2; filter: blur(8px) brightness(1.2); }
+    50% { opacity: 0.4; filter: blur(15px) brightness(1.5); }
+    100% { opacity: 0.1; filter: blur(8px) brightness(1.2); }
 }
 
 .empty-label {
@@ -294,76 +294,79 @@
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
 
 /* =========================================
-   7. 🔥 FIX 2: VIBRANT COLOR BACKGROUNDS (Anti-Gray Logic) 🔥
+   7. 🔥 RESTORED: APPLE MESH BACKGROUND (Clean & Vibrant) 🔥
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100vh;
     z-index: 0;
     overflow: hidden;
-    background: #050505; 
+    background: #111;
 }
 
-/* Common style */
+/* Common style for drifting blobs */
 .mesh-blob {
     position: absolute;
-    width: 200vw; 
-    height: 200vh;
+    width: 150vmax; /* Good size for soft blur */
+    height: 150vmax;
     background-size: cover;
     background-position: center;
-    border-radius: 40%;
-    /* Extreme Saturation to force colors out of dull images */
-    filter: blur(90px) saturate(800%) contrast(1.2); 
+    border-radius: 50%;
+    
+    /* 🔥 CLEANUP: Removed 'sepia' and 'invert'.
+       Just saturated brightness to make it pop naturally. */
+    filter: blur(80px) saturate(200%) brightness(1.1); 
     opacity: 0.6;
-    mix-blend-mode: overlay; /* Better blending for dark/light albums */
+    
+    /* Mix mode 'normal' or 'screen' is safer than hard-light for clarity */
+    mix-blend-mode: screen; 
     transition: background-image 1s ease-in-out;
 }
 
-/* Layer 1: Base Vibrant */
+/* Layer 1: Base Image (Slow Move) */
 .blob-1 {
     top: -50%; left: -50%;
     animation: flow1 25s infinite alternate ease-in-out;
 }
 
-/* Layer 2: Forced Warm Tone (Fixes Blue/Gray/B&W images) */
-/* Sepia creates color base, Hue Rotate shifts it to Purple/Pink */
+/* Layer 2: Subtle Shift (Adds variety without mud) */
 .blob-2 {
     bottom: -50%; right: -50%;
-    filter: blur(90px) sepia(1) hue-rotate(280deg) saturate(500%); 
-    opacity: 0.5;
+    /* Slight hue rotate creates variation (e.g. Pink -> Purple) */
+    filter: blur(90px) saturate(200%) hue-rotate(30deg); 
     animation: flow2 30s infinite alternate ease-in-out;
 }
 
-/* Layer 3: Forced Cool Tone (Fixes Red/Sepia/B&W images) */
-/* Sepia creates color base, Hue Rotate shifts it to Cyan/Blue */
+/* Layer 3: Subtle Shift (Other direction) */
 .blob-3 {
     top: 20%; left: 20%;
-    filter: blur(100px) sepia(1) hue-rotate(140deg) saturate(500%);
-    opacity: 0.5;
+    /* Slight hue rotate (e.g. Pink -> Orange) */
+    filter: blur(100px) saturate(200%) hue-rotate(-30deg);
     animation: flow3 22s infinite alternate ease-in-out;
 }
 
 .mesh-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.2); 
-    backdrop-filter: blur(30px); 
+    background: rgba(0, 0, 0, 0.3); /* Just enough to read text */
+    backdrop-filter: blur(20px); 
     z-index: 1;
 }
 
+/* Smooth Fluid Animations */
 @keyframes flow1 {
     0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(20%, 20%) rotate(45deg); }
+    100% { transform: translate(15%, 15%) rotate(20deg); }
 }
 
 @keyframes flow2 {
     0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(-25%, -25%) rotate(-30deg); }
+    100% { transform: translate(-20%, -20%) rotate(-30deg); }
 }
 
 @keyframes flow3 {
     0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(-15%, 15%) scale(1.4); }
+    100% { transform: translate(-10%, 10%) scale(1.2); }
 }
 
 /* =========================================
