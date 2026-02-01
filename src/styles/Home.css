@@ -1,4 +1,6 @@
-/* ROOT LAYOUT */
+/* =========================================
+   1. ROOT & BASICS
+   ========================================= */
 .home-root {
     height: 100vh;
     width: 100vw;
@@ -10,7 +12,9 @@
     overflow: hidden;
 }
 
-/* NAVIGATION - Z-Index 5000 for clicks */
+/* =========================================
+   2. NAVIGATION BAR (Top Layer)
+   ========================================= */
 .nav {
     display: flex;
     justify-content: space-between;
@@ -20,48 +24,59 @@
     z-index: 5000; 
 }
 
-/* MENU CONTAINER */
+/* Grouping Hamburger + Mood Buttons (Layout Fix) */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 20px; 
+}
+
+/* =========================================
+   3. HAMBURGER MENU & DROPDOWN
+   ========================================= */
 .menu-container {
     position: relative;
     z-index: 5001;
+    display: flex;
+    align-items: center;
 }
 
 .hamburger {
     font-size: 26px;
     cursor: pointer;
     color: #b3b3b3;
-    transition: color 0.3s;
+    transition: all 0.3s ease;
 }
 .hamburger:hover {
     color: white;
-    text-shadow: 0 0 10px rgba(255,255,255,0.5); /* Star glow on hover */
+    text-shadow: 0 0 10px rgba(255,255,255,0.6); 
+    transform: scale(1.1);
 }
 
-/* DROPDOWN (Logout) */
 .dropdown {
     position: absolute;
-    top: 50px;
+    top: 45px;
     left: 0;
-    background-color: rgba(20, 20, 20, 0.95); /* Deep Void Color */
+    background-color: rgba(15, 15, 15, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 8px;
     padding: 8px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     min-width: 140px; 
-    border: 1px solid #333;
+    border: 1px solid rgba(255,255,255,0.1);
     z-index: 5002;
 }
 
 .logout-btn {
     background: transparent;
     border: none;
-    color: #ccc; /* Subtle grey */
+    color: #ff5f56; /* Red for logout */
     font-weight: 500;
     padding: 10px 15px;
     width: 100%;
     text-align: left;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     border-radius: 4px;
     transition: all 0.2s;
     position: relative;
@@ -69,35 +84,36 @@
 }
 .logout-btn:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: #fff;
 }
 
-/* 🔥 NEW COLORS: MOOD SWITCHER (Echoa Starlight Theme) 🔥 */
+/* =========================================
+   4. MOOD SWITCHER (Echoa Starlight Theme)
+   ========================================= */
 .mood-toggles {
     display: flex;
     align-items: center;
-    background: rgba(0, 0, 0, 0.6); /* Darker backing */
-    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.5); 
+    backdrop-filter: blur(8px);
     border-radius: 30px;
-    padding: 5px;
-    border: 1px solid rgba(255,255,255,0.15); /* Subtle border */
-    gap: 5px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,0.15);
+    gap: 4px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
 .toggle-btn {
     background: transparent;
     border: none;
-    color: #888; /* Dim star (inactive) */
+    color: #888; 
     padding: 8px 16px;
     border-radius: 25px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.4s ease;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .toggle-btn:hover {
@@ -105,27 +121,29 @@
     background: rgba(255,255,255,0.05);
 }
 
-/* ✨ THE ACTIVE STATE: Pure White Star Glow ✨ */
+/* Active State: Pure White Star Glow */
 .toggle-btn.active {
-    background: #ffffff; /* Bright Star White */
-    color: #000000; /* Void Black Text */
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); /* Soft Starlight Glow */
-    transform: scale(1.02); /* Slight pulse */
+    background: #ffffff; 
+    color: #000000; 
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); 
+    transform: scale(1.05);
 }
 
 .divider {
     width: 1px;
-    height: 15px;
-    background: rgba(255,255,255,0.15);
+    height: 16px;
+    background: rgba(255,255,255,0.1);
 }
 
-/* PROFILE */
+/* =========================================
+   5. PROFILE (Right Side)
+   ========================================= */
 .profile-menu {
     display: flex;
     align-items: center;
     gap: 12px;
     background: rgba(0, 0, 0, 0.5);
-    padding: 6px 16px 6px 6px;
+    padding: 5px 15px 5px 5px;
     border-radius: 30px;
     border: 1px solid rgba(255,255,255,0.15);
     margin-left: auto; 
@@ -141,14 +159,16 @@
 }
 
 .profile-menu span {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.5px;
-    display: inline-block;
     color: #ddd;
+    display: inline-block;
 }
 
-/* VINYL STAGE */
+/* =========================================
+   6. VINYL STAGE & 🔥 SPICY ALBUM ANIMATION 🔥
+   ========================================= */
 .vinyl-stage {
     flex: 1;
     display: flex;
@@ -190,17 +210,55 @@
     pointer-events: none;
 }
 
+/* Album Label Container */
 .album-label {
+    position: relative; 
+    overflow: hidden;
     width: 210px;
     height: 210px;
     border-radius: 50%;
-    overflow: hidden;
-    position: relative;
     z-index: 10;
     border: 3px solid #000;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
-.album-label img { width: 100%; height: 100%; object-fit: cover; }
+
+/* The Base Image with Zoom Animation */
+.album-art-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: relative;
+    z-index: 1;
+    animation: slowZoom 20s ease-in-out infinite alternate;
+}
+
+/* The Holographic Glow Overlay */
+.album-label::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: var(--album-url); 
+    background-size: cover;
+    background-position: center;
+    z-index: 2; 
+    mix-blend-mode: color-dodge;
+    opacity: 0; 
+    filter: blur(10px) brightness(1.5) contrast(1.2);
+    animation: holographicPulse 8s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+/* Glow Animations */
+@keyframes holographicPulse {
+    0% { opacity: 0; filter: blur(5px) brightness(1); }
+    50% { opacity: 0.6; filter: blur(15px) brightness(1.8); }
+    100% { opacity: 0.2; filter: blur(8px) brightness(1.2); }
+}
+
+@keyframes slowZoom {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
+}
 
 .empty-label {
     width: 100%;
@@ -242,22 +300,89 @@
 .track-info p { font-size: 18px; color: #b3b3b3; font-weight: 500; }
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
 
-/* GRADIENT BG */
-.gradient-bg {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0;
-    background-size: cover; background-position: center;
-    filter: blur(90px) brightness(0.7) saturate(1.5);
-    transform: scale(1.5); transition: background-image 1s ease-in-out;
-    animation: breathe 15s ease-in-out infinite alternate;
-}
-@keyframes breathe { 0% { transform: scale(1.4); } 100% { transform: scale(1.6); } }
 
-/* 🔥 RESPONSIVE 🔥 */
+/* =========================================
+   7. 🔥 NEW: APPLE MESH BACKGROUND (Replaces Old Gradient) 🔥
+   ========================================= */
+.apple-mesh-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100vh;
+    z-index: 0;
+    overflow: hidden;
+    background: #000;
+}
+
+/* Common style for drifting blobs */
+.mesh-blob {
+    position: absolute;
+    width: 140vw; /* HUGE to cover screen */
+    height: 140vh;
+    background-size: cover;
+    background-position: center;
+    /* Extreme Blur to make it look like fluid colors */
+    filter: blur(80px) saturate(1.8) brightness(0.8);
+    opacity: 0.6;
+    border-radius: 40%;
+    transition: background-image 1s ease-in-out;
+}
+
+/* Layer 1: Top Left - Rotates Clockwise */
+.blob-1 {
+    top: -50%; left: -50%;
+    animation: meshMove1 25s infinite alternate ease-in-out;
+}
+
+/* Layer 2: Bottom Right - Rotates Counter-Clockwise */
+.blob-2 {
+    bottom: -50%; right: -50%;
+    animation: meshMove2 30s infinite alternate ease-in-out;
+}
+
+/* Layer 3: Center Drifter - Pulses */
+.blob-3 {
+    top: 10%; left: 10%;
+    width: 100vw; height: 100vh;
+    filter: blur(100px) saturate(2);
+    opacity: 0.4;
+    animation: meshMove3 20s infinite alternate ease-in-out;
+}
+
+/* Dark overlay to ensure white text is readable */
+.mesh-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.3); 
+    backdrop-filter: blur(10px); 
+    z-index: 1;
+}
+
+/* Mesh Animations */
+@keyframes meshMove1 {
+    0% { transform: rotate(0deg) translate(0, 0) scale(1); }
+    100% { transform: rotate(90deg) translate(50px, 50px) scale(1.2); }
+}
+
+@keyframes meshMove2 {
+    0% { transform: rotate(0deg) translate(0, 0) scale(1); }
+    100% { transform: rotate(-120deg) translate(-50px, -50px) scale(1.1); }
+}
+
+@keyframes meshMove3 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(30px, -30px) scale(1.3); }
+    100% { transform: translate(-30px, 30px) scale(1); }
+}
+
+/* =========================================
+   8. MOBILE RESPONSIVENESS
+   ========================================= */
 @media screen and (max-width: 768px) {
     .toggle-text { display: none; }
-    .toggle-btn { padding: 8px 10px; }
-    .profile-menu span { font-size: 12px; }
+    .toggle-btn { padding: 8px 12px; }
+    .nav-left { gap: 15px; } 
+    .profile-menu span { font-size: 12px; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .nav { padding: 15px 15px; }
+    
     .vinyl-box { width: 180px; height: 180px; }
     .vinyl-disc { width: 170px; height: 170px; }
     .album-label { width: 100px; height: 100px; }
@@ -267,4 +392,3 @@
     .track-info h2 { font-size: 22px; }
     .track-info p { font-size: 14px; }
 }
-

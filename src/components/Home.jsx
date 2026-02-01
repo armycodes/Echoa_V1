@@ -1028,14 +1028,20 @@ export default function Home() {
           }}
         />
       )}
-
-      {/* 2. GRADIENT MODE */}
+      {/* 🔥 2. MAGIC MODE: APPLE MUSIC MESH EFFECT 🔥 */}
       {bgMode === 'gradient' && song?.albumImage && (
-        <div 
-          className="gradient-bg"
-          style={{ backgroundImage: `url(${song.albumImage})` }}
-        ></div>
+        <div className="apple-mesh-bg">
+           {/* Layer 1: Slow Rotate */}
+           <div className="mesh-blob blob-1" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
+           {/* Layer 2: Counter Rotate & Pulse */}
+           <div className="mesh-blob blob-2" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
+           {/* Layer 3: Drifting */}
+           <div className="mesh-blob blob-3" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
+           {/* Dark Overlay for Text Readability */}
+           <div className="mesh-overlay"></div>
+        </div>
       )}
+      
 
       {/* --- NAV BAR --- */}
       <div className="nav">
