@@ -295,60 +295,66 @@
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
 
 /* =========================================
-   7. 🔥 NEW: APPLE FLUID MESH (Better Flow) 🔥
+   7. 🔥 NEW: APPLE MESH BACKGROUND (VIBRANT & RICH FIX) 🔥
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100vh;
     z-index: 0;
     overflow: hidden;
-    background: #111;
+    background: #050505; /* Deep black base */
 }
 
 /* Common style for drifting blobs */
 .mesh-blob {
     position: absolute;
-    /* INCREASED SIZE FOR SMOOTHER FLOW */
-    width: 150vmax; 
-    height: 150vmax;
+    /* 🔥 HUGE ZOOM to hide black borders/text of album art */
+    width: 200vw; 
+    height: 200vh;
     background-size: cover;
     background-position: center;
+    border-radius: 40%;
+    
+    /* 🔥 THE MAGIC SAUCE: High Saturation + Hard Light */
+    /* Saturate 400% makes colors pop like crazy */
+    filter: blur(100px) saturate(400%) brightness(1.2); 
     opacity: 0.7;
-    border-radius: 50%;
+    mix-blend-mode: hard-light; /* Creates deep, rich interactions */
+    
     transition: background-image 1s ease-in-out;
-    mix-blend-mode: screen; 
 }
 
-/* Layer 1: Base Image (Slow Move) */
+/* Layer 1: Base Color (Original) */
 .blob-1 {
     top: -50%; left: -50%;
-    filter: blur(80px) saturate(2) brightness(1.2);
     animation: flow1 25s infinite alternate ease-in-out;
 }
 
-/* Layer 2: INVERTED Colors (Creates Contrast/Pop) */
+/* Layer 2: Color Shift (Varied) */
+/* hue-rotate adds slight variation so it's not all one color */
 .blob-2 {
     bottom: -50%; right: -50%;
-    filter: invert(1) blur(80px) saturate(2); /* 🔥 Forces different colors */
+    filter: blur(100px) saturate(400%) brightness(1.2) hue-rotate(30deg);
     animation: flow2 30s infinite alternate ease-in-out;
 }
 
-/* Layer 3: HUE ROTATED (Creates Complementary Flow) */
+/* Layer 3: Contrast Filler */
 .blob-3 {
     top: 20%; left: 20%;
-    filter: blur(90px) saturate(2) hue-rotate(90deg); /* 🔥 Shifts colors */
-    animation: flow3 20s infinite alternate ease-in-out;
+    filter: blur(100px) saturate(400%) brightness(1.4) hue-rotate(-30deg);
+    animation: flow3 22s infinite alternate ease-in-out;
 }
 
+/* Overlay: Reduced darkness so colors shine through */
 .mesh-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.2); 
-    backdrop-filter: blur(30px); /* Extra smooth glass */
+    background: rgba(0, 0, 0, 0.15); /* Very light dim */
+    backdrop-filter: blur(40px); /* Extra smoothness */
     z-index: 1;
 }
 
-/* 🔥 WIDER & SMOOTHER ANIMATIONS 🔥 */
+/* Fluid Motion Keyframes (Wider range for more movement) */
 @keyframes flow1 {
     0% { transform: translate(0, 0) rotate(0deg); }
     100% { transform: translate(20%, 20%) rotate(45deg); }
@@ -356,30 +362,10 @@
 
 @keyframes flow2 {
     0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(-25%, -25%) rotate(-60deg); }
+    100% { transform: translate(-25%, -25%) rotate(-30deg); }
 }
 
 @keyframes flow3 {
     0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(-15%, 15%) scale(1.3); }
-}
-
-/* =========================================
-   8. MOBILE RESPONSIVENESS
-   ========================================= */
-@media screen and (max-width: 768px) {
-    .toggle-text { display: none; }
-    .toggle-btn { padding: 8px 12px; }
-    .nav-left { gap: 15px; } 
-    .profile-menu span { font-size: 12px; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .nav { padding: 15px 15px; }
-    
-    .vinyl-box { width: 180px; height: 180px; }
-    .vinyl-disc { width: 170px; height: 170px; }
-    .album-label { width: 100px; height: 100px; }
-    .vinyl-box::after { width: 28px; height: 28px; top: 10px; right: 10px; }
-    .tonearm { transform: scale(0.6); top: -25px; right: -15px; }
-    .tonearm.active { transform: scale(0.6) rotate(22deg); }
-    .track-info h2 { font-size: 22px; }
-    .track-info p { font-size: 14px; }
+    100% { transform: translate(-15%, 15%) scale(1.4); }
 }
