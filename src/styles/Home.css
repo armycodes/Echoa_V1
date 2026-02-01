@@ -4,7 +4,7 @@
 .home-root {
     height: 100vh;
     width: 100vw;
-    background-color: #000;
+    background-color: #050505;
     color: white;
     font-family: 'Circular Std', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     display: flex;
@@ -86,7 +86,7 @@
 }
 
 /* =========================================
-   4. MOOD SWITCHER (Echoa Aesthetic)
+   4. MOOD SWITCHER
    ========================================= */
 .mood-toggles {
     display: flex;
@@ -165,7 +165,7 @@
 }
 
 /* =========================================
-   6. VINYL STAGE & ALBUM ART (Clean & Correct)
+   6. VINYL STAGE & ALBUM ART (GLITCH FIXED)
    ========================================= */
 .vinyl-stage {
     flex: 1;
@@ -192,6 +192,7 @@
     width: 300px;
     height: 300px;
     border-radius: 50%;
+    /* Realistic Vinyl Gradient */
     background: radial-gradient(circle at center, #1a1a1a 40%, #111 70%, #050505 100%);
     box-shadow: 0 25px 50px rgba(0,0,0,0.7); 
     display: flex;
@@ -204,35 +205,40 @@
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     border-radius: 50%;
+    /* Shine effect */
     background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.03) 100%);
     pointer-events: none;
 }
 
-/* Album Label Container */
+/* 🔥 ALBUM LABEL: RESIZED & STABILIZED 🔥 */
 .album-label {
     position: relative; 
-    overflow: hidden;
-    width: 210px;
-    height: 210px;
+    /* Reduced Size: Now text in corners won't be cut off as much because we see more of the "Label" illusion */
+    width: 150px; 
+    height: 150px;
     border-radius: 50%;
     z-index: 10;
     border: 3px solid #000;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
     background: #000;
+    
+    /* 🔥 GLITCH FIX: Forces browser to render circle properly during spin */
+    overflow: hidden;
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+    transform: translateZ(0); 
 }
 
-/* 🔥 CLEAN FIX: NO ZOOM, NO GLITCH 🔥 */
+/* 🔥 IMAGE: PERFECT FIT, NO WOBBLE 🔥 */
 .album-art-img {
     width: 100%;
     height: 100%;
-    /* 'cover' fills the circle naturally without shrinking like a sticker */
-    object-fit: cover; 
-    position: relative;
-    z-index: 1;
-    /* NO ANIMATION. Keeps image steady. */
+    object-fit: cover; /* Keeps standard vinyl look */
+    display: block;
+    /* No animations on the image itself */
 }
 
-/* 🚫 DELETED ::after (Holographic layer) entirely. No more glitch. */
+/* 🚫 Deleted ::after completely to remove any ghost glitches */
 
 .empty-label {
     width: 100%;
@@ -275,17 +281,16 @@
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
 
 /* =========================================
-   7. 🔥 MAGIC BACKGROUND (COLOR GENERATOR) 🔥
+   7. 🔥 MAGIC BACKGROUND (VIBRANT & FIXED) 🔥
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100vh;
     z-index: 0;
     overflow: hidden;
-    background: #050505; 
+    background: #000;
 }
 
-/* Common style for drifting blobs */
 .mesh-blob {
     position: absolute;
     width: 150vmax; 
@@ -294,47 +299,47 @@
     background-position: center;
     border-radius: 50%;
     
-    /* Base filter to extract color */
-    filter: blur(90px) saturate(300%) brightness(1.2); 
-    opacity: 0.6;
+    /* 🔥 VIBRANCY FIX: 
+       - Removed 'mix-blend-mode: screen' (It caused the gray/white washout).
+       - Using 'mix-blend-mode: normal' allows pure colors.
+       - High Saturation + Contrast fixes muddy images. 
+    */
+    filter: blur(80px) saturate(400%) contrast(1.2) brightness(1.2);
+    opacity: 0.8; /* Higher opacity for solid color */
     
-    mix-blend-mode: screen; 
     transition: background-image 1s ease-in-out;
 }
 
-/* Layer 1: Base Image */
+/* Layer 1: Base */
 .blob-1 {
     top: -50%; left: -50%;
     animation: flow1 25s infinite alternate ease-in-out;
 }
 
-/* Layer 2: SEPIA FORCER (Turns Gray/BW -> Warm Colors) */
+/* Layer 2: Color Shift */
 .blob-2 {
     bottom: -50%; right: -50%;
-    /* Sepia creates color from gray. Hue-rotate shifts it to Pink/Purple. */
-    filter: blur(100px) sepia(1) saturate(500%) hue-rotate(300deg); 
-    opacity: 0.5;
+    /* hue-rotate adds variety */
+    filter: blur(80px) saturate(400%) contrast(1.2) hue-rotate(45deg); 
     animation: flow2 30s infinite alternate ease-in-out;
 }
 
-/* Layer 3: INVERT FORCER (Turns Dark -> Bright Colors) */
+/* Layer 3: Color Shift */
 .blob-3 {
     top: 20%; left: 20%;
-    /* Invert flips colors. Sepia tones them. */
-    filter: blur(100px) invert(1) sepia(1) saturate(500%) hue-rotate(180deg);
-    opacity: 0.5;
+    filter: blur(90px) saturate(400%) contrast(1.2) hue-rotate(-45deg);
     animation: flow3 22s infinite alternate ease-in-out;
 }
 
+/* Darker Overlay to make text pop against bright blobs */
 .mesh-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.2); 
+    background: rgba(0, 0, 0, 0.4); 
     backdrop-filter: blur(20px); 
     z-index: 1;
 }
 
-/* Smooth Fluid Animations */
 @keyframes flow1 {
     0% { transform: translate(0, 0) rotate(0deg); }
     100% { transform: translate(15%, 15%) rotate(20deg); }
@@ -362,7 +367,8 @@
     
     .vinyl-box { width: 180px; height: 180px; }
     .vinyl-disc { width: 170px; height: 170px; }
-    .album-label { width: 100px; height: 100px; }
+    /* Mobile needs smaller label */
+    .album-label { width: 80px; height: 80px; }
     .vinyl-box::after { width: 28px; height: 28px; top: 10px; right: 10px; }
     .tonearm { transform: scale(0.6); top: -25px; right: -15px; }
     .tonearm.active { transform: scale(0.6) rotate(22deg); }
