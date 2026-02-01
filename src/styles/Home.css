@@ -165,7 +165,7 @@
 }
 
 /* =========================================
-   6. VINYL STAGE & ALBUM ART (Fixed Zoom)
+   6. VINYL STAGE & ALBUM ART (Zoom Fix)
    ========================================= */
 .vinyl-stage {
     flex: 1;
@@ -218,19 +218,18 @@
     z-index: 10;
     border: 3px solid #000;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    background: #000; /* Fallback black */
+    background: #000; /* Ensures black bars for non-square fit */
 }
 
-/* 🔥 ZOOM FIX: 'cover' replaced with 'contain' if you want full image inside, 
-   BUT standard vinyl uses 'cover'. I will remove the zoom animation to fix the cut issue. */
+/* 🔥 FIX 1: STOP ZOOMING & CUTTING 🔥 */
 .album-art-img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Keeps it filling the circle */
+    /* 'contain' ensures the WHOLE square is visible inside the circle */
+    object-fit: contain; 
     position: relative;
     z-index: 1;
-    /* Zoom Animation REMOVED to fix cutting issue */
-    /* animation: slowZoom 20s... (Deleted) */
+    /* Removed all zoom animations */
 }
 
 /* The Holographic Glow Overlay */
@@ -254,8 +253,6 @@
     50% { opacity: 0.6; filter: blur(15px) brightness(1.8); }
     100% { opacity: 0.2; filter: blur(8px) brightness(1.2); }
 }
-
-/* Removed slowZoom keyframes as we don't need them anymore */
 
 .empty-label {
     width: 100%;
@@ -298,7 +295,7 @@
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
 
 /* =========================================
-   7. 🔥 NEW: APPLE MESH BACKGROUND (Fixed Colors) 🔥
+   7. 🔥 NEW: APPLE FLUID MESH (Better Flow) 🔥
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
@@ -308,62 +305,63 @@
     background: #111;
 }
 
+/* Common style for drifting blobs */
 .mesh-blob {
     position: absolute;
-    width: 100vw; 
-    height: 100vh;
+    /* INCREASED SIZE FOR SMOOTHER FLOW */
+    width: 150vmax; 
+    height: 150vmax;
     background-size: cover;
     background-position: center;
-    opacity: 0.8;
+    opacity: 0.7;
     border-radius: 50%;
     transition: background-image 1s ease-in-out;
-    mix-blend-mode: screen; /* Mixes colors nicely */
+    mix-blend-mode: screen; 
 }
 
-/* Blob 1: Base Color */
+/* Layer 1: Base Image (Slow Move) */
 .blob-1 {
-    top: -20%; left: -20%;
+    top: -50%; left: -50%;
     filter: blur(80px) saturate(2) brightness(1.2);
-    animation: meshMove1 20s infinite alternate ease-in-out;
+    animation: flow1 25s infinite alternate ease-in-out;
 }
 
-/* Blob 2: Color Shift +45deg (Varied Shade) */
+/* Layer 2: INVERTED Colors (Creates Contrast/Pop) */
 .blob-2 {
-    bottom: -20%; right: -20%;
-    filter: blur(80px) saturate(2) brightness(1.2) hue-rotate(45deg); 
-    animation: meshMove2 25s infinite alternate ease-in-out;
+    bottom: -50%; right: -50%;
+    filter: invert(1) blur(80px) saturate(2); /* 🔥 Forces different colors */
+    animation: flow2 30s infinite alternate ease-in-out;
 }
 
-/* Blob 3: Color Shift -45deg (Varied Shade) */
+/* Layer 3: HUE ROTATED (Creates Complementary Flow) */
 .blob-3 {
-    top: 30%; left: 20%;
-    width: 80vw; height: 80vh;
-    filter: blur(90px) saturate(2) brightness(1.2) hue-rotate(-45deg);
-    animation: meshMove3 18s infinite alternate ease-in-out;
+    top: 20%; left: 20%;
+    filter: blur(90px) saturate(2) hue-rotate(90deg); /* 🔥 Shifts colors */
+    animation: flow3 20s infinite alternate ease-in-out;
 }
 
 .mesh-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.2); 
-    backdrop-filter: blur(20px); 
+    backdrop-filter: blur(30px); /* Extra smooth glass */
     z-index: 1;
 }
 
-@keyframes meshMove1 {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(10%, 10%) scale(1.1) rotate(20deg); }
+/* 🔥 WIDER & SMOOTHER ANIMATIONS 🔥 */
+@keyframes flow1 {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(20%, 20%) rotate(45deg); }
 }
 
-@keyframes meshMove2 {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(-10%, -10%) scale(1.1) rotate(-20deg); }
+@keyframes flow2 {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(-25%, -25%) rotate(-60deg); }
 }
 
-@keyframes meshMove3 {
+@keyframes flow3 {
     0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(5%, -5%) scale(0.9); }
-    100% { transform: translate(-5%, 5%) scale(1.1); }
+    100% { transform: translate(-15%, 15%) scale(1.3); }
 }
 
 /* =========================================
