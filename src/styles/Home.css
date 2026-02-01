@@ -31,7 +31,7 @@
 }
 
 /* =========================================
-   3. HAMBURGER MENU & DROPDOWN
+   3. MENU
    ========================================= */
 .menu-container {
     position: relative;
@@ -46,17 +46,13 @@
     color: #b3b3b3;
     transition: all 0.3s ease;
 }
-.hamburger:hover {
-    color: white;
-    text-shadow: 0 0 10px rgba(255,255,255,0.6); 
-    transform: scale(1.1);
-}
+.hamburger:hover { color: white; transform: scale(1.1); }
 
 .dropdown {
     position: absolute;
     top: 45px;
     left: 0;
-    background-color: rgba(15, 15, 15, 0.95);
+    background-color: rgba(20, 20, 20, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 8px;
     padding: 8px;
@@ -77,13 +73,9 @@
     cursor: pointer;
     font-size: 13px;
     border-radius: 4px;
-    transition: all 0.2s;
-    position: relative;
     z-index: 5003;
 }
-.logout-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
+.logout-btn:hover { background: rgba(255, 255, 255, 0.1); }
 
 /* =========================================
    4. MOOD SWITCHER
@@ -91,19 +83,17 @@
 .mood-toggles {
     display: flex;
     align-items: center;
-    background: rgba(0, 0, 0, 0.5); 
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.1); 
     border-radius: 30px;
     padding: 4px;
-    border: 1px solid rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.1);
     gap: 4px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
 .toggle-btn {
     background: transparent;
     border: none;
-    color: #888; 
+    color: #aaa; 
     padding: 8px 16px;
     border-radius: 25px;
     cursor: pointer;
@@ -112,26 +102,18 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all 0.3s ease;
 }
 
-.toggle-btn:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.05);
-}
+.toggle-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
 
 .toggle-btn.active {
-    background: #ffffff; 
-    color: #000000; 
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); 
-    transform: scale(1.05);
+    background: #fff; 
+    color: #000; 
+    font-weight: bold;
 }
 
-.divider {
-    width: 1px;
-    height: 16px;
-    background: rgba(255,255,255,0.1);
-}
+.divider { width: 1px; height: 16px; background: rgba(255,255,255,0.1); }
 
 /* =========================================
    5. PROFILE
@@ -140,12 +122,11 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.1);
     padding: 5px 15px 5px 5px;
     border-radius: 30px;
-    border: 1px solid rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.1);
     margin-left: auto; 
-    backdrop-filter: blur(5px);
 }
 
 .profile-menu img {
@@ -153,19 +134,16 @@
     height: 32px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid #333;
 }
 
 .profile-menu span {
     font-size: 13px;
     font-weight: 600;
-    letter-spacing: 0.5px;
     color: #ddd;
-    display: inline-block;
 }
 
 /* =========================================
-   6. VINYL STAGE & ALBUM ART (GLITCH FIXED)
+   6. VINYL STAGE (STANDARD RATIO FIX)
    ========================================= */
 .vinyl-stage {
     flex: 1;
@@ -192,59 +170,53 @@
     width: 300px;
     height: 300px;
     border-radius: 50%;
-    /* Realistic Vinyl Gradient */
     background: radial-gradient(circle at center, #1a1a1a 40%, #111 70%, #050505 100%);
     box-shadow: 0 25px 50px rgba(0,0,0,0.7); 
     display: flex;
     align-items: center;
     justify-content: center;
     border: 2px solid #0a0a0a;
+    
+    /* 🔥 GLITCH FIX: Forces smoother rotation */
+    will-change: transform;
+    transform: translateZ(0); 
 }
+
 .vinyl-disc::after {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     border-radius: 50%;
-    /* Shine effect */
-    background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.03) 100%);
+    background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.05) 100%);
     pointer-events: none;
 }
 
-/* 🔥 ALBUM LABEL: RESIZED & STABILIZED 🔥 */
+/* 🔥 FINAL SIZE FIX: 110px 🔥
+   This is the standard proportion (approx 1/3rd of the disc).
+   It ensures the album art looks like a label, not a sticker, and not too zoomed. */
 .album-label {
-    position: relative; 
-    /* Reduced Size: Now text in corners won't be cut off as much because we see more of the "Label" illusion */
-    width: 150px; 
-    height: 150px;
+    position: relative;
+    width: 110px; 
+    height: 110px;
     border-radius: 50%;
-    z-index: 10;
-    border: 3px solid #000;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    background: #000;
-    
-    /* 🔥 GLITCH FIX: Forces browser to render circle properly during spin */
     overflow: hidden;
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
-    mask-image: radial-gradient(white, black);
-    transform: translateZ(0); 
+    z-index: 10;
+    
+    /* 🔥 NO BORDERS. NO PADDING. Just the label. */
+    background: #000;
 }
 
-/* 🔥 IMAGE: PERFECT FIT, NO WOBBLE 🔥 */
 .album-art-img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Keeps standard vinyl look */
+    object-fit: cover; /* Standard Vinyl behavior */
     display: block;
-    /* No animations on the image itself */
 }
-
-/* 🚫 Deleted ::after completely to remove any ghost glitches */
 
 .empty-label {
     width: 100%;
     height: 100%;
     background: #222;
-    background-image: radial-gradient(circle at center, #333 0%, #1a1a1a 100%);
 }
 
 .spinning { animation: spin 8s linear infinite; }
@@ -281,94 +253,77 @@
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
 
 /* =========================================
-   7. 🔥 MAGIC BACKGROUND (VIBRANT & FIXED) 🔥
+   7. BACKGROUND (Vibrant Fix)
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100vh;
     z-index: 0;
-    overflow: hidden;
     background: #000;
 }
 
 .mesh-blob {
     position: absolute;
-    width: 150vmax; 
+    width: 150vmax;
     height: 150vmax;
     background-size: cover;
     background-position: center;
     border-radius: 50%;
     
-    /* 🔥 VIBRANCY FIX: 
-       - Removed 'mix-blend-mode: screen' (It caused the gray/white washout).
-       - Using 'mix-blend-mode: normal' allows pure colors.
-       - High Saturation + Contrast fixes muddy images. 
-    */
-    filter: blur(80px) saturate(400%) contrast(1.2) brightness(1.2);
-    opacity: 0.8; /* Higher opacity for solid color */
+    /* VIBRANT & CLEAN */
+    filter: blur(100px) saturate(300%) brightness(1.3);
+    opacity: 0.6;
+    mix-blend-mode: normal; 
     
     transition: background-image 1s ease-in-out;
 }
 
-/* Layer 1: Base */
 .blob-1 {
     top: -50%; left: -50%;
     animation: flow1 25s infinite alternate ease-in-out;
 }
-
-/* Layer 2: Color Shift */
 .blob-2 {
     bottom: -50%; right: -50%;
-    /* hue-rotate adds variety */
-    filter: blur(80px) saturate(400%) contrast(1.2) hue-rotate(45deg); 
+    filter: blur(100px) saturate(300%) brightness(1.3) hue-rotate(40deg);
     animation: flow2 30s infinite alternate ease-in-out;
 }
-
-/* Layer 3: Color Shift */
 .blob-3 {
     top: 20%; left: 20%;
-    filter: blur(90px) saturate(400%) contrast(1.2) hue-rotate(-45deg);
+    filter: blur(110px) saturate(300%) brightness(1.3) hue-rotate(-40deg);
+    opacity: 0.4;
     animation: flow3 22s infinite alternate ease-in-out;
 }
 
-/* Darker Overlay to make text pop against bright blobs */
 .mesh-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.4); 
-    backdrop-filter: blur(20px); 
-    z-index: 1;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(20px);
 }
 
 @keyframes flow1 {
     0% { transform: translate(0, 0) rotate(0deg); }
     100% { transform: translate(15%, 15%) rotate(20deg); }
 }
-
 @keyframes flow2 {
     0% { transform: translate(0, 0) rotate(0deg); }
     100% { transform: translate(-20%, -20%) rotate(-30deg); }
 }
-
 @keyframes flow3 {
     0% { transform: translate(0, 0) scale(1); }
     100% { transform: translate(-10%, 10%) scale(1.2); }
 }
 
-/* =========================================
-   8. MOBILE RESPONSIVENESS
-   ========================================= */
+/* MOBILE */
 @media screen and (max-width: 768px) {
     .toggle-text { display: none; }
     .toggle-btn { padding: 8px 12px; }
     .nav-left { gap: 15px; } 
-    .profile-menu span { font-size: 12px; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .nav { padding: 15px 15px; }
     
     .vinyl-box { width: 180px; height: 180px; }
     .vinyl-disc { width: 170px; height: 170px; }
-    /* Mobile needs smaller label */
-    .album-label { width: 80px; height: 80px; }
+    .album-label { width: 65px; height: 65px; } /* Proportional resize */
     .vinyl-box::after { width: 28px; height: 28px; top: 10px; right: 10px; }
     .tonearm { transform: scale(0.6); top: -25px; right: -15px; }
     .tonearm.active { transform: scale(0.6) rotate(22deg); }
