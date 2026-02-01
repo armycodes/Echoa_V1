@@ -165,7 +165,7 @@
 }
 
 /* =========================================
-   6. VINYL STAGE & ALBUM ART (NO ZOOM - NATURAL FIT)
+   6. VINYL STAGE & ALBUM ART (Pure & Clean)
    ========================================= */
 .vinyl-stage {
     flex: 1;
@@ -221,41 +221,16 @@
     background: #000;
 }
 
-/* 🔥 FINAL FIX: NATURAL CROP (NO ZOOM ANIMATION) 🔥 */
+/* 🔥 CLEAN FIX: NO OVERLAYS, NO ZOOM ANIMATIONS 🔥 */
 .album-art-img {
     width: 100%;
     height: 100%;
-    
-    /* 'cover' cuts the corners naturally to fill the circle. */
-    object-fit: cover; 
-    
+    object-fit: cover; /* Fills circle naturally */
     position: relative;
     z-index: 1;
-    
-    /* 🚫 REMOVED ALL ZOOM ANIMATIONS. Image stays static and clean. */
 }
 
-/* Holographic Glow (Kept subtle for style) */
-.album-label::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-image: var(--album-url); 
-    background-size: cover;
-    background-position: center;
-    z-index: 2; 
-    mix-blend-mode: color-dodge;
-    opacity: 0; 
-    filter: blur(10px) brightness(1.5) contrast(1.2);
-    animation: holographicPulse 8s ease-in-out infinite alternate;
-    pointer-events: none;
-}
-
-@keyframes holographicPulse {
-    0% { opacity: 0; filter: blur(5px) brightness(1); }
-    50% { opacity: 0.3; filter: blur(15px) brightness(1.5); }
-    100% { opacity: 0.1; filter: blur(8px) brightness(1.2); }
-}
+/* 🚫 Removed ::after Holographic Overlay (Caused Glitch) */
 
 .empty-label {
     width: 100%;
@@ -298,17 +273,16 @@
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
 
 /* =========================================
-   7. 🔥 APPLE MESH BACKGROUND (Fixed & Natural Colors) 🔥
+   7. 🔥 CLEAN MAGIC BACKGROUND (Apple Style) 🔥
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100vh;
     z-index: 0;
     overflow: hidden;
-    background: #111;
+    background: #000;
 }
 
-/* Common style for drifting blobs */
 .mesh-blob {
     position: absolute;
     width: 150vmax; 
@@ -317,43 +291,44 @@
     background-position: center;
     border-radius: 50%;
     
-    /* 🔥 CLEANUP: High Saturation for pop, but NO weird filters. */
-    filter: blur(80px) saturate(250%) brightness(1.2); 
-    opacity: 0.6;
+    /* Soft Glow - Not too harsh, not too dull */
+    filter: blur(100px) saturate(200%) brightness(1.2); 
+    opacity: 0.5;
     
+    /* Screen blends nicely on black without ruining colors */
     mix-blend-mode: screen; 
+    
     transition: background-image 1s ease-in-out;
 }
 
-/* Layer 1: Base Image (Slow Move) */
+/* Layer 1: Base */
 .blob-1 {
     top: -50%; left: -50%;
     animation: flow1 25s infinite alternate ease-in-out;
 }
 
-/* Layer 2: Subtle Shift (Adds variety) */
+/* Layer 2: Color Variation */
 .blob-2 {
     bottom: -50%; right: -50%;
-    filter: blur(90px) saturate(250%) hue-rotate(30deg); 
+    filter: blur(100px) saturate(200%) hue-rotate(30deg); 
     animation: flow2 30s infinite alternate ease-in-out;
 }
 
-/* Layer 3: Subtle Shift (Other direction) */
+/* Layer 3: Contrast */
 .blob-3 {
     top: 20%; left: 20%;
-    filter: blur(100px) saturate(250%) hue-rotate(-30deg);
+    filter: blur(100px) saturate(200%) hue-rotate(-30deg);
     animation: flow3 22s infinite alternate ease-in-out;
 }
 
 .mesh-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.3); 
-    backdrop-filter: blur(20px); 
+    background: rgba(0, 0, 0, 0.4); /* Darker overlay to make text pop */
+    backdrop-filter: blur(10px); 
     z-index: 1;
 }
 
-/* Smooth Fluid Animations */
 @keyframes flow1 {
     0% { transform: translate(0, 0) rotate(0deg); }
     100% { transform: translate(15%, 15%) rotate(20deg); }
