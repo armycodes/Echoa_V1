@@ -13,7 +13,7 @@
 }
 
 /* =========================================
-   2. NAVIGATION BAR (Top Layer)
+   2. NAVIGATION BAR
    ========================================= */
 .nav {
     display: flex;
@@ -165,7 +165,7 @@
 }
 
 /* =========================================
-   6. VINYL STAGE & ALBUM ART (Zoom Fix)
+   6. VINYL STAGE & ALBUM ART (Full Fill Fix)
    ========================================= */
 .vinyl-stage {
     flex: 1;
@@ -218,21 +218,20 @@
     z-index: 10;
     border: 3px solid #000;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    background: #000; /* Ensures black bars for non-square fit */
+    background: #000;
 }
 
-/* 🔥 FIX 1: STOP ZOOMING & CUTTING 🔥 */
+/* 🔥 FIX 1: VINYL FILL (Back to COVER) 🔥 */
+/* This ensures NO black bars. The circle will be full. */
 .album-art-img {
     width: 100%;
     height: 100%;
-    /* 'contain' ensures the WHOLE square is visible inside the circle */
-    object-fit: contain; 
+    object-fit: cover; /* CHANGED FROM CONTAIN TO COVER */
     position: relative;
     z-index: 1;
-    /* Removed all zoom animations */
 }
 
-/* The Holographic Glow Overlay */
+/* Holographic Glow */
 .album-label::after {
     content: '';
     position: absolute;
@@ -295,66 +294,63 @@
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
 
 /* =========================================
-   7. 🔥 NEW: APPLE MESH BACKGROUND (VIBRANT & RICH FIX) 🔥
+   7. 🔥 FIX 2: VIBRANT COLOR BACKGROUNDS (Anti-Gray Logic) 🔥
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100vh;
     z-index: 0;
     overflow: hidden;
-    background: #050505; /* Deep black base */
+    background: #050505; 
 }
 
-/* Common style for drifting blobs */
+/* Common style */
 .mesh-blob {
     position: absolute;
-    /* 🔥 HUGE ZOOM to hide black borders/text of album art */
     width: 200vw; 
     height: 200vh;
     background-size: cover;
     background-position: center;
     border-radius: 40%;
-    
-    /* 🔥 THE MAGIC SAUCE: High Saturation + Hard Light */
-    /* Saturate 400% makes colors pop like crazy */
-    filter: blur(100px) saturate(400%) brightness(1.2); 
-    opacity: 0.7;
-    mix-blend-mode: hard-light; /* Creates deep, rich interactions */
-    
+    /* Extreme Saturation to force colors out of dull images */
+    filter: blur(90px) saturate(800%) contrast(1.2); 
+    opacity: 0.6;
+    mix-blend-mode: overlay; /* Better blending for dark/light albums */
     transition: background-image 1s ease-in-out;
 }
 
-/* Layer 1: Base Color (Original) */
+/* Layer 1: Base Vibrant */
 .blob-1 {
     top: -50%; left: -50%;
     animation: flow1 25s infinite alternate ease-in-out;
 }
 
-/* Layer 2: Color Shift (Varied) */
-/* hue-rotate adds slight variation so it's not all one color */
+/* Layer 2: Forced Warm Tone (Fixes Blue/Gray/B&W images) */
+/* Sepia creates color base, Hue Rotate shifts it to Purple/Pink */
 .blob-2 {
     bottom: -50%; right: -50%;
-    filter: blur(100px) saturate(400%) brightness(1.2) hue-rotate(30deg);
+    filter: blur(90px) sepia(1) hue-rotate(280deg) saturate(500%); 
+    opacity: 0.5;
     animation: flow2 30s infinite alternate ease-in-out;
 }
 
-/* Layer 3: Contrast Filler */
+/* Layer 3: Forced Cool Tone (Fixes Red/Sepia/B&W images) */
+/* Sepia creates color base, Hue Rotate shifts it to Cyan/Blue */
 .blob-3 {
     top: 20%; left: 20%;
-    filter: blur(100px) saturate(400%) brightness(1.4) hue-rotate(-30deg);
+    filter: blur(100px) sepia(1) hue-rotate(140deg) saturate(500%);
+    opacity: 0.5;
     animation: flow3 22s infinite alternate ease-in-out;
 }
 
-/* Overlay: Reduced darkness so colors shine through */
 .mesh-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.15); /* Very light dim */
-    backdrop-filter: blur(40px); /* Extra smoothness */
+    background: rgba(0, 0, 0, 0.2); 
+    backdrop-filter: blur(30px); 
     z-index: 1;
 }
 
-/* Fluid Motion Keyframes (Wider range for more movement) */
 @keyframes flow1 {
     0% { transform: translate(0, 0) rotate(0deg); }
     100% { transform: translate(20%, 20%) rotate(45deg); }
@@ -368,4 +364,24 @@
 @keyframes flow3 {
     0% { transform: translate(0, 0) scale(1); }
     100% { transform: translate(-15%, 15%) scale(1.4); }
+}
+
+/* =========================================
+   8. MOBILE RESPONSIVENESS
+   ========================================= */
+@media screen and (max-width: 768px) {
+    .toggle-text { display: none; }
+    .toggle-btn { padding: 8px 12px; }
+    .nav-left { gap: 15px; } 
+    .profile-menu span { font-size: 12px; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav { padding: 15px 15px; }
+    
+    .vinyl-box { width: 180px; height: 180px; }
+    .vinyl-disc { width: 170px; height: 170px; }
+    .album-label { width: 100px; height: 100px; }
+    .vinyl-box::after { width: 28px; height: 28px; top: 10px; right: 10px; }
+    .tonearm { transform: scale(0.6); top: -25px; right: -15px; }
+    .tonearm.active { transform: scale(0.6) rotate(22deg); }
+    .track-info h2 { font-size: 22px; }
+    .track-info p { font-size: 14px; }
 }
