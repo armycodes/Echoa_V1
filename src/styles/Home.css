@@ -1,23 +1,23 @@
 /* =========================================
-   1. ROOT & BASICS (Mobile Safe)
+   1. ROOT & BASICS
    ========================================= */
 .home-root {
-    /* Use dvh for mobile address bar compatibility, fallback to vh */
+    /* Use dvh for mobile address bar compatibility */
     height: 100vh;
     height: 100dvh; 
     width: 100vw;
-    background-color: #050505;
+    background-color: #000; /* Fallback black */
     color: white;
     font-family: 'Circular Std', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    position: relative; /* Important for stacking */
-    z-index: 1; /* Ensures root is above default */
+    position: relative;
+    /* REMOVED z-index from root to allow children to stack properly */
 }
 
 /* =========================================
-   2. NAVIGATION BAR
+   2. NAVIGATION BAR (Top Layer)
    ========================================= */
 .nav {
     display: flex;
@@ -25,12 +25,13 @@
     align-items: center;
     padding: 20px 30px;
     position: relative;
-    z-index: 5000; /* High z-index to stay on top */
+    /* 🔥 HIGH Z-INDEX: Always on top */
+    z-index: 100; 
 }
 
 .menu-container {
     position: relative;
-    z-index: 5001;
+    z-index: 101;
     display: flex;
     align-items: center;
 }
@@ -60,7 +61,7 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     min-width: 140px;
     border: 1px solid #333;
-    z-index: 5002;
+    z-index: 102;
 }
 
 .logout-btn {
@@ -74,7 +75,7 @@
     cursor: pointer;
     font-size: 14px;
     border-radius: 4px;
-    z-index: 5003;
+    z-index: 103;
 }
 .logout-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
 
@@ -139,13 +140,11 @@
 .profile-menu span {
     font-size: 14px;
     font-weight: 600;
-    letter-spacing: 0.5px;
-    display: inline-block;
     color: #ddd;
 }
 
 /* =========================================
-   6. VINYL STAGE (Unchanged)
+   6. VINYL STAGE (Content Layer)
    ========================================= */
 .vinyl-stage {
     flex: 1;
@@ -155,7 +154,8 @@
     justify-content: center;
     position: relative;
     padding-bottom: 40px;
-    z-index: 10;
+    /* 🔥 CONTENT LAYER: Above background (0) but below Nav (100) */
+    z-index: 10; 
 }
 
 .vinyl-box {
@@ -167,6 +167,7 @@
     justify-content: center;
 }
 
+/* Static Shadow */
 .vinyl-box::before {
     content: '';
     position: absolute;
@@ -217,13 +218,6 @@
     display: block;
 }
 
-.empty-label {
-    width: 100%;
-    height: 100%;
-    background: #222;
-    background-image: radial-gradient(circle at center, #333 0%, #1a1a1a 100%);
-}
-
 .spinning { animation: spin 8s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
@@ -258,15 +252,17 @@
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
 
 /* =========================================
-   7. BACKGROUND (Z-INDEX FIXED FOR MOBILE)
+   7. BACKGROUND (BASE LAYER - Z-INDEX 0)
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100vh;
-    /* 🔥 KEY FIX: Negative z-index puts it BEHIND everything safely */
-    z-index: -1; 
+    /* 🔥 SAFE Z-INDEX: 0. Not negative. */
+    z-index: 0; 
     overflow: hidden;
     background: #000;
+    /* Optimize painting for mobile */
+    will-change: transform; 
 }
 
 .mesh-blob {
@@ -280,6 +276,9 @@
     opacity: 0.7;
     mix-blend-mode: normal; 
     transition: background-image 1s ease-in-out;
+    
+    /* Performance fix for mobile flicker */
+    transform: translateZ(0);
 }
 
 /* Animations */
@@ -315,28 +314,25 @@
 
 
 /* =========================================
-   8. MOBILE RESPONSIVENESS (SCALING FIX)
+   8. MOBILE RESPONSIVENESS
    ========================================= */
 @media screen and (max-width: 768px) {
-    .home-root {
-        overflow-y: auto; /* Allow scrolling if content is too tall */
-    }
-
     .toggle-text { display: none; }
     .toggle-btn { padding: 8px 10px; }
     .profile-menu span { font-size: 12px; }
     .nav { padding: 15px 15px; }
     .nav-left { gap: 15px; } 
     
-    /* Resize Vinyl for Mobile Screens */
     .vinyl-box { width: 180px; height: 180px; }
     .vinyl-disc { width: 170px; height: 170px; }
-    .album-label { width: 110px; height: 110px; } /* Proportional resize */
+    .album-label { width: 110px; height: 110px; }
     .vinyl-box::after { width: 28px; height: 28px; top: 10px; right: 10px; }
+    
+    /* Re-center shadow for mobile */
+    .vinyl-box::before { width: 150px; height: 150px; }
     
     .tonearm { transform: scale(0.6); top: -25px; right: -15px; }
     .tonearm.active { transform: scale(0.6) rotate(22deg); }
-    
     .track-info h2 { font-size: 22px; }
     .track-info p { font-size: 14px; }
 }
