@@ -124,7 +124,7 @@ export default function Login() {
   };
 
   return (
-    <div className="login-root"> /* Updated className for clarity */
+    <div className="login-container">
       <div className="image-section">
         <img src={loginBg} alt="Echoa background" />
         <div className="image-overlay"></div>

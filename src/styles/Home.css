@@ -336,33 +336,3 @@
     .track-info h2 { font-size: 22px; }
     .track-info p { font-size: 14px; }
 }
-/* =========================================
-   9. LOGIN & LANDING PAGE FIXES (Mobile Visibility)
-   ========================================= */
-
-/* Make sure ANY page container sits ABOVE the background.
-   Replace '.login-root' with whatever class name your Login Page uses.
-*/
-.login-root, 
-.login-container, 
-.landing-page {
-    position: relative !important; /* Essential to stack above fixed bg */
-    z-index: 100 !important;       /* Force it to be on top */
-    width: 100%;
-    height: 100%;
-    
-    /* Ensure text is visible */
-    color: white; 
-    
-    /* Center content if needed */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Ensure inputs/buttons are clickable */
-button, input, a {
-    position: relative;
-    z-index: 101; 
-}
