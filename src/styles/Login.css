@@ -1,33 +1,36 @@
-/* GLOBAL RESET FOR LOGIN */
-/* Forces body to be black just for safety */
+/* GLOBAL RESET */
 body {
   margin: 0;
   font-family: "Satoshi", system-ui, sans-serif;
   background: #000;
   color: #fff;
+  /* Prevent scroll chaining */
+  overscroll-behavior: none;
 }
 
 /* =========================================
-   LAYOUT (THE FIX IS HERE) 🛠️
+   LAYOUT (THE ULTIMATE FIX) 🛠️
    ========================================= */
 .login-container {
-  /* Use FIXED positioning to break out of #root's padding constraints */
+  /* Use FIXED to break out of any #root padding/margin issues */
   position: fixed; 
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
   
-  /* Super High Z-Index to stay above any background or home elements */
+  /* Ensure it sits on top of EVERYTHING */
   z-index: 99999 !important; 
   
   display: flex;
-  background: #000; /* Ensure solid background so nothing shows behind */
+  background: #000; /* Solid background prevents see-through */
   overflow: hidden;
 }
 
 /* =========================================
-   IMAGE SECTION (Left Side)
+   IMAGE SECTION (Left)
    ========================================= */
 .image-section {
   flex: 2;
@@ -53,14 +56,13 @@ body {
   pointer-events: none;
 }
 
-/* CINEMATIC IMAGE MOTION */
 @keyframes imageDrift {
   from { transform: translateX(0) scale(1); }
   to { transform: translateX(-50px) scale(1.06); }
 }
 
 /* =========================================
-   LOGIN PANEL (Right Side)
+   LOGIN PANEL (Right)
    ========================================= */
 .login-panel {
   flex: 1;
@@ -133,7 +135,6 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Typing Cursor */
 .typing::after {
   content: "|";
   display: inline-block;
@@ -154,23 +155,28 @@ body {
 @media (max-width: 768px) {
   .login-container {
     flex-direction: column;
-    /* Allow scrolling on mobile if content overflows */
+    /* IMPORTANT: Allow scrolling inside container if content is tall */
     overflow-y: auto; 
-    height: 100%; /* Fill the fixed container */
+    height: 100%;
+    position: fixed; /* Double check enforcement */
   }
 
   .image-section {
     width: 100%;
-    /* Fixed height for image area on mobile */
-    min-height: 40vh; 
-    flex: none; /* Don't grow/shrink */
+    min-height: 35vh; /* Give image some fixed height */
+    flex: none;
+  }
+  
+  .image-section img {
+    width: 100%;
+    height: 100%;
   }
 
   .login-panel {
     width: 100%;
-    flex: 1; /* Take remaining space */
+    flex: 1;
     padding: 24px 16px;
-    background: #000; /* Solid black on mobile for readability */
+    background: #000;
   }
 
   .login-content {
@@ -182,7 +188,7 @@ body {
   .logo {
     font-size: 32px;
     text-align: center;
-    width: auto; /* Allow auto width on mobile center */
+    width: auto;
   }
 
   .tagline {
