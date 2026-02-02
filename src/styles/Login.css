@@ -206,10 +206,17 @@ body {
 
 /* ===== Mobile responsiveness for Login page ===== */
 @media (max-width: 768px) {
-  .login-container {
-    flex-direction: column;
-    height: auto;
-  }
+  /* LAYOUT */
+.login-container { /*this has changed*/
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+
+  /* 🔥 ADD THESE 2 LINES TO FIX MOBILE BLANK SCREEN 🔥 */
+  position: relative; 
+  z-index: 9999; /* Forces Login page to come FRONT */
+}
 
   .image-section {
     width: 100%;
