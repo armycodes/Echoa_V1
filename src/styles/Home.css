@@ -2,22 +2,18 @@
    1. ROOT & BASICS
    ========================================= */
 .home-root {
-    /* Use dvh for mobile address bar compatibility */
     height: 100vh;
-    height: 100dvh; 
     width: 100vw;
-    background-color: #000; /* Fallback black */
+    background-color: #000;
     color: white;
     font-family: 'Circular Std', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    position: relative;
-    /* REMOVED z-index from root to allow children to stack properly */
 }
 
 /* =========================================
-   2. NAVIGATION BAR (Top Layer)
+   2. NAVIGATION BAR
    ========================================= */
 .nav {
     display: flex;
@@ -25,15 +21,7 @@
     align-items: center;
     padding: 20px 30px;
     position: relative;
-    /* 🔥 HIGH Z-INDEX: Always on top */
-    z-index: 100; 
-}
-
-.menu-container {
-    position: relative;
-    z-index: 101;
-    display: flex;
-    align-items: center;
+    z-index: 5000; 
 }
 
 .nav-left {
@@ -42,11 +30,21 @@
     gap: 20px; 
 }
 
+/* =========================================
+   3. MENU
+   ========================================= */
+.menu-container {
+    position: relative;
+    z-index: 5001;
+    display: flex;
+    align-items: center;
+}
+
 .hamburger {
     font-size: 26px;
     cursor: pointer;
     color: #b3b3b3;
-    transition: color 0.3s;
+    transition: all 0.3s ease;
 }
 .hamburger:hover { color: white; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
@@ -54,20 +52,20 @@
     position: absolute;
     top: 50px;
     left: 0;
-    background-color: rgba(20, 20, 20, 0.95); 
+    background-color: rgba(20, 20, 20, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 8px;
     padding: 8px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-    min-width: 140px;
+    min-width: 140px; 
     border: 1px solid #333;
-    z-index: 102;
+    z-index: 5002;
 }
 
 .logout-btn {
     background: transparent;
     border: none;
-    color: #ccc; 
+    color: #ccc;
     font-weight: 500;
     padding: 10px 15px;
     width: 100%;
@@ -75,10 +73,13 @@
     cursor: pointer;
     font-size: 14px;
     border-radius: 4px;
-    z-index: 103;
+    z-index: 5003;
 }
 .logout-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
 
+/* =========================================
+   4. MOOD SWITCHER
+   ========================================= */
 .mood-toggles {
     display: flex;
     align-items: center;
@@ -86,7 +87,7 @@
     backdrop-filter: blur(10px);
     border-radius: 30px;
     padding: 5px;
-    border: 1px solid rgba(255,255,255,0.15); 
+    border: 1px solid rgba(255,255,255,0.15);
     gap: 5px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
@@ -117,6 +118,9 @@
 
 .divider { width: 1px; height: 15px; background: rgba(255,255,255,0.15); }
 
+/* =========================================
+   5. PROFILE
+   ========================================= */
 .profile-menu {
     display: flex;
     align-items: center;
@@ -125,7 +129,7 @@
     padding: 6px 16px 6px 6px;
     border-radius: 30px;
     border: 1px solid rgba(255,255,255,0.15);
-    margin-left: auto;
+    margin-left: auto; 
     backdrop-filter: blur(5px);
 }
 
@@ -140,11 +144,12 @@
 .profile-menu span {
     font-size: 14px;
     font-weight: 600;
+    letter-spacing: 0.5px;
     color: #ddd;
 }
 
 /* =========================================
-   6. VINYL STAGE (Content Layer)
+   6. VINYL STAGE (YOUR EXACT SETTINGS RESTORED)
    ========================================= */
 .vinyl-stage {
     flex: 1;
@@ -154,8 +159,7 @@
     justify-content: center;
     position: relative;
     padding-bottom: 40px;
-    /* 🔥 CONTENT LAYER: Above background (0) but below Nav (100) */
-    z-index: 10; 
+    z-index: 10;
 }
 
 .vinyl-box {
@@ -167,24 +171,14 @@
     justify-content: center;
 }
 
-/* Static Shadow */
-.vinyl-box::before {
-    content: '';
-    position: absolute;
-    width: 280px;
-    height: 280px;
-    border-radius: 50%;
-    background: transparent;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-    z-index: -1;
-}
-
+/* DISC: 300px */
 .vinyl-disc {
     position: relative;
     width: 300px;
     height: 300px;
     border-radius: 50%;
     background: radial-gradient(circle at center, #1a1a1a 40%, #111 70%, #050505 100%);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.7); 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -199,7 +193,7 @@
     pointer-events: none;
 }
 
-/* 210px LABEL */
+/* 🔥 LABEL: 210px (AS YOU REQUESTED) 🔥 */
 .album-label {
     width: 210px;
     height: 210px;
@@ -207,15 +201,24 @@
     overflow: hidden;
     position: relative;
     z-index: 10;
-    border: 3px solid #000;
+    border: 3px solid #000; /* Your original border */
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
     background: #000;
 }
 
-.album-art-img {
-    width: 100%;
-    height: 100%;
+/* 🔥 IMAGE: FULL COVER (No Black Bars, No Zoom Animation) 🔥 */
+.album-label img { 
+    width: 100%; 
+    height: 100%; 
     object-fit: cover; 
     display: block;
+}
+
+.empty-label {
+    width: 100%;
+    height: 100%;
+    background: #222;
+    background-image: radial-gradient(circle at center, #333 0%, #1a1a1a 100%);
 }
 
 .spinning { animation: spin 8s linear infinite; }
@@ -252,85 +255,59 @@
 .no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
 
 /* =========================================
-   7. BACKGROUND (BASE LAYER - Z-INDEX 0)
+   7. BACKGROUND (Vibrant & Fixed)
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100vh;
-    /* 🔥 SAFE Z-INDEX: 0. Not negative. */
-    z-index: 0; 
+    z-index: 0;
     overflow: hidden;
     background: #000;
-    /* Optimize painting for mobile */
-    will-change: transform; 
 }
 
 .mesh-blob {
     position: absolute;
-    width: 200vmax;
-    height: 200vmax;
+    width: 150vmax;
+    height: 150vmax;
     background-size: cover;
     background-position: center;
     border-radius: 50%;
-    filter: blur(100px) saturate(400%) brightness(1.2);
-    opacity: 0.7;
-    mix-blend-mode: normal; 
-    transition: background-image 1s ease-in-out;
     
-    /* Performance fix for mobile flicker */
-    transform: translateZ(0);
+    /* VIBRANT COLORS: Saturated & Bright */
+    filter: blur(100px) saturate(200%) brightness(1.2);
+    opacity: 0.6;
+    mix-blend-mode: normal; 
+    
+    transition: background-image 1s ease-in-out;
 }
 
 /* Animations */
-.blob-1 { top: -60%; left: -60%; animation: liquid1 30s infinite alternate ease-in-out; }
-.blob-2 { bottom: -60%; right: -60%; filter: blur(100px) saturate(400%) hue-rotate(45deg); animation: liquid2 25s infinite alternate ease-in-out; }
-.blob-3 { top: 20%; left: 20%; opacity: 0.5; filter: blur(100px) saturate(400%) hue-rotate(-45deg); animation: liquid3 20s infinite alternate ease-in-out; }
-.blob-4 { bottom: -20%; left: -20%; opacity: 0.6; animation: liquid4 35s infinite alternate ease-in-out; }
+.blob-1 { top: -50%; left: -50%; animation: flow1 25s infinite alternate ease-in-out; }
+.blob-2 { bottom: -50%; right: -50%; filter: blur(100px) saturate(200%) hue-rotate(40deg); animation: flow2 30s infinite alternate ease-in-out; }
+.blob-3 { top: 20%; left: 20%; opacity: 0.4; filter: blur(100px) saturate(200%) hue-rotate(-40deg); animation: flow3 22s infinite alternate ease-in-out; }
 
 .mesh-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: transparent;
-    backdrop-filter: blur(50px);
-    z-index: 1;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(20px);
 }
 
-@keyframes liquid1 { 
-    0% { transform: translate(0, 0) scale(1) rotate(0deg); } 
-    100% { transform: translate(10%, 10%) scale(1.1) rotate(15deg); } 
-}
-@keyframes liquid2 { 
-    0% { transform: translate(0, 0) scale(1) rotate(0deg); } 
-    100% { transform: translate(-10%, -10%) scale(1.2) rotate(-15deg); } 
-}
-@keyframes liquid3 { 
-    0% { transform: scale(1); } 
-    100% { transform: scale(1.3); } 
-}
-@keyframes liquid4 { 
-    0% { transform: translate(0, 0); } 
-    100% { transform: translate(15%, -15%); } 
-}
+@keyframes flow1 { from { transform: translate(0,0) rotate(0deg); } to { transform: translate(10%, 10%) rotate(20deg); } }
+@keyframes flow2 { from { transform: translate(0,0) rotate(0deg); } to { transform: translate(-20%, -20%) rotate(-30deg); } }
+@keyframes flow3 { from { transform: scale(1); } to { transform: scale(1.2); } }
 
-
-/* =========================================
-   8. MOBILE RESPONSIVENESS
-   ========================================= */
+/* MOBILE RESPONSIVE */
 @media screen and (max-width: 768px) {
     .toggle-text { display: none; }
     .toggle-btn { padding: 8px 10px; }
-    .profile-menu span { font-size: 12px; }
     .nav { padding: 15px 15px; }
     .nav-left { gap: 15px; } 
     
     .vinyl-box { width: 180px; height: 180px; }
     .vinyl-disc { width: 170px; height: 170px; }
-    .album-label { width: 110px; height: 110px; }
+    .album-label { width: 100px; height: 100px; }
     .vinyl-box::after { width: 28px; height: 28px; top: 10px; right: 10px; }
-    
-    /* Re-center shadow for mobile */
-    .vinyl-box::before { width: 150px; height: 150px; }
-    
     .tonearm { transform: scale(0.6); top: -25px; right: -15px; }
     .tonearm.active { transform: scale(0.6) rotate(22deg); }
     .track-info h2 { font-size: 22px; }
