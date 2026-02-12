@@ -288,7 +288,7 @@ app.get("/", (req, res) => res.send("Echoa Backend Alive! 🟢"));
 // --- 1. LOGIN (IMPORTANT: ADDED PERMISSIONS) ---
 app.get("/login", (req, res) => {
     // "user-modify-playback-state" is required for Play/Pause/Next
-    const scope = "user-read-private user-read-email user-read-playback-state user-read-currently-playing user-modify-playback-state";
+    const scope = "user-read-private user-read-email user-read-playback-state user-read-currently-playing user-modify-playback-state playlist-read-private playlist-read-collaborative";
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: "code",
