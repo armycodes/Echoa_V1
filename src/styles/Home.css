@@ -3,6 +3,7 @@
    ========================================= */
 .home-root {
     height: 100vh;
+    height: 100dvh; 
     width: 100vw;
     background-color: #000;
     color: white;
@@ -10,6 +11,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
 }
 
 /* =========================================
@@ -21,21 +23,17 @@
     align-items: center;
     padding: 20px 30px;
     position: relative;
-    z-index: 5000;
+    z-index: 50;
 }
 
 .menu-container {
     position: relative;
-    z-index: 5001;
+    z-index: 51;
     display: flex;
     align-items: center;
 }
 
-.nav-left {
-    display: flex;
-    align-items: center;
-    gap: 20px; 
-}
+.nav-left { display: flex; align-items: center; gap: 20px; }
 
 .hamburger {
     font-size: 26px;
@@ -43,10 +41,7 @@
     color: #b3b3b3;
     transition: color 0.3s;
 }
-.hamburger:hover {
-    color: white;
-    text-shadow: 0 0 10px rgba(255,255,255,0.5); 
-}
+.hamburger:hover { color: white; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
 .dropdown {
     position: absolute;
@@ -59,7 +54,7 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     min-width: 140px;
     border: 1px solid #333;
-    z-index: 5002;
+    z-index: 52;
 }
 
 .logout-btn {
@@ -73,14 +68,9 @@
     cursor: pointer;
     font-size: 14px;
     border-radius: 4px;
-    transition: all 0.2s;
-    position: relative;
-    z-index: 5003;
+    z-index: 53;
 }
-.logout-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
+.logout-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
 
 .mood-toggles {
     display: flex;
@@ -108,24 +98,14 @@
     gap: 6px;
     transition: all 0.4s ease;
 }
-
-.toggle-btn:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.05);
-}
-
+.toggle-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
 .toggle-btn.active {
-    background: #ffffff; 
-    color: #000000; 
+    background: #ffffff; color: #000000; 
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); 
     transform: scale(1.02); 
 }
 
-.divider {
-    width: 1px;
-    height: 15px;
-    background: rgba(255,255,255,0.15);
-}
+.divider { width: 1px; height: 15px; background: rgba(255,255,255,0.15); }
 
 .profile-menu {
     display: flex;
@@ -138,25 +118,11 @@
     margin-left: auto;
     backdrop-filter: blur(5px);
 }
-
-.profile-menu img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid #333;
-}
-
-.profile-menu span {
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    display: inline-block;
-    color: #ddd;
-}
+.profile-menu img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
+.profile-menu span { font-size: 14px; font-weight: 600; color: #ddd; }
 
 /* =========================================
-   6. VINYL STAGE (YOUR EXACT SIZE + FIXED SHADOW)
+   6. VINYL STAGE
    ========================================= */
 .vinyl-stage {
     flex: 1;
@@ -176,68 +142,47 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    /* 🔥 Prevent squashing on Laptop split screen */
+    flex-shrink: 0; 
 }
 
-/* 🔥 NEW: STATIC SHADOW (Doesn't Rotate) 🔥 */
-/* This creates a shadow BEHIND the disc that stays still */
+/* Static Shadow - DESKTOP */
 .vinyl-box::before {
     content: '';
     position: absolute;
-    width: 280px;
-    height: 280px;
+    width: 280px; height: 280px;
     border-radius: 50%;
     background: transparent;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.8); /* The blur shadow you wanted */
+    box-shadow: 0 30px 60px rgba(0,0,0,0.8);
     z-index: -1;
 }
 
-/* DISC: 300px (YOUR CODE) */
+/* DISC: 300px (YOUR ORIGINAL SIZE) */
 .vinyl-disc {
     position: relative;
-    width: 300px;
-    height: 300px;
+    width: 300px; height: 300px;
     border-radius: 50%;
     background: radial-gradient(circle at center, #1a1a1a 40%, #111 70%, #050505 100%);
-    /* REMOVED box-shadow from here so it doesn't spin */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     border: 2px solid #0a0a0a;
 }
 .vinyl-disc::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     border-radius: 50%;
     background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.03) 100%);
     pointer-events: none;
 }
 
-/* LABEL: 210px (YOUR CODE - UNTOUCHED) */
+/* LABEL: 210px (YOUR ORIGINAL SIZE) */
 .album-label {
-    width: 210px;
-    height: 210px;
+    width: 210px; height: 210px;
     border-radius: 50%;
     overflow: hidden;
-    position: relative;
-    z-index: 10;
+    position: relative; z-index: 10;
     border: 3px solid #000;
+    background: #000;
 }
-
-/* IMAGE (YOUR CODE - UNTOUCHED) */
-.album-label img { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-    display: block;
-}
-
-.empty-label {
-    width: 100%;
-    height: 100%;
-    background: #222;
-    background-image: radial-gradient(circle at center, #333 0%, #1a1a1a 100%);
-}
+.album-art-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 .spinning { animation: spin 8s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -249,7 +194,6 @@
     transform: rotate(-35deg); transition: transform 1.2s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 .tonearm.active { transform: rotate(22deg); }
-
 .tonearm::before {
     content: ''; position: absolute; top: 25px; right: 25px; width: 8px; height: 140px;
     background: linear-gradient(to right, #444, #222, #444); border-radius: 4px;
@@ -260,7 +204,6 @@
     background: #1a1a1a; border-radius: 4px 4px 8px 8px;
     transform: rotate(12deg); box-shadow: 2px 5px 10px rgba(0,0,0,0.5); border-bottom: 2px solid #666; 
 }
-
 .vinyl-box::after {
     content: ''; position: absolute; top: 5px; right: 15px; width: 48px; height: 48px;
     background: radial-gradient(circle at top left, #444, #222); border-radius: 50%;
@@ -270,40 +213,31 @@
 .track-info { margin-top: 40px; text-align: center; z-index: 10; padding: 0 20px; }
 .track-info h2 { font-size: 32px; font-weight: 700; margin-bottom: 8px; color: white; letter-spacing: -0.5px; }
 .track-info p { font-size: 18px; color: #b3b3b3; font-weight: 500; }
-.no-song { margin-top: 50px; color: #666; font-size: 16px; letter-spacing: 1px; }
-
 
 /* =========================================
-   7. 🔥 APPLE FLUID MESH BACKGROUND (REEL STYLE) 🔥
+   7. BACKGROUND (Base Layer)
    ========================================= */
 .apple-mesh-bg {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100vh;
-    z-index: 0;
+    z-index: 0; 
     overflow: hidden;
     background: #000;
 }
 
 .mesh-blob {
     position: absolute;
-    /* 🔥 HUGE SIZE: 200vmax removes gaps and fills corners */
-    width: 200vmax;
-    height: 200vmax;
+    width: 200vmax; height: 200vmax;
     background-size: cover;
     background-position: center;
     border-radius: 50%;
-    
-    /* Brightness boost for Glow */
     filter: blur(100px) saturate(400%) brightness(1.2);
     opacity: 0.7;
-    
-    /* Hard-light gives that intense, liquid neon look */
-    mix-blend-mode: hard-light; 
-    
+    mix-blend-mode: hard-light;
     transition: background-image 1s ease-in-out;
 }
 
-/* 4-Corner Fluid Animation */
+/* Animations */
 .blob-1 { top: -60%; left: -60%; animation: liquid1 30s infinite alternate ease-in-out; }
 .blob-2 { bottom: -60%; right: -60%; filter: blur(100px) saturate(400%) hue-rotate(45deg); animation: liquid2 25s infinite alternate ease-in-out; }
 .blob-3 { top: 20%; left: 20%; opacity: 0.5; filter: blur(100px) saturate(400%) hue-rotate(-45deg); animation: liquid3 20s infinite alternate ease-in-out; }
@@ -313,11 +247,10 @@
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     background: transparent;
-    backdrop-filter: blur(50px); /* Smooth finish */
+    backdrop-filter: blur(50px);
     z-index: 1;
 }
 
-/* Organic Pulse Animations */
 @keyframes liquid1 { 
     0% { transform: translate(0, 0) scale(1) rotate(0deg); } 
     100% { transform: translate(10%, 10%) scale(1.1) rotate(15deg); } 
@@ -335,21 +268,31 @@
     100% { transform: translate(15%, -15%); } 
 }
 
-
-/* 🔥 RESPONSIVE 🔥 */
+/* =========================================
+   8. MOBILE FIXES 
+   ========================================= */
 @media screen and (max-width: 768px) {
     .toggle-text { display: none; }
     .toggle-btn { padding: 8px 10px; }
-    .profile-menu span { font-size: 12px; }
     .nav { padding: 15px 15px; }
     .nav-left { gap: 15px; } 
+
+    /* 🔥 FIX FOR "LAYER/CIRCLE" GLITCH 🔥 */
+    /* The vinyl stays 300px, but we shrink the shadow behind it so it doesn't look like a solid plate */
+    .vinyl-box::before { 
+        width: 240px;  /* Smaller than the 300px disc */
+        height: 240px;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.5); /* Softer, lighter shadow */
+    }
     
-    .vinyl-box { width: 180px; height: 180px; }
-    .vinyl-disc { width: 170px; height: 170px; }
-    .album-label { width: 100px; height: 100px; }
-    .vinyl-box::after { width: 28px; height: 28px; top: 10px; right: 10px; }
-    .tonearm { transform: scale(0.6); top: -25px; right: -15px; }
-    .tonearm.active { transform: scale(0.6) rotate(22deg); }
     .track-info h2 { font-size: 22px; }
     .track-info p { font-size: 14px; }
+
+    /* Mobile GPU Safety */
+    .mesh-blob {
+        mix-blend-mode: normal !important;
+        filter: blur(50px) saturate(200%) brightness(1.1);
+        opacity: 0.6;
+        will-change: transform;
+    }
 }
