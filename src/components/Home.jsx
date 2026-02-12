@@ -1157,31 +1157,33 @@ export default function Home() {
     }
   }, []);
 
-  // --- 2. FETCH PLAYLISTS (CORRECT LINK) ---
+ // --- 2. FETCH PLAYLISTS ---
 const fetchPlaylists = async (authToken) => {
     try {
-        // 👇 CORRECT LINK: api.spotify.com 👇
+        // 🔥 CORRECT REAL LINK 🔥
         const response = await fetch("https://api.spotify.com/v1/me/playlists", {
             headers: { Authorization: `Bearer ${authToken}` },
         });
 
-        if (!response.ok) {
-            console.error("Playlist Fetch Failed:", response.status, await response.text());
-            return;
-        }
-
         const data = await response.json();
-        console.log("✅ Playlists Loaded:", data);
-        setPlaylists(data.items);
+        
+        // Console lo chudu data vastundo ledo
+        console.log("🔥 MY PLAYLISTS DATA:", data); 
+
+        if (data.items) {
+            setPlaylists(data.items);
+        } else {
+            console.error("No playlists found:", data);
+        }
     } catch (error) {
         console.error("Error fetching playlists:", error);
     }
 };
 
-// --- 3. PLAY PLAYLIST (CORRECT LINK) ---
+// --- 3. PLAY PLAYLIST ---
 const playPlaylist = async (playlistUri) => {
     try {
-        // 👇 CORRECT LINK: api.spotify.com 👇
+        // 🔥 CORRECT REAL LINK 🔥
         await fetch(`https://api.spotify.com/v1/me/player/play`, {
             method: "PUT",
             headers: {
