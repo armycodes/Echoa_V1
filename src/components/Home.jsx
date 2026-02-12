@@ -1118,7 +1118,7 @@ export default function Home() {
   );
 }*/
 
-/**Final code home.jsx */
+/* **Final code home.jsx** */
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import "../styles/Home.css";
@@ -1157,33 +1157,41 @@ export default function Home() {
     }
   }, []);
 
- // --- 2. FETCH PLAYLISTS ---
-const fetchPlaylists = async (authToken) => {
+  // --- 2. FETCH PLAYLISTS (REAL SPOTIFY URL ✅) ---
+  const fetchPlaylists = async (authToken) => {
     try {
-        // 🔥 CORRECT REAL LINK 🔥
+        console.log("🔄 Fetching Playlists..."); 
+
+        // 🔥 FIXED: REAL SPOTIFY API LINK 🔥
         const response = await fetch("https://api.spotify.com/v1/me/playlists", {
             headers: { Authorization: `Bearer ${authToken}` },
         });
 
-        const data = await response.json();
-        
-        // Console lo chudu data vastundo ledo
-        console.log("🔥 MY PLAYLISTS DATA:", data); 
-
-        if (data.items) {
-            setPlaylists(data.items);
-        } else {
-            console.error("No playlists found:", data);
+        if (!response.ok) {
+            console.error("❌ Playlist Fetch Failed:", response.status);
+            return;
         }
-    } catch (error) {
-        console.error("Error fetching playlists:", error);
-    }
-};
 
-// --- 3. PLAY PLAYLIST ---
-const playPlaylist = async (playlistUri) => {
+        const data = await response.json();
+        console.log("✅ Playlists Data:", data); 
+        setPlaylists(data.items);
+    } catch (error) {
+        console.error("❌ Error fetching playlists:", error);
+    }
+  };
+
+  // 👇 ADDED: Token ragane Playlists Auto-Load avutai 👇
+  useEffect(() => {
+    if (token) {
+        console.log("🔑 Token Found! Getting Playlists...");
+        fetchPlaylists(token);
+    }
+  }, [token]);
+
+  // --- 3. PLAY PLAYLIST (REAL SPOTIFY URL ✅) ---
+  const playPlaylist = async (playlistUri) => {
     try {
-        // 🔥 CORRECT REAL LINK 🔥
+        // 🔥 FIXED: REAL SPOTIFY API LINK 🔥
         await fetch(`https://api.spotify.com/v1/me/player/play`, {
             method: "PUT",
             headers: {
@@ -1198,7 +1206,7 @@ const playPlaylist = async (playlistUri) => {
     } catch (e) {
         console.error("Play Error", e);
     }
-};
+  };
 
   // --- 4. DATA FETCHING (Profile & Song) ---
   useEffect(() => {
