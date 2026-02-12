@@ -1158,13 +1158,23 @@ export default function Home() {
   }, []);
 
   // --- 2. FETCH PLAYLISTS (Triggered when token is ready) ---
+  // --- 2. FETCH PLAYLISTS (CORRECTED) ---
   const fetchPlaylists = async (authToken) => {
     try {
+        // 🔥 ORIGINAL LINK PETTU BRO 🔥
         const response = await fetch("https://api.spotify.com/v1/me/playlists", {
             headers: { Authorization: `Bearer ${authToken}` },
         });
         const data = await response.json();
-        setPlaylists(data.items);
+        
+        // Debugging: Console lo check chey asalu data vastundo ledo
+        console.log("Playlists Data:", data); 
+
+        if (data.items) {
+            setPlaylists(data.items);
+        } else {
+            console.error("No playlists found or error:", data);
+        }
     } catch (error) {
         console.error("Error fetching playlists:", error);
     }
@@ -1176,11 +1186,11 @@ export default function Home() {
     }
   }, [token]);
 
-  // --- 3. PLAY PLAYLIST LOGIC ---
+  
+  // --- 3. PLAY PLAYLIST LOGIC (CORRECTED) ---
   const playPlaylist = async (playlistUri) => {
-    // Note: This requires an active Spotify Connect device. 
-    // If no device is active, this might fail or need a device_id.
     try {
+        // 🔥 ORIGINAL LINK PETTU BRO 🔥
         await fetch(`https://api.spotify.com/v1/me/player/play`, {
             method: "PUT",
             headers: {
