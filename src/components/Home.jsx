@@ -1157,40 +1157,31 @@ export default function Home() {
     }
   }, []);
 
-  // --- 2. FETCH PLAYLISTS (Triggered when token is ready) ---
-  // --- 2. FETCH PLAYLISTS (CORRECTED) ---
-  const fetchPlaylists = async (authToken) => {
+  // --- 2. FETCH PLAYLISTS (CORRECT LINK) ---
+const fetchPlaylists = async (authToken) => {
     try {
-        // 🔥 ORIGINAL LINK PETTU BRO 🔥
+        // 👇 CORRECT LINK: api.spotify.com 👇
         const response = await fetch("https://api.spotify.com/v1/me/playlists", {
             headers: { Authorization: `Bearer ${authToken}` },
         });
-        const data = await response.json();
-        
-        // Debugging: Console lo check chey asalu data vastundo ledo
-        console.log("Playlists Data:", data); 
 
-        if (data.items) {
-            setPlaylists(data.items);
-        } else {
-            console.error("No playlists found or error:", data);
+        if (!response.ok) {
+            console.error("Playlist Fetch Failed:", response.status, await response.text());
+            return;
         }
+
+        const data = await response.json();
+        console.log("✅ Playlists Loaded:", data);
+        setPlaylists(data.items);
     } catch (error) {
         console.error("Error fetching playlists:", error);
     }
-  };
+};
 
-  useEffect(() => {
-    if (token) {
-        fetchPlaylists(token);
-    }
-  }, [token]);
-
-  
-  // --- 3. PLAY PLAYLIST LOGIC (CORRECTED) ---
-  const playPlaylist = async (playlistUri) => {
+// --- 3. PLAY PLAYLIST (CORRECT LINK) ---
+const playPlaylist = async (playlistUri) => {
     try {
-        // 🔥 ORIGINAL LINK PETTU BRO 🔥
+        // 👇 CORRECT LINK: api.spotify.com 👇
         await fetch(`https://api.spotify.com/v1/me/player/play`, {
             method: "PUT",
             headers: {
@@ -1201,11 +1192,11 @@ export default function Home() {
                 context_uri: playlistUri, 
             }),
         });
-        setShowPlaylists(false); // Close sidebar after playing
+        setShowPlaylists(false); 
     } catch (e) {
         console.error("Play Error", e);
     }
-  };
+};
 
   // --- 4. DATA FETCHING (Profile & Song) ---
   useEffect(() => {
