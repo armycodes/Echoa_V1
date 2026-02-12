@@ -364,3 +364,151 @@
     .track-info h2 { font-size: 22px; }
     .track-info p { font-size: 14px; }
 }
+/* =========================================
+   9. PLAYLIST SIDEBAR (AESTHETIC DRAWER)
+   ========================================= */
+
+/* The Sidebar Itself */
+.playlist-sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px; /* Hidden by default */
+    width: 350px;
+    height: 100vh;
+    background: rgba(10, 10, 10, 0.85); /* Dark Glass */
+    backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 6000; /* High priority */
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth slide */
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+}
+
+.playlist-sidebar.open {
+    right: 0; /* Slide in */
+}
+
+/* Header */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 15px;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(to right, #fff, #bbb);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 28px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.close-btn:hover { color: #fff; }
+
+/* Grid Layout */
+.playlist-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 Columns */
+    gap: 15px;
+    overflow-y: auto; /* Scrollable */
+    padding-bottom: 20px;
+}
+
+/* Scrollbar aesthetic */
+.playlist-grid::-webkit-scrollbar { width: 6px; }
+.playlist-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+/* Individual Card */
+.playlist-card {
+    cursor: pointer;
+    transition: transform 0.2s;
+    background: rgba(255,255,255,0.03);
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.playlist-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,0.08);
+}
+
+.playlist-img-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1; /* Perfect Square */
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.playlist-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.playlist-card:hover img {
+    transform: scale(1.1); /* Zoom effect on hover */
+}
+
+/* Play Icon Overlay */
+.play-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.playlist-card:hover .play-overlay { opacity: 1; }
+
+.playlist-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #ddd;
+}
+
+/* Overlay for clicking outside */
+.sidebar-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: 5999;
+    backdrop-filter: blur(2px);
+}
+
+/* MOBILE ADJUSTMENTS */
+@media screen and (max-width: 768px) {
+    .playlist-sidebar {
+        width: 100%; /* Full width on mobile */
+        right: -100%;
+    }
+    .playlist-sidebar.open {
+        right: 0;
+    }
+}

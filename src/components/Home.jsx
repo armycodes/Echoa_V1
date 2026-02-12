@@ -736,7 +736,7 @@ export default function Home() {
   );
 }*/
 /*final code token refresh*/
-import { useEffect, useState } from "react";
+/*import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import "../styles/Home.css";
 
@@ -771,7 +771,7 @@ export default function Home() {
     }
   }, []);*/
   // --- 1. TOKEN HANDLING ---
-  useEffect(() => {
+ /* useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get("token");
     const localToken = localStorage.getItem("echoa_token");
@@ -875,7 +875,7 @@ export default function Home() {
     navigate('/'); 
   };*/
   // --- 3. 🔥 AI VIDEO LOGIC (ONLY RUNS IN CINEMATIC MODE) 🔥 ---
-  useEffect(() => {
+  /*useEffect(() => {
     // If no song OR we are in Gradient Mode, DO NOT call APIs
     if (!song || bgMode === 'gradient') return;
 
@@ -1012,10 +1012,10 @@ export default function Home() {
   );
 } */
 // --- VIEW 2: PLAYER ---
-  return (
+  /*return (
     <div className="home-root" style={{ background: 'black' }}>
       
-      {/* 1. CINEMATIC MODE */}
+      {/* 1. CINEMATIC MODE *//*}
       {bgMode === 'cinematic' && videoUrl && (
         <video 
           key={videoUrl}
@@ -1028,28 +1028,28 @@ export default function Home() {
           }}
         />
       )}
-      {/* 🔥 2. MAGIC MODE: APPLE MUSIC MESH EFFECT 🔥 */}
+      {/* 🔥 2. MAGIC MODE: APPLE MUSIC MESH EFFECT 🔥 *//*}
       {bgMode === 'gradient' && song?.albumImage && (
         <div className="apple-mesh-bg">
-           {/* Layer 1: Slow Rotate */}
+           {/* Layer 1: Slow Rotate *//*}
            <div className="mesh-blob blob-1" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
-           {/* Layer 2: Counter Rotate & Pulse */}
+           {/* Layer 2: Counter Rotate & Pulse *//*}
            <div className="mesh-blob blob-2" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
-           {/* Layer 3: Drifting */}
+           {/* Layer 3: Drifting *//*}
            <div className="mesh-blob blob-3" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
-           {/* Dark Overlay for Text Readability */}
+           {/* Dark Overlay for Text Readability *//*}
            <div className="mesh-overlay"></div>
         </div>
       )}
       
 
-      {/* --- NAV BAR --- */}
+      {/* --- NAV BAR --- *//*}
       <div className="nav">
         
-        {/* 🔥 LEFT GROUP: MENU + BUTTONS 🔥 */}
+        {/* 🔥 LEFT GROUP: MENU + BUTTONS 🔥 *//*}
         <div className="nav-left" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             
-            {/* Hamburger */}
+            {/* Hamburger *//*}
             <div className="menu-container">
             <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>☰</div>
             {menuOpen && (
@@ -1059,7 +1059,7 @@ export default function Home() {
             )}
             </div>
 
-            {/* Mood Switcher (Placed Next to Hamburger) */}
+            {/* Mood Switcher (Placed Next to Hamburger) *//*}
             <div className="mood-toggles">
                 <button 
                     className={`toggle-btn ${bgMode === 'cinematic' ? 'active' : ''}`}
@@ -1080,7 +1080,7 @@ export default function Home() {
 
         </div>
 
-        {/* 🔥 RIGHT: PROFILE (Always Visible Now) 🔥 */}
+        {/* 🔥 RIGHT: PROFILE (Always Visible Now) 🔥 *//*}
         {profile && (
           <div className="profile-menu">
             <img src={profile.images?.[0]?.url} alt="" />
@@ -1089,7 +1089,7 @@ export default function Home() {
         )}
       </div>
 
-      {/* --- VINYL STAGE --- */}
+      {/* --- VINYL STAGE --- *//*}
       <div className="vinyl-stage">
         <div className="vinyl-box">
           <div className={`vinyl-disc ${song?.playing ? 'spinning' : ''}`}>
@@ -1114,6 +1114,316 @@ export default function Home() {
           <p className="no-song" style={{position: 'relative', zIndex: 10}}>No song playing 🎧</p>
         )}
       </div>
+    </div>
+  );
+}*/
+
+/**Final code home.jsx */
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; 
+import "../styles/Home.css";
+
+// 👇 IMPORT THE BRAIN (Mana Gemini Service)
+import { getSongMoodSearchTerm } from "../services/GeminiService";
+
+export default function Home() {
+  const [token, setToken] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [song, setSong] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  
+  // 👇 NEW STATE FOR VIDEO
+  const [bgMode, setBgMode] = useState('cinematic');
+  const [videoUrl, setVideoUrl] = useState(null);
+
+  // 👇 PLAYLIST STATE
+  const [playlists, setPlaylists] = useState([]);
+  const [showPlaylists, setShowPlaylists] = useState(false);
+
+  const navigate = useNavigate(); 
+
+  // --- 1. TOKEN HANDLING (Consolidated) ---
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get("token");
+    const localToken = localStorage.getItem("echoa_token");
+
+    if (urlToken) {
+      localStorage.setItem("echoa_token", urlToken);
+      setToken(urlToken);
+      window.history.replaceState({}, "", "/home"); 
+    } else if (localToken) {
+      setToken(localToken);
+    }
+  }, []);
+
+  // --- 2. FETCH PLAYLISTS (Triggered when token is ready) ---
+  const fetchPlaylists = async (authToken) => {
+    try {
+        const response = await fetch("https://api.spotify.com/v1/me/playlists", {
+            headers: { Authorization: `Bearer ${authToken}` },
+        });
+        const data = await response.json();
+        setPlaylists(data.items);
+    } catch (error) {
+        console.error("Error fetching playlists:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+        fetchPlaylists(token);
+    }
+  }, [token]);
+
+  // --- 3. PLAY PLAYLIST LOGIC ---
+  const playPlaylist = async (playlistUri) => {
+    // Note: This requires an active Spotify Connect device. 
+    // If no device is active, this might fail or need a device_id.
+    try {
+        await fetch(`https://api.spotify.com/v1/me/player/play`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                context_uri: playlistUri, 
+            }),
+        });
+        setShowPlaylists(false); // Close sidebar after playing
+    } catch (e) {
+        console.error("Play Error", e);
+    }
+  };
+
+  // --- 4. DATA FETCHING (Profile & Song) ---
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchData = async () => {
+      try {
+        // Fetch Profile
+        const p = await fetch("https://echoa-backend.onrender.com/me", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (p.ok) setProfile(await p.json());
+
+        // Fetch Current Song
+        const s = await fetch("https://echoa-backend.onrender.com/currently-playing", {
+             headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Token Expiry Check
+        if (s.status === 401 || s.status === 403) {
+            console.warn("Token Expired! Redirecting to login...");
+            localStorage.removeItem("echoa_token");
+            setToken(null);
+            window.location.href = "https://echoa-backend.onrender.com/login";
+            return;
+        }
+
+        if (s.status === 204) {
+             setSong(null);
+        } else if (s.ok) {
+             setSong(await s.json());
+        }
+      } catch (e) {
+        console.error("Fetch Error:", e);
+      }
+    };
+
+    fetchData(); 
+    const i = setInterval(fetchData, 6000); 
+    return () => clearInterval(i);
+  }, [token]);
+
+  // --- 5. AI VIDEO LOGIC ---
+  useEffect(() => {
+    if (!song || bgMode === 'gradient') return;
+
+    const updateBackground = async () => {
+      const term = await getSongMoodSearchTerm(
+        song.song, 
+        song.album || song.song, 
+        song.artist
+      );
+
+      const pexelsUrl = `https://api.pexels.com/videos/search?query=${term}&per_page=15&orientation=landscape&size=medium`;
+
+      try {
+        const res = await fetch(pexelsUrl, {
+          headers: { Authorization: import.meta.env.VITE_PEXELS_API_KEY } 
+        });
+        const data = await res.json();
+
+        if (data.videos && data.videos.length > 0) {
+            const randomIndex = Math.floor(Math.random() * data.videos.length);
+            const selectedVideo = data.videos[randomIndex];
+            const videoFiles = selectedVideo.video_files;
+            const bestFile = videoFiles.find(f => f.height >= 720 && f.height < 1080) || videoFiles[0];
+            setVideoUrl(bestFile.link);
+        }
+      } catch (err) {
+        console.error("Pexels Error:", err);
+      }
+    };
+
+    updateBackground();
+  }, [song?.song, bgMode]); 
+
+  const handleLogout = () => {
+    localStorage.removeItem("echoa_token");
+    setToken(null);
+    navigate('/'); 
+  };
+
+  // --- RENDER ---
+  return (
+    <div className="home-root" style={{ background: 'black' }}>
+      
+      {/* 1. CINEMATIC BACKGROUND */}
+      {bgMode === 'cinematic' && videoUrl && (
+        <video 
+          key={videoUrl}
+          src={videoUrl}
+          autoPlay muted loop playsInline
+          style={{
+            position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh',
+            objectFit: 'cover', zIndex: 0, opacity: 0.6,
+            transition: 'opacity 1s ease'
+          }}
+        />
+      )}
+
+      {/* 2. MAGIC BACKGROUND */}
+      {bgMode === 'gradient' && song?.albumImage && (
+        <div className="apple-mesh-bg">
+           <div className="mesh-blob blob-1" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
+           <div className="mesh-blob blob-2" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
+           <div className="mesh-blob blob-3" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
+           <div className="mesh-overlay"></div>
+        </div>
+      )}
+      
+      {/* --- NAVIGATION BAR --- */}
+      <div className="nav">
+        
+        {/* LEFT: Menu + Toggles + Collection Button */}
+        <div className="nav-left" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            
+            {/* Hamburger Menu */}
+            <div className="menu-container">
+               <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>☰</div>
+               {menuOpen && (
+                   <div className="dropdown">
+                   <button onClick={handleLogout} className="logout-btn">Logout</button>
+                   </div>
+               )}
+            </div>
+
+            {/* Mood Switcher */}
+            <div className="mood-toggles">
+                <button 
+                    className={`toggle-btn ${bgMode === 'cinematic' ? 'active' : ''}`}
+                    onClick={() => setBgMode('cinematic')}
+                    title="Cinematic AI Video"
+                >
+                    🎥 <span className="toggle-text">Cinema</span>
+                </button>
+                <div className="divider"></div>
+                <button 
+                    className={`toggle-btn ${bgMode === 'gradient' ? 'active' : ''}`}
+                    onClick={() => setBgMode('gradient')}
+                    title="Magic Gradient"
+                >
+                    🎨 <span className="toggle-text">Magic</span>
+                </button>
+            </div>
+
+            {/* 🔥 COLLECTION BUTTON (Integrated Here) 🔥 */}
+            <button 
+                className={`toggle-btn ${showPlaylists ? 'active' : ''}`}
+                onClick={() => setShowPlaylists(!showPlaylists)}
+                style={{ marginLeft: '10px' }}
+                title="Your Playlists"
+            >
+                💿 <span className="toggle-text">Collection</span>
+            </button>
+
+        </div>
+
+        {/* RIGHT: Profile */}
+        {profile && (
+          <div className="profile-menu">
+            <img src={profile.images?.[0]?.url} alt="" />
+            <span className="profile-name">{profile.display_name}</span>
+          </div>
+        )}
+      </div>
+
+      {/* --- VINYL STAGE --- */}
+      <div className="vinyl-stage">
+        <div className="vinyl-box">
+             {/* The Disc Container */}
+             <div className="vinyl-disc">
+                 {/* The Actual Spinning Part */}
+                 <div className={`album-label ${song?.playing ? 'spinning' : ''}`}>
+                    {song?.albumImage ? (
+                      <img src={song.albumImage} alt="album" />
+                    ) : (
+                      <div className="empty-label"></div>
+                    )}
+                 </div>
+             </div>
+             {/* Tonearm */}
+             <div className={`tonearm ${song?.playing ? 'active' : ''}`} />
+        </div>
+
+        {/* Track Info */}
+        {song?.playing ? (
+          <div className="track-info">
+            <h2 style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>{song.song}</h2>
+            <p style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>{song.artist}</p>
+          </div>
+        ) : (
+          <p className="no-song" style={{position: 'relative', zIndex: 10}}>No song playing 🎧</p>
+        )}
+      </div>
+
+      {/* --- PLAYLIST SIDEBAR (Overlay) --- */}
+      <div className={`playlist-sidebar ${showPlaylists ? 'open' : ''}`}>
+        <div className="sidebar-header">
+            <h3>Your Collection</h3>
+            <button className="close-btn" onClick={() => setShowPlaylists(false)}>×</button>
+        </div>
+        
+        <div className="playlist-grid">
+            {playlists && playlists.map((playlist) => (
+                <div 
+                    key={playlist.id} 
+                    className="playlist-card" 
+                    onClick={() => playPlaylist(playlist.uri)}
+                >
+                    <div className="playlist-img-wrapper">
+                        {playlist.images?.[0]?.url ? (
+                            <img src={playlist.images[0].url} alt={playlist.name} />
+                        ) : (
+                            <div className="placeholder-art">🎵</div>
+                        )}
+                        <div className="play-overlay">▶</div>
+                    </div>
+                    <p className="playlist-name">{playlist.name}</p>
+                </div>
+            ))}
+        </div>
+      </div>
+
+      {/* Sidebar Overlay (Click outside to close) */}
+      {showPlaylists && (
+        <div className="sidebar-overlay" onClick={() => setShowPlaylists(false)}></div>
+      )}
+
     </div>
   );
 }
