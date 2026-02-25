@@ -1,8 +1,8 @@
-# 🎧 Echoa — The AI-Powered Visual Music Companion
+# 🎧 Echoa The AI-Powered Visual Music Companion
 
 **Echoa** is not just a music player; it is an intelligent visual experience. It transforms the way you listen to music by synchronizing real-time audio data with AI-curated atmospheric visuals and dynamic ambient environments.
 
-Unlike traditional players that use static backgrounds, Echoa employs **Google Gemini AI** as a "Visual Director," analyzing the emotion, genre, and context of every song—from Global Pop to **Telugu Mass Beats**—to dynamically fetch the perfect backdrop.
+Unlike traditional players that use static backgrounds, Echoa employs **Google Gemini AI** as a "Visual Director," analyzing the emotion, genre, and context of every song from Global Pop to **Telugu Mass Beats**—to dynamically fetch the perfect backdrop.
 
 ---
 
