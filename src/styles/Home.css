@@ -334,6 +334,7 @@
     0% { transform: translate(0, 0); } 
     100% { transform: translate(15%, -15%); } 
 }
+
 /* --- APPLE MUSIC MAGIC MESH BACKGROUND --- */
 .apple-mesh-bg {
   position: fixed;
@@ -341,55 +342,57 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #0d0d0d; /* Deep dark fallback */
+  background-color: #0d0d0d; 
   overflow: hidden;
   z-index: 0;
+  /* 🔥 FIX 1: Zoom in slightly to hide the black blurred edges */
+  transform: scale(1.2); 
 }
 
 .mesh-blob {
   position: absolute;
   border-radius: 50%;
-  /* Saturate penchuthunnam so dull colors kuda pop avuthayi, brightness penchuthunnam black thaggadaniki */
   filter: blur(90px) saturate(250%) brightness(1.1); 
   opacity: 0.8;
   background-size: cover;
   background-position: center;
-  /* Hardware acceleration for ultra-smooth flow */
-  will-change: transform; 
+  will-change: transform, background-image;
+  /* 🔥 FIX 2: Smooth fade transition when the song (and image) changes */
+  transition: background-image 1.5s ease-in-out; 
 }
 
 /* Base blob for Black/Dark Albums */
 .blob-base {
-  top: 20%;
-  left: 20%;
-  width: 80vw;
-  height: 80vh;
+  top: 10%;
+  left: 10%;
+  width: 100vw;
+  height: 100vh;
   background: radial-gradient(circle, rgba(45,45,45,1) 0%, rgba(15,15,15,0) 70%);
   animation: float-base 20s infinite alternate ease-in-out;
 }
 
-/* Moving Image Blobs */
+/* Moving Image Blobs (Made slightly larger to cover all corners) */
 .blob-1 {
-  top: -20%;
-  left: -10%;
-  width: 70vw;
-  height: 70vw;
+  top: -30%;
+  left: -20%;
+  width: 100vw;
+  height: 100vw;
   animation: float-blob-1 18s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .blob-2 {
-  bottom: -20%;
-  right: -10%;
-  width: 80vw;
-  height: 80vw;
+  bottom: -30%;
+  right: -20%;
+  width: 100vw;
+  height: 100vw;
   animation: float-blob-2 22s infinite alternate-reverse cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .blob-3 {
-  top: 30%;
-  left: 30%;
-  width: 60vw;
-  height: 60vw;
+  top: 10%;
+  left: 20%;
+  width: 90vw;
+  height: 90vw;
   animation: float-blob-3 25s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -400,11 +403,10 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4); /* Darkens the background so text is visible */
-  backdrop-filter: blur(60px); /* Apple music style heavy blur */
+  background: rgba(0, 0, 0, 0.4); 
+  backdrop-filter: blur(60px); 
   -webkit-backdrop-filter: blur(60px);
 }
-
 /* --- ULTRA SMOOTH ANIMATIONS --- */
 @keyframes float-base {
   0% { transform: scale(1); }
