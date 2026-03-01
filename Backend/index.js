@@ -388,6 +388,19 @@ app.get("/currently-playing", authenticateToken, async (req, res) => {
         });
     } catch (error) { res.status(500).json({ error: "Failed to fetch song" }); }
 });
+// --- FETCH PLAYLISTS ROUTE ---
+app.get("/playlists", authenticateToken, async (req, res) => {
+    try {
+        const response = await axios.get("https://api.spotify.com/v1/me/playlists", {
+            headers: { Authorization: `Bearer ${req.user.accessToken}` },
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error("Playlists fetch failed:", error.message);
+        res.status(500).json({ error: "Playlists fetch failed" });
+    }
+});
+
 
 // --- 2. CONTROL ROUTES (NEW) ---
 // Play/Pause/Next work cheyyalante ivi undali

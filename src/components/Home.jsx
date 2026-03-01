@@ -1157,13 +1157,13 @@ export default function Home() {
     }
   }, []);
 
-  // --- 2. FETCH PLAYLISTS (REAL SPOTIFY URL ✅) ---
+  // --- 2. FETCH PLAYLISTS (VIA OUR BACKEND) ---
   const fetchPlaylists = async (authToken) => {
     try {
         console.log("🔄 Fetching Playlists..."); 
 
-        // 🔥 FIXED: REAL SPOTIFY API LINK 🔥
-        const response = await fetch("https://api.spotify.com/v1/me/playlists", {
+        // 🔥 USE OUR BACKEND URL 🔥
+        const response = await fetch("https://echoa-backend.onrender.com/playlists", {
             headers: { Authorization: `Bearer ${authToken}` },
         });
 
