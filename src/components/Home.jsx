@@ -1320,9 +1320,14 @@ export default function Home() {
       {/* 2. MAGIC BACKGROUND */}
       {bgMode === 'gradient' && song?.albumImage && (
         <div className="apple-mesh-bg">
+           {/* Fallback color blob to prevent pure black screens */}
+           <div className="mesh-blob blob-base"></div> 
+           
            <div className="mesh-blob blob-1" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
            <div className="mesh-blob blob-2" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
            <div className="mesh-blob blob-3" style={{ backgroundImage: `url(${song.albumImage})` }}></div>
+           
+           {/* Ultimate smoother overlay */}
            <div className="mesh-overlay"></div>
         </div>
       )}
