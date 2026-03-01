@@ -1,29 +1,30 @@
-# 🎧 Echoa — The AI-Powered Visual Music Companion
+# 🎧 Echoa The AI-Powered Visual Music Companion
 
-**Echoa** is not just a music player; it is an intelligent visual experience. It transforms the way you listen to music by synchronizing real-time audio data with AI-curated atmospheric visuals.
+**Echoa** is not just a music player; it is an intelligent visual experience. It transforms the way you listen to music by synchronizing real-time audio data with AI-curated atmospheric visuals and dynamic ambient environments.
 
-Unlike traditional players that use static backgrounds, Echoa employs **Google Gemini AI** as a "Visual Director," analyzing the emotion, genre, and context of every song—from Global Pop to **Telugu Mass Beats**—to dynamically fetch the perfect backdrop.
+Unlike traditional players that use static backgrounds, Echoa employs **Google Gemini AI** as a "Visual Director," analyzing the emotion, genre, and context of every song from Global Pop to **Telugu Mass Beats**—to dynamically fetch the perfect backdrop.
 
 ---
 
 ## ✨ Key Features
 
-### 🧠 AI-Driven Atmosphere (The Brain)
+### 🧠 AI-Driven Atmosphere & Visual Modes
 - **Smart Context Analysis:** Uses the cutting-edge **Google Gemini 2.5 Flash** to analyze song metadata in real-time.
-- **Genre Intelligence:** Distinguishes between:
-  - 🔥 **Indian Mass/Folk:** (e.g., DSP, Thaman) Triggers energetic elements like fire sparks, neon strobes, and fast-paced city lights.
-  - 🌌 **Melody/Soul:** (e.g., Anirudh, ARR) Triggers dreamy visuals like rain on windows, misty mountains, or slow ocean waves.
-  - 🏙️ **Global/Western:** Triggers cyberpunk, noir, or aesthetic lo-fi visuals.
-- **Zero-Latency Fallback:** Implements a smart caching and blur-effect strategy to ensure the user never sees a black screen while the AI thinks.
+- **Dual Visual Experiences (New!):**
+  - 🎥 **Cinematic AI Mode:** Triggers hyper-realistic, context-aware video backdrops (e.g., Indian Mass songs trigger fire sparks/neon strobes; Melodies trigger rainy windows/misty mountains).
+  - 🎨 **Magic Gradient Mode:** An Apple Music-inspired animated mesh background that dynamically extracts and fluidly blends colors directly from the live album art.
+- **Instant Mood Switcher:** Seamlessly toggle between Cinematic videos and Magic Gradients without interrupting playback.
 
-### 🎵 The Experience
+### 🎵 The Experience & Control
+- **💿 Your Collection (New!):** A sleek, integrated sidebar that directly fetches your personal Spotify playlists, allowing you to browse and play your favorite collections without leaving the app.
 - **Live Spotify Sync:** Real-time bi-directional sync with your Spotify account.
-- **Vinyl Simulation:** A custom-built CSS animated record player that spins, stops, and reacts to playback state.
+- **Vinyl Simulation:** A custom-built CSS animated record player that spins, stops, and reacts to the playback state.
 - **Glassmorphism UI:** A clean, modern interface designed to let the visuals shine through.
 
 ### 🛠️ Engineering Excellence
 - **Dynamic Video Fetching:** Integrates **Pexels API** with strict "No-Face/No-CGI" filtering to ensure cinematic realism.
-- **Secure Authentication:** Production-ready Spotify OAuth 2.0 flow.
+- **Secure Authentication:** Production-ready Spotify OAuth 2.0 flow with advanced scope management for playlist access.
+- **Zero-Latency Fallback:** Implements a smart caching and blur-effect strategy to ensure the user never sees a black screen while the AI thinks.
 - **Responsive Design:** Adapts seamlessly to mobile and desktop screens.
 
 ---
@@ -32,22 +33,24 @@ Unlike traditional players that use static backgrounds, Echoa employs **Google G
 
 | Component | Technology Used |
 | :--- | :--- |
-| **Frontend** | React.js (Vite), CSS3 Animations |
+| **Frontend** | React.js (Vite), CSS3 Animations, Custom Mesh Gradients |
 | **AI Logic** | Google Gemini 2.5 Flash (Generative AI) |
 | **Visual Assets** | Pexels Video API |
 | **Backend** | Node.js, Express.js |
-| **Auth** | Spotify Web API (OAuth 2.0) |
+| **Auth & Data** | Spotify Web API (OAuth 2.0, Playback & Playlist Scopes) |
 | **Deployment** | Cloudflare Pages (Frontend) + Render (Backend) |
 
 ---
 
 ## ⚙️ How It Works (Architecture)
 
-1. **Detection:** The app detects the currently playing song via Spotify API.
-2. **Analysis:** The metadata (Song Name + Movie/Album) is sent to **Gemini 2.5 Flash**.
-3. **Prompt Engineering:** The system uses a specialized prompt to categorize the song (e.g., *"Is this a Telugu Mass song or a Sad melody?"*).
-4. **Visual Retrieval:** Based on the AI's decision, a precise search query is sent to **Pexels** (e.g., *"Bonfire sparks night"* or *"Rainy train window"*).
-5. **Rendering:** The video is seamlessly cross-faded into the background behind the glass UI.
+1. **Detection:** The app detects the currently playing song via the Spotify API.
+2. **User Selection:** The system checks the user's active visual toggle (Cinematic vs. Magic Gradient).
+3. **Analysis & Processing:**
+   - *If Cinematic:* The metadata is sent to **Gemini 2.5 Flash** to determine the exact mood/genre, which then queries **Pexels** for the perfect video.
+   - *If Magic Gradient:* The system extracts the live album art and dynamically generates a 3-point animated CSS mesh gradient.
+4. **Playlist Integration:** Securely fetches the user's saved playlists via updated OAuth scopes (`playlist-read-private`) and renders them in a custom UI overlay, triggering Spotify's `/me/player/play` endpoint upon selection.
+5. **Rendering:** The selected visual is seamlessly cross-faded into the background behind the glass UI.
 
 ---
 
@@ -72,12 +75,11 @@ The journey of Echoa doesn't end here. The roadmap includes:
 
 ## 🔒 License & Usage
 
-This project is a personal portfolio piece and is **not open-source**.
+This project is a personal portfolio piece by **Siri Mahalaxmi Vemula** and is **not open-source**.
 
 - ❌ Forking, redistribution, or commercial use is strictly prohibited.
 - ✅ You may view the source code for educational and evaluation purposes only.
 
 **© 2026 Echoa. All rights reserved.**
-
 
 > *"Music doesn’t end with sound. Echoa is what lingers"*
