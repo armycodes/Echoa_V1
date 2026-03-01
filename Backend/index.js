@@ -401,6 +401,21 @@ app.get("/playlists", authenticateToken, async (req, res) => {
     }
 });
 
+// --- PLAY SPECIFIC PLAYLIST ROUTE ---
+app.put("/play-playlist", authenticateToken, async (req, res) => {
+    const { context_uri } = req.body;
+    try {
+        await axios.put("https://api.spotify.com/v1/me/player/play", 
+            { context_uri: context_uri }, 
+            { headers: { Authorization: `Bearer ${req.user.accessToken}` } }
+        );
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Play playlist failed:", error.response?.data || error.message);
+        res.status(500).json({ error: "Failed to play playlist" });
+    }
+});
+
 
 // --- 2. CONTROL ROUTES (NEW) ---
 // Play/Pause/Next work cheyyalante ivi undali

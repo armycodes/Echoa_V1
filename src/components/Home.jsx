@@ -1188,23 +1188,33 @@ export default function Home() {
     }
   }, [token]);
 
-  // --- 3. PLAY PLAYLIST (REAL SPOTIFY URL ✅) ---
+ // --- 3. PLAY PLAYLIST (VIA OUR BACKEND) ---
   const playPlaylist = async (playlistUri) => {
     try {
-        // 🔥 FIXED: REAL SPOTIFY API LINK 🔥
-        await fetch(`https://api.spotify.com/v1/me/player/play`, {
+        console.log("▶️ Requesting backend to play:", playlistUri);
+
+        // 🔥 USE OUR BACKEND URL 🔥
+        const response = await fetch("https://echoa-backend.onrender.com/play-playlist", {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Mana JWT token
             },
             body: JSON.stringify({
                 context_uri: playlistUri, 
             }),
         });
+
+        if (!response.ok) {
+            console.error("❌ Failed to play playlist");
+        } else {
+            console.log("✅ Playing playlist successfully!");
+        }
+        
+        // Play kottagane sidebar close avvadaniki
         setShowPlaylists(false); 
     } catch (e) {
-        console.error("Play Error", e);
+        console.error("❌ Play Error", e);
     }
   };
 
