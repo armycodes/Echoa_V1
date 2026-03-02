@@ -612,3 +612,37 @@
         right: 0;
     }
 }
+/* --- 📱 MOBILE RESPONSIVENESS FOR MAGIC MESH --- */
+@media screen and (max-width: 768px) {
+  .mesh-blob {
+    /* Mobile lo performance inka color spread bagundadaniki blur koddiga thaggistham */
+    filter: blur(60px) saturate(300%) brightness(1.2) contrast(1.1); 
+  }
+
+  /* Mobile screen vertical kabatti width sizes penchali so height cover avthundi */
+  .blob-1 {
+    width: 160vw;
+    height: 160vw;
+    top: -10%;
+    left: -30%;
+  }
+
+  .blob-2 {
+    width: 180vw;
+    height: 180vw;
+    bottom: -10%;
+    right: -40%;
+  }
+
+  .blob-3 {
+    width: 150vw;
+    height: 150vw;
+    top: 25%;
+    left: -20%;
+  }
+  
+  .blob-base {
+    width: 150vw;
+    height: 150vh;
+  }
+}
