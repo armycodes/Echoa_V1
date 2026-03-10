@@ -33,7 +33,7 @@ export const getSongMoodSearchTerm = async (songName, movieName, artistName) => 
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     
     // Safety check
     const safeMovie = movieName || "Unknown Movie";
